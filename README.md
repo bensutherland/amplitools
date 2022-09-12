@@ -15,3 +15,8 @@ Note: in variantCaller data,
 'Heterozygous' means heterozygous        
 'Homozygous' means homozygous variant         
 
+3. Convert from Allele Call to genepop 0101 format
+4. Create a block of data that can be used to format a genepop, currently `genetic_data_only_final.txt`     
+
+
+
