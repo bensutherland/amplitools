@@ -19,4 +19,12 @@ Note: in variantCaller data,
 4. Create a block of data that can be used to format a genepop, currently `genetic_data_only_final.txt`     
 
 
+Back to bash:    
+```
+head -n 1 genetic_data_only_final.txt | sed 's/\t/\n/g' > header.txt 
+echo "POP" > pop.txt
+tail -n+2 genetic_data_only_final.txt > tail.txt
+sed 's/\t/,\t/' ./tail.txt > tail_w_comma.txt
+cat header.txt pop.txt tail_w_comma.txt > my_data.gen
+```
 
