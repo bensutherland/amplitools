@@ -4,4 +4,6 @@
 *.gen
 *.fa
 *.pdf
+*.bam
+*.sam
 
