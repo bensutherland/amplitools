@@ -5,6 +5,11 @@
 # Clear space
 # rm(list=ls())
 
+## Set working directory
+current.path <- dirname(rstudioapi::getSourceEditorContext()$path)
+current.path <- gsub(pattern = "\\/01_scripts", replacement = "", x = current.path) # take main directory
+setwd(current.path)
+
 ## Install packages
 #install.packages("devtools")
 #devtools::install_github("hadley/devtools")
@@ -22,11 +27,9 @@ library("CKMRsim")
 # Load vignettes
 vignette("CKMRsim-example-1")
 
-vignette("CKMRsim-example-2-microsatellites")
-
-vignette("CKMRsim-simulating-linked-markers")
-
-vignette("CKMRsim-writing-geno-error-funcs")
+#vignette("CKMRsim-example-2-microsatellites")
+#vignette("CKMRsim-simulating-linked-markers")
+#vignette("CKMRsim-writing-geno-error-funcs")
 
 # In order to pursue simulations in the face of physical linkage, 
 # you must download and install the external dependency, Mendel version 
@@ -48,53 +51,30 @@ dim(data.df)
 # Only keep parentage samples
 data.df <- data.df[data.df$repunit=="VIU_offspring" | data.df$repunit=="VIU_parent",]
 
-
-# # TODO: Issue: column names apparently cannot be numbers? Not clear where this happened
-# test <- read.table(file = input.FN, header = T, sep = "\t")
-# test[1:10, 1:10]
-
-# #### SEP COLLS FOR PARENT/ OFFSPRING ####
-# # Add column indicating if the sample is offspring or parent
-# data.df$hierarchy <- NA
-# data.df$hierarchy[grep(pattern = "parent", x = data.df$collection)] <- "parent"
-# data.df$hierarchy[grep(pattern = "parent", x = data.df$collection, invert = T)] <- "offspring"
-# 
-# dim(data.df)
-# colnames(data.df)
-# data.df[1:100, c("indiv", "hierarchy") ]
+# TODO: issue: colnames of the rubias file apparently cannot be numbers? 
+#               Not clear where this happened
 
 
-# Remove extra cols
+# Remove annotation columns except for the indiv col
 data.df <- data.df[, grep(pattern = "sample_type|collection|repunit", x = colnames(data.df), invert = T) ]
 dim(data.df)
 data.df[1:5, 1:10]
 
-
-#### SEP COLLS END/ ####
-# # Separate parent or offspring datasets
-# parent_data.df <- data.df[data.df$hierarchy=="parent",]
-# parent_data.df[1:5,1:5]
-# dim(parent_data.df)
-# parent_data.df <- parent_data.df[, grep(pattern = "hierarchy", x = colnames(parent_data.df), invert = T)]
-# dim(parent_data.df)
-# 
-# offspring_data.df <- data.df[data.df$hierarchy!="parent",]
-# offspring_data.df[1:5,1:5]
-# dim(offspring_data.df)
-# offspring_data.df <- offspring_data.df[, grep(pattern = "hierarchy", x = colnames(offspring_data.df), invert = T)]
-# dim(offspring_data.df)
-# 
-# unique(offspring_data.df[,2])
-
-
 # For now, keep all data together
 genos <- data.df
 genos[1:5,1:5]
-dim(genos)
+dim(genos) # indiv, nloci x 2
+nloci <- (ncol(genos) - 1) / 2
+
+# Reporting
+print(paste0("You have ", nrow(genos), " indiv in the dataset"))
+print(paste0("You have ", nloci, " loci in the dataset"))
+
 
 #### 02. Compute Allele Frequencies from Genotype Data
-# From tutorial
 nc <- ncol(genos)
+
+# Find the names of each locus (only one per allele pair)
 loci <- str_replace(string = names(genos)[seq(2, nc, by = 2)]
                     , pattern = "\\.\\.\\.[0-9]+$"
                     , replacement = ""
@@ -102,17 +82,28 @@ loci <- str_replace(string = names(genos)[seq(2, nc, by = 2)]
 
 length(loci)
 
-# Reset the locus names
+# Re-add the locus names to provide .1 for allele 1 and .2 for allele 2
 names(genos)[seq(2, nc, by = 2)] <- str_c(loci, "1", sep = ".")
 names(genos)[seq(3, nc, by = 2)] <- str_c(loci, "2", sep = ".")
 
 genos[1:5,1:5]
 
+# #### Optional rarefy ####
+# # Half loci
+# dim(genos)
+# genos <- genos[,1:427]
+# genos[1:5, 420:427]
+# 
+# # Quarter loci
+# dim(genos)
+# genos <- genos[,1:213]
+# genos[1:5, 210:213]
+
 # Make into a tibble
 genos <- tibble(genos)
 genos
 
-# then make some long format genotypes
+# Make genotypes into long form
 long_genos <- genos %>% 
   
   gather(key = "loc", value = "Allele", -indiv) %>%
@@ -178,6 +169,7 @@ PO_U_logls <- extract_logls(ex1_Qs,
 
 PO_U_logls
 
+# Plot densities of lolg_ratio for FS, HS, PO, U
 ggplot(PO_U_logls,
        aes(x = logl_ratio, fill = true_relat)) +
   geom_density(alpha = 0.25)
@@ -187,6 +179,8 @@ ggplot(PO_U_logls %>% filter(true_relat %in% c("PO", "U")),
        aes(x = logl_ratio, fill = true_relat)) +
   geom_density(alpha = 0.25)
 
+
+# What about full sib vs. unrelated
 FS_U_logls <- extract_logls(ex1_Qs,
                             numer = c(FS = 1),
                             denom = c(U = 1))
@@ -195,6 +189,7 @@ ggplot(FS_U_logls %>% filter(true_relat %in% c("FS", "U")),
        aes(x = logl_ratio, fill = true_relat)) +
   geom_density(alpha = 0.25)
 
+#### Est. FPR and FNR - PO ####
 # Estimating false negative and false positive rates
 ex1_PO_is <- mc_sample_simple(ex1_Qs, 
                               nu = "PO",
@@ -209,13 +204,30 @@ ex1_PO_is_5 <- mc_sample_simple(ex1_Qs,
 
 ex1_PO_is_5
 
-#### note: skipped a few steps #####
+# Aiming for 10X smaller than the reciprocal of the number of comparisons
+ex1_PO_is_0_5 <- mc_sample_simple(ex1_Qs, 
+                                   nu = "PO",
+                                   de = "U", 
+                                   lambda_stars = seq(-10, 0, by = 1))
+ex1_PO_is_0_5
 
-# Screen out duplicates
+
+#### Est. FPR and FNR - FS ####
+ex1_FS_is <- mc_sample_simple(ex1_Qs, 
+                              nu = "FS",
+                              de = "U"
+                              , lambda_stars = seq(0, 5, by = 0.5)
+                              )
+
+ex1_FS_is
+
+##### Empirical ######
+# Screen out duplicates, for both PO and FS comparisons
 matchers <- find_close_matching_genotypes(LG = long_genos,
                                           CK = ex1_ckmr,
                                           max_mismatch = 6)
 matchers
+
 
 #### Compute Logl Ratios for All Pairwise Comparisons
 # Look for parent offspring pairs
@@ -226,7 +238,7 @@ offspring_ids <- indiv_names[grep(pattern = "F", x = indiv_names)]
 candidate_parents <- long_genos %>% 
   filter(Indiv %in% parent_ids)
 
-#unique(candidate_parents$Indiv)
+unique(candidate_parents$Indiv)
 
 candidate_offspring <- long_genos %>% 
   filter(Indiv %in% offspring_ids)
@@ -249,6 +261,7 @@ write.table(x = po_pairwise_logls_greater_than_12, file = "03_results/po_pairwis
             , sep = "\t", row.names = F, quote = F
             )
 
+#### Full sibs, juveniles #####
 fs_pairwise_logls <- pairwise_kin_logl_ratios(D1 = candidate_offspring,
                                               D2 = candidate_offspring,
                                               CK = ex1_ckmr,
@@ -257,13 +270,74 @@ fs_pairwise_logls <- pairwise_kin_logl_ratios(D1 = candidate_offspring,
                                               #num_cores = 1
                                               )
 
-fs_pairwise_logls_greater_than_12 <- fs_pairwise_logls %>%
-                                    filter(logl_ratio > 12) %>%
+fs_pairwise_logls_greater_than_5 <- fs_pairwise_logls %>%
+                                    filter(logl_ratio > 5) %>%
                                     arrange(desc(logl_ratio))
 
-write.table(x = fs_pairwise_logls_greater_than_12, file = "03_results/fs_pairwise_logls.txt"
+write.table(x = fs_pairwise_logls_greater_than_5, file = "03_results/fs_pairwise_logls_greater_than_5.txt"
             , sep = "\t", row.names = F, quote = F
 )
+
+# Observe results closer
+fs.df <- fs_pairwise_logls_greater_than_5
+
+fs.df <- separate(data = fs.df, col = "D2_indiv"
+         , into = c("fam2", "ind2"), sep = "-", remove = T
+         )
+
+fs.df <- separate(data = fs.df, col = "D1_indiv"
+                  , into = c("fam1", "ind1"), sep = "-", remove = T
+)
+
+head(fs.df)
+
+fs.df$match <- fs.df$fam2==fs.df$fam1
+table(fs.df$match)
+
+summary(fs.df$logl_ratio[fs.df$match==TRUE])
+summary(fs.df$logl_ratio[fs.df$match==FALSE])
+
+boxplot(fs.df$logl_ratio ~ fs.df$match
+        , ylab = "logl ratio"
+        , xlab = "Matched family ID")
+
+# Which families were most likely to be incorrectly matched up?
+incorr.matches <- as.data.frame(fs.df[fs.df$match==FALSE, c("fam2", "fam1")])
+sort(table(paste0(incorr.matches$fam2, "_", incorr.matches$fam1)))
+
+
+#### Full sibs, adults #####
+fs_pairwise_logls <- pairwise_kin_logl_ratios(D1 = candidate_parents,
+                                              D2 = candidate_parents,
+                                              CK = ex1_ckmr,
+                                              numer = "FS",
+                                              denom = "U", 
+                                              #num_cores = 1
+)
+
+fs_pairwise_logls_greater_than_10 <- fs_pairwise_logls %>%
+  filter(logl_ratio > 10) %>%
+  arrange(desc(logl_ratio))
+
+write.table(x = fs_pairwise_logls_greater_than_10, file = "03_results/fs_pairwise_logls_greater_than_10_parents.txt"
+            , sep = "\t", row.names = F, quote = F
+)
+
+# Observe results closer
+fs.df <- fs_pairwise_logls_greater_than_10
+
+as.data.frame(fs.df)
+
+summary(fs.df$logl_ratio[fs.df$match==TRUE])
+summary(fs.df$logl_ratio[fs.df$match==FALSE])
+
+boxplot(fs.df$logl_ratio ~ fs.df$match
+        , ylab = "logl ratio"
+        , xlab = "Matched family ID")
+
+# Which families were most likely to be incorrectly matched up?
+incorr.matches <- as.data.frame(fs.df[fs.df$match==FALSE, c("fam2", "fam1")])
+sort(table(paste0(incorr.matches$fam2, "_", incorr.matches$fam1)))
 
 
 
