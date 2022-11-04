@@ -16,11 +16,11 @@ current.path <- gsub(pattern = "\\/01_scripts", replacement = "", x = current.pa
 setwd(current.path)
 
 ## User set variables
-proton.FN <- "02_input_data/R_2022_08_04_09_19_56_user_S5XL-00533-1089-OYR-20220729_7 (2).xls"
+proton.FN <- "R_2022_08_04_09_19_56_user_S5XL-00533-1089-OYR-20220729_7 (2).xls"
 hotspot_only <- TRUE # Set as true if want to only keep known SNPs
 
 #### 00. Load data ####
-input.df <- read.delim(file = proton.FN, header = T, sep = "\t")
+input.df <- read.delim(file = paste0("02_input_data/", proton.FN), header = T, sep = "\t")
 dim(input.df)
 input.df[1:5,1:5]
 colnames(input.df)
@@ -39,9 +39,8 @@ head(proton.df)
 # Backup
 #proton.df.bck <- proton.df 
 
-dim(proton.df)
-
-print(paste0("Before selecting hotspot or hotspot and novel, there are ", length(unique(proton.df$Allele.Name)), " unique markers"))
+# Reporting
+print(paste0("Currently, there are ", length(unique(proton.df$Allele.Name)), " unique markers"))
 
 # Remove non-hotspot if required
 if(hotspot_only==TRUE){
@@ -56,14 +55,16 @@ if(hotspot_only==TRUE){
 
 #dim(proton.df)
 
-print(paste0("After hotspot filter (or not) there are ", length(unique(proton.df$Allele.Name)), " unique markers"))
+print(paste0("Currently, there are ", length(unique(proton.df$Allele.Name)), " unique markers"))
+
+# Create new identifier comprised of Run Name, Barcode, and Sample Name
+proton.df$identifier <- paste0(proton.df$Run.Name, "__", proton.df$Barcode, "__", proton.df$Sample.Name)
 
 # Format into a matrix, genetic section
 proton_trim.df <- proton.df[,c("Sample.Name", "Allele.Name", "Ref", "Variant", "Allele.Call")]
 dim(proton_trim.df)
 head(proton_trim.df)
 
-# Note: Could add additional QC here
 
 #### 01. Convert from Allele.Call to actual markers ####
 # Assign per indiv, per marker true markers for each allele
