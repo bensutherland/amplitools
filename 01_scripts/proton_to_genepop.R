@@ -19,7 +19,7 @@ setwd(current.path)
 proton.FN <- "R_2022_08_04_09_19_56_user_S5XL-00533-1089-OYR-20220729_7 (2).xls"
 hotspot_only <- TRUE # Set as true if want to only keep known SNPs
 
-#### 00. Load data ####
+#### 01. Load and format data ####
 input.df <- read.delim(file = paste0("02_input_data/", proton.FN), header = T, sep = "\t")
 dim(input.df)
 input.df[1:5,1:5]
@@ -61,14 +61,14 @@ print(paste0("Currently, there are ", length(unique(proton.df$Allele.Name)), " u
 proton.df$identifier <- paste0(proton.df$Run.Name, "__", proton.df$Barcode, "__", proton.df$Sample.Name)
 
 # Format into a matrix, genetic section
-proton_trim.df <- proton.df[,c("Sample.Name", "Allele.Name", "Ref", "Variant", "Allele.Call")]
+proton_trim.df <- proton.df[,c("identifier", "Allele.Name", "Ref", "Variant", "Allele.Call")]
 dim(proton_trim.df)
 head(proton_trim.df)
 
 
-#### 01. Convert from Allele.Call to actual markers ####
-# Assign per indiv, per marker true markers for each allele
-# Create new columns
+#### 02. Convert from Allele.Call to actual markers ####
+# Per indiv, per marker, provide true nucleotide genotype
+#  Create new columns to be filled below
 proton_trim.df$allele1 <- NA
 proton_trim.df$allele2 <- NA
 
@@ -107,14 +107,14 @@ for(i in 1:nrow(proton_trim.df)){
 }
 
 # Now have a complete, allele-based matrix
-
 head(proton_trim.df)
 
 # Save output
 write.table(x = proton_trim.df, file = "proton_data_converted.txt", quote = F, sep = "\t", row.names = F)
 #proton_trim.df.bck <- proton_trim.df
 
-#### 02. Convert to genepop marker formats ####
+
+#### 03. Convert to genepop marker formats ####
 proton_trim.df$genepop <- NA
 head(proton_trim.df)
 
