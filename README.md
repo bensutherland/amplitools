@@ -1,19 +1,34 @@
 # amplitools
-Tools for working with amplicon sequencing data
+Tools for working with amplicon sequencing data.       
+Currently designed for S5XL variantCaller output data.     
 
+## 00. Setup ##
 Put your input torrent data in folder `02_input_data`.      
+
+## 01. Conversion ##
 Open `proton_to_genepop.R`, and set the user-set variable to point to the input torrent data.     
 Choose if you want to only include hotspot SNPs, or also include novel SNPs, using the true or false variable `hotspot_only`.        
 
 This script will:      
-1. Load the data, reformat; 
-2. Convert from Allele Call to the actual alleles; 
+1. Load the data, reformat;         
+Although many columns will be present (~51), the first step will reduce this to only 14 columns:      
+"Chrom", "Position", "Ref", "Variant", "Allele.Call", "Type", "Allele.Source", "Allele.Name", "Region.Name", "Coverage", "Strand.Bias", "Sample.Name", "Barcode", "Run.Name"        
 
-Note: in variantCaller data,        
+Based on user input, novel SNPs will be dropped, keeping hotspot SNPs only.      
+A new column, 'identifier' will be created, comprised of `<RunName>__<Barcode>__<SampleName>`.      
+e.g., `R_2022_08_04_09_19_56_user_S5XL-00533-1089-OYR-20220729_7__IonCode_0501__F2-03`        
+
+
+2. Per sample, per marker, convert from Allele.Call to the actual genotypes (nucleotides); 
+
+Note: in variantCaller Allele.Call data,        
 'Absent' means homozygous reference       
 'No Call' means missing data         
 'Heterozygous' means heterozygous        
 'Homozygous' means homozygous variant         
+
+Note: this assumes that per marker, the identity of the reference and variant alleles in the line item is always the same, regardless of the specific sample.      
+
 
 3. Convert from Allele Call to genepop 0101 format
 4. Create a block of data that can be used to format a genepop, currently `genetic_data_only_final.txt`     
