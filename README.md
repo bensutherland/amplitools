@@ -6,11 +6,12 @@ Currently designed for S5XL variantCaller output data.
 Put your input torrent data in folder `02_input_data`.      
 
 ## 01. Conversion ##
-Open `proton_to_genepop.R`, and set the user-set variable to point to the input torrent data.     
-Choose if you want to only include hotspot SNPs, or also include novel SNPs, using the true or false variable `hotspot_only`.        
+Open `01_scripts/proton_to_genepop.R`.        
+Set the variable `proton.FN` to the first input torrent data filename.      
+Set the variable `hotspot_only` true or false to only include hotspot SNPs (exclude novel)        
 
 This script will:      
-1. Load the data, reformat;         
+**Load the data, reformat**         
 Although many columns will be present (~51), the first step will reduce this to only 14 columns:      
 "Chrom", "Position", "Ref", "Variant", "Allele.Call", "Type", "Allele.Source", "Allele.Name", "Region.Name", "Coverage", "Strand.Bias", "Sample.Name", "Barcode", "Run.Name"        
 
@@ -19,7 +20,7 @@ A new column, 'identifier' will be created, comprised of `<RunName>__<Barcode>__
 e.g., `R_2022_08_04_09_19_56_user_S5XL-00533-1089-OYR-20220729_7__IonCode_0501__F2-03`        
 
 
-2. Per sample, per marker, convert from Allele.Call to the actual genotypes (nucleotides); 
+**Per sample, per marker, convert from Allele.Call to the actual genotypes (nucleotides)**        
 This will also provide the column, 'genepop', which will give numeric genotypes.        
 
 Note: in variantCaller Allele.Call data,        
@@ -31,7 +32,6 @@ Note: in variantCaller Allele.Call data,
 Note: this assumes that per marker, the identity of the reference and variant alleles in the line item is always the same, regardless of the specific sample.      
 
 Your output will be written out as: `03_results/<run_name>_proton_data_converted.txt`, but this is purely for troubleshooting, this file will not be used again in the pipeline.      
-
 
 
 
