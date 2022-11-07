@@ -20,17 +20,21 @@ e.g., `R_2022_08_04_09_19_56_user_S5XL-00533-1089-OYR-20220729_7__IonCode_0501__
 
 
 2. Per sample, per marker, convert from Allele.Call to the actual genotypes (nucleotides); 
+This will also provide the column, 'genepop', which will give numeric genotypes.        
 
 Note: in variantCaller Allele.Call data,        
-'Absent' means homozygous reference       
-'No Call' means missing data         
-'Heterozygous' means heterozygous        
-'Homozygous' means homozygous variant         
+'Absent' means homozygous reference (0101)       
+'No Call' means missing data (0000)         
+'Heterozygous' means heterozygous (0102)        
+'Homozygous' means homozygous variant (0202)        
 
 Note: this assumes that per marker, the identity of the reference and variant alleles in the line item is always the same, regardless of the specific sample.      
 
+Your output will be written out as: `03_results/<run_name>_proton_data_converted.txt`, but this is purely for troubleshooting, this file will not be used again in the pipeline.      
 
-3. Convert from Allele Call to genepop 0101 format
+
+
+
 4. Create a block of data that can be used to format a genepop, currently `genetic_data_only_final.txt`     
 
 
