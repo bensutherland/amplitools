@@ -66,15 +66,18 @@ dim(proton_trim.df)
 head(proton_trim.df)
 
 
-#### 02. Convert from Allele.Call to actual markers ####
-# Per indiv, per marker, provide true nucleotide genotype
+#### 02. Convert from Allele.Call to actual markers, incl. genepop format ####
+# Per indiv, per marker, provide true nucleotide genotype (and genepop format)
 #  Create new columns to be filled below
 proton_trim.df$allele1 <- NA
 proton_trim.df$allele2 <- NA
+proton_trim.df$genepop <- NA
 
 # # For debugging
 # proton_trim.df <- head(proton_trim.df, n = 200)
 # head(proton_trim.df)
+
+print("Converting Allele.Call to genotypes, incl. genepop format. Please be patient, this may take a while")
 
 # Loop to convert Allele.Call to allele 1 and 2 for each sample and marker
 for(i in 1:nrow(proton_trim.df)){
@@ -84,69 +87,45 @@ for(i in 1:nrow(proton_trim.df)){
     
     proton_trim.df[i, "allele1"] <- proton_trim.df[i, "Ref"]
     proton_trim.df[i, "allele2"] <- proton_trim.df[i, "Ref"]
-  
+    proton_trim.df[i, "genepop"] <- "0101"
+    
   # No Call means missing data  
   }else if(proton_trim.df$Allele.Call[i]=="No Call"){
     
     proton_trim.df[i, "allele1"] <- "missing"
     proton_trim.df[i, "allele2"] <- "missing"
+    proton_trim.df[i, "genepop"] <- "0000"
   
   # Heterozygous means het 
   }else if(proton_trim.df$Allele.Call[i]=="Heterozygous"){
     
     proton_trim.df[i, "allele1"] <- proton_trim.df[i, "Ref"]
     proton_trim.df[i, "allele2"] <- proton_trim.df[i, "Variant"]
-  
+    proton_trim.df[i, "genepop"] <- "0102"
+    
   # Homozygous means homozygous variant 
   }else if(proton_trim.df$Allele.Call[i]=="Homozygous"){
     
     proton_trim.df[i, "allele1"] <- proton_trim.df[i, "Variant"]
     proton_trim.df[i, "allele2"] <- proton_trim.df[i, "Variant"]
-    
-  }
-}
-
-# Now have a complete, allele-based matrix
-head(proton_trim.df)
-
-# Save output
-write.table(x = proton_trim.df, file = "proton_data_converted.txt", quote = F, sep = "\t", row.names = F)
-#proton_trim.df.bck <- proton_trim.df
-
-
-#### 03. Convert to genepop marker formats ####
-proton_trim.df$genepop <- NA
-head(proton_trim.df)
-
-
-for(i in 1:nrow(proton_trim.df)){
-  
-  # Absent means homozygous reference
-  if(proton_trim.df[i, "Allele.Call"]=="Absent"){
-    
-    proton_trim.df[i, "genepop"] <- "0101"
-    
-  # No Call means missing data
-  }else if(proton_trim.df[i, "Allele.Call"]=="No Call"){
-    
-    proton_trim.df[i, "genepop"] <- "0000"
-    
-  # Heterozygous means heterozygous
-  }else if(proton_trim.df[i, "Allele.Call"]=="Heterozygous"){
-    
-    proton_trim.df[i, "genepop"] <- "0102"
-    
-  # Homozygous means homozygous alternate
-  }else if(proton_trim.df[i, "Allele.Call"]=="Homozygous"){
-    
     proton_trim.df[i, "genepop"] <- "0202"
     
   }
 }
 
+# Now have a complete, allele-based matrix
+head(proton_trim.df, n = 10)
+
+# Save output
+write.table(x = proton_trim.df, file = paste0("03_results/", proton.FN, "_proton_data_converted.txt")
+            , quote = F, sep = "\t", row.names = F
+            )
+#proton_trim.df.bck <- proton_trim.df
+
+
 # See summary of data
 table(proton_trim.df$genepop)
-#proton_trim.df.bck2 <- proton_trim.df
+
 
 #### 03. Structural change to matrix to prepare for genepop format ####
 
