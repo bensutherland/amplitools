@@ -33,22 +33,18 @@ Note: this assumes that per marker, the identity of the reference and variant al
 
 Your output will be written out as: `03_results/<run_name>_proton_data_converted.txt`, but this is purely for troubleshooting, this file will not be used again in the pipeline.      
 
-**Collect data into a genetic block**
+**Collect data into a genetic block**         
 The genepop genotypes, connected to the alleles, will be generated into a large dataframe, and written out as `03_results/<run_name>_genetic_data_only.txt`. (temp file only)         
 The final genepop genotypes will be named `03_results/<run_name>_genetic_data_only_final.txt`.       
 
 ## 02. Finalization of proton to genepop (bash steps) ##
-Using the final genepop genotypes, from above, do the final steps in shell.        
+Use the following script to format the genepop genotypes to a genepop file
+`01_scripts/format_genepop.sh 03_results/R_2022_08_04_09_19_56_user_S5XL-00533-1089-OYR-20220729_7_2_.xls_genetic_data_only_final.txt`        
+Note: there cannot be any spaces or special characters in the name.    
 
-Back to bash:    
-```
-head -n 1 genetic_data_only_final.txt | sed 's/\t/\n/g' > header.txt 
-echo "POP" > pop.txt
-tail -n+2 genetic_data_only_final.txt > tail.txt
-sed 's/\t/,\t/' ./tail.txt > tail_w_comma.txt
-cat header.txt pop.txt tail_w_comma.txt > my_data.gen
-```
 
+
+## 03. Other functions ##
 Align a FASTA against a reference genome to see where your markers are:       
 `./01_scripts/bwa_align.sh`
 
