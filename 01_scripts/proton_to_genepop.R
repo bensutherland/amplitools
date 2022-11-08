@@ -18,6 +18,7 @@ setwd(current.path)
 ## User set variables
 proton.FN <- "R_2022_08_04_09_19_56_user_S5XL-00533-1089-OYR-20220729_7 (2).xls"
 hotspot_only <- TRUE # Set as true if want to only keep known SNPs
+neg_control <- "BLANK" # Set based on the name of the negative control wells in the study
 
 #### 01. Load and format data ####
 input.df <- read.delim(file = paste0("02_input_data/", proton.FN), header = T, sep = "\t")
@@ -41,6 +42,7 @@ head(proton.df)
 
 # Reporting
 print(paste0("Currently, there are ", length(unique(proton.df$Allele.Name)), " unique markers"))
+num.markers <- length(unique(proton.df$Allele.Name))
 
 # Remove non-hotspot if required
 if(hotspot_only==TRUE){
@@ -120,86 +122,78 @@ head(proton_trim.df, n = 10)
 write.table(x = proton_trim.df, file = paste0("03_results/", proton.FN, "_proton_data_converted.txt")
             , quote = F, sep = "\t", row.names = F
             )
+
+# Backup
 #proton_trim.df.bck <- proton_trim.df
 
+# What are the neg. control samples? 
+unique(proton_trim.df[grep(pattern = neg_control, x = proton_trim.df$identifier), "identifier"])
+
+# Remove any neg. control samples
+dim(proton_trim.df)
+proton_trim.df <- proton_trim.df[grep(pattern = neg_control, x = proton_trim.df$identifier, invert = T), ]
+dim(proton_trim.df)
+head(proton_trim.df)
 
 # See summary of data
 table(proton_trim.df$genepop)
 
 
-#### 03. Structural change to matrix to prepare for genepop format ####
-
-# REMOVE THE BLANKs
-unique(proton_trim.df$Sample.Name)
-dim(proton_trim.df)
-head(proton_trim.df)
-
-# backup
-#proton.df.bck.bck <- proton_trim.df
-
-proton_trim.df <- proton_trim.df[proton_trim.df$Sample.Name!="BLANK", ]
-dim(proton_trim.df)
-
-head(proton_trim.df)
-str(proton_trim.df)
+#### 03. Change structure into matrix to prepare for genepop format ####
+# Confirm that all of the samples have an equal number of records
+table(table(proton_trim.df$identifier)==num.markers)
 
 # Identify all samples present
-samples <- unique(proton_trim.df$Sample.Name)
+samples <- unique(proton_trim.df$identifier)
 
-# Do all of the samples have an equal number of records? 
-table(table(proton_trim.df$Sample.Name)==592)
-### TODO: This can be improved ###
-
-# Debugging
-#samples <- head(samples, n = 110)
-
+# Per sample, loop to collect the marker names and genepop genotypes, now labeled with identifier
 # Set nulls
 soi <- NULL; line.item <- NULL; genetics.df <- NULL; line.item.df <- NULL
 
 for(i in 1:length(samples)){
   
-  print(paste0("i = ", i))
-  
-  # Take each sample
+  # Identify the sample name for this round
   soi <- samples[i]
+  
+  # Reporting
+  print(paste0("i = ", i))
   print(soi)
   
-  # Take all of the genepop identifiers
-  line.item <- proton_trim.df[proton_trim.df$Sample.Name==soi, c("Allele.Name", "genepop")]
-  #head(line.item)
+  # For this sample, retain all marker names and corresponding genepop genotypes
+  line.item <- proton_trim.df[proton_trim.df$identifier==soi, c("Allele.Name", "genepop")]
   
-  # Set colnames using Allele.Name, in horizontal form now? 
+  # For this record, set the genepop column name as the sample name
   colnames(x = line.item)[which(colnames(line.item)=="genepop")] <- soi
   
-  # Make a df
+  # Convert record to df
   line.item.df <- as.data.frame(line.item)
   
-  #head(line.item.df)
-  
-  # Build a full df
+  # Build a full df using the record
+  # If it is the first record, initialize the df
   if(i==1){
     
     genetics.df <- line.item.df
     
+  # If it is a subsequent record, merge with the existing df by marker names
   }else if(i>1){
     
     genetics.df <- merge(x = genetics.df, y = line.item.df, by = "Allele.Name", all.x = T)
-    # SHOULD INCLUDE ALL REQUIREMENT
+    # Note: the all.x is necessary here to avoid issues if the number of markers is not identical
     
   }
   
-  print(head(genetics.df))
+  #print(head(genetics.df))
   
 }
 
+# Observe output
 dim(genetics.df)
+genetics.df[1:4, 1:4]
 
-genetics.df[1:10, 1:10]
+# Save output
+write.table(x = genetics.df, file = paste0("03_results/", proton.FN, "_genetic_data_only.txt"), quote = F, sep = "\t", row.names = F)
 
-
-
-write.table(x = genetics.df, file = "genetic_data_only.txt", quote = F, sep = "\t", row.names = F)
-
+# Reshape the output
 genetics_prep.df <- t(genetics.df)
 genetics_prep.df[1:10, 1:10]
 dim(genetics_prep.df)
