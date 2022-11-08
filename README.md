@@ -5,7 +5,7 @@ Currently designed for S5XL variantCaller output data.
 ## 00. Setup ##
 Put your input torrent data in folder `02_input_data`.      
 
-## 01. Conversion ##
+## 01. Conversion from proton to genepop (R steps) ##
 Open `01_scripts/proton_to_genepop.R`.        
 Set the variable `proton.FN` to the first input torrent data filename.      
 Set the variable `hotspot_only` true or false to only include hotspot SNPs (exclude novel)        
@@ -33,10 +33,12 @@ Note: this assumes that per marker, the identity of the reference and variant al
 
 Your output will be written out as: `03_results/<run_name>_proton_data_converted.txt`, but this is purely for troubleshooting, this file will not be used again in the pipeline.      
 
+**Collect data into a genetic block**
+The genepop genotypes, connected to the alleles, will be generated into a large dataframe, and written out as `03_results/<run_name>_genetic_data_only.txt`. (temp file only)         
+The final genepop genotypes will be named `03_results/<run_name>_genetic_data_only_final.txt`.       
 
-
-4. Create a block of data that can be used to format a genepop, currently `genetic_data_only_final.txt`     
-
+## 02. Finalization of proton to genepop (bash steps) ##
+Using the final genepop genotypes, from above, do the final steps in shell.        
 
 Back to bash:    
 ```

@@ -193,26 +193,32 @@ genetics.df[1:4, 1:4]
 # Save output
 write.table(x = genetics.df, file = paste0("03_results/", proton.FN, "_genetic_data_only.txt"), quote = F, sep = "\t", row.names = F)
 
-# Reshape the output
+# Reshape the output; transpose to columns as markers
 genetics_prep.df <- t(genetics.df)
-genetics_prep.df[1:10, 1:10]
+genetics_prep.df[1:4, 1:4]
 dim(genetics_prep.df)
-indiv <- rownames(genetics_prep.df)
-test <- cbind(rownames(genetics_prep.df), genetics_prep.df)
-test[1:5,1:5]
 
-colnames(x = test) <- test[1,]
-test[1:5,1:5]
 
-colnames(test)[which(colnames(test)=="Allele.Name")] <- "indiv"
-test[1:5,1:5]
+# Include the rownames (indiv names) as a new column
+genotypes.df <- cbind(rownames(genetics_prep.df), genetics_prep.df)
+genotypes.df[1:3,1:3]
 
-# Keep all others but not that row
-test2 <- test[grep(pattern = "Allele.Name", x = test[,"indiv"], invert = T), ]
+# Use the marker names (the first row) as colnames for the object
+colnames(x = genotypes.df) <- genotypes.df[1,]
+genotypes.df[1:5,1:5]
 
-test2[1:10,1:10]
+# Rename the column 'Allele.Name' as the more correct, 'indiv' 
+colnames(genotypes.df)[which(colnames(genotypes.df)=="Allele.Name")] <- "indiv"
+genotypes.df[1:3,1:3]
 
-write.table(x = test2, file = "genetic_data_only_final.txt", quote = F, sep = "\t", row.names = F)
+# Remove the row containing the old header information (used to contain markers)
+genotypes.df <- genotypes.df[grep(pattern = "Allele.Name", x = genotypes.df[,"indiv"], invert = T), ]
 
-# Move to shell to finalize the genepop
+# View
+genotypes.df[1:5,1:5]
 
+# Save output
+paste0("03_results/", proton.FN, "_genetic_data_only.txt")
+write.table(x = genotypes.df, file = paste0("03_results/", proton.FN, "_genetic_data_only_final.txt"), quote = F, sep = "\t", row.names = F)
+
+# See README for directions on completing the genepop in shell
