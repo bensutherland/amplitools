@@ -6,4 +6,6 @@
 *.pdf
 *.bam
 *.sam
+*.xlsx
+*Rhistory
 
