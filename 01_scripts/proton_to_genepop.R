@@ -16,7 +16,7 @@ current.path <- gsub(pattern = "\\/01_scripts", replacement = "", x = current.pa
 setwd(current.path)
 
 ## User set variables
-proton.FN <- "R_2022_08_04_09_19_56_user_S5XL-00533-1089-OYR-20220729_7 (2).xls"
+proton.FN <- "R_2022_10_07_S5XL.xls"
 hotspot_only <- TRUE # Set as true if want to only keep known SNPs
 neg_control <- "BLANK" # Set based on the name of the negative control wells in the study
 
