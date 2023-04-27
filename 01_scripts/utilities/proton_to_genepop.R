@@ -258,6 +258,4 @@ proton_to_genepop <- function(hotspot_only = TRUE, neg_control="BLANK"){
   
 }
 
-
-
 # See README for directions on completing the genepop in shell
