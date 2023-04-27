@@ -1,71 +1,73 @@
 # Load and convert proton data to genepop format
 # Sutherland Bioinformatics, 2022-09-09
 
-# clear workspace
-#rm(list=ls())
+proton_to_genepop <- function(data = obj, hotspot_only = TRUE, neg_control="BLANK"){
 
-#### Front Matter ####
-options(scipen = 99999999)
-
-## Install packages and load libraries
-
-
-## Set working directory
-current.path <- dirname(rstudioapi::getSourceEditorContext()$path)
-current.path <- gsub(pattern = "\\/01_scripts", replacement = "", x = current.path) # take main directory
-setwd(current.path)
-
-## User set variables
-proton.FN <- "R_2022_10_07_S5XL.xls"
-hotspot_only <- TRUE # Set as true if want to only keep known SNPs
-neg_control <- "BLANK" # Set based on the name of the negative control wells in the study
-
-#### 01. Load and format data ####
-input.df <- read.delim(file = paste0("02_input_data/", proton.FN), header = T, sep = "\t")
-dim(input.df)
-input.df[1:5,1:5]
-colnames(input.df)
-
-# Reduce to only keep necessary cols
-proton.df  <- input.df[,c("Chrom", "Position", "Ref"
-                      , "Variant", "Allele.Call", "Type", "Allele.Source"
-                      , "Allele.Name", "Region.Name", "Coverage", "Strand.Bias"
-                      , "Sample.Name", "Barcode", "Run.Name")]
-
-rm(input.df) # Clean space
-
-dim(proton.df)
-head(proton.df)
-
-# Backup
-#proton.df.bck <- proton.df 
-
-# Reporting
-print(paste0("Currently, there are ", length(unique(proton.df$Allele.Name)), " unique markers"))
-num.markers <- length(unique(proton.df$Allele.Name))
-
-# Remove non-hotspot if required
-if(hotspot_only==TRUE){
+  inputs <- list.files(path = "02_input_data/", pattern = ".xls")
   
-  # Reporting
-  print("Removing novel (non-hotspot) markers")
+  # Set nulls
+  input.df <- NULL
   
-  # Retain hotspot SNPs only
-  proton.df <- proton.df[proton.df$Allele.Source=="Hotspot",]
+  for(i in 1:length(inputs)){
+    
+    
+    #### 01. Read in input, create run.name__barcode__sample.name identifier, then reduce to essential columns ####
+    # Read in input
+    print(paste0("Reading in file ", inputs[i]))
+    input.df <- read.delim(file = paste0("02_input_data/", inputs[i]), header = T, sep = "\t")
+    print("Data loaded; rows, cols:")
+    print(dim(input.df))
+    
+    # Reduce columns
+    print("Reducing columns to retain essentials")
+    
+    input.df  <- input.df[,c("Chrom", "Position", "Ref"
+                              , "Variant", "Allele.Call", "Type", "Allele.Source"
+                              , "Allele.Name", "Region.Name", "Coverage", "Strand.Bias"
+                              , "Sample.Name", "Barcode", "Run.Name")]
+    
+    print("Columns limited; rows, cols:")
+    print(dim(input.df))
+    
+    # Reporting
+    print(paste0("Currently, there are ", length(unique(input.df$Allele.Name)), " unique markers"))
+    num.markers <- length(unique(input.df$Allele.Name))
+    
+    
+    # Remove non-hotspot if required
+    if(hotspot_only==TRUE){
+      
+      # Reporting
+      print("Removing novel (non-hotspot) markers")
+      
+      # Retain hotspot SNPs only
+      input.df <- input.df[input.df$Allele.Source=="Hotspot",]
+      
+      print(paste0("Currently, there are ", length(unique(input.df$Allele.Name)), " unique markers"))
+      
+    }
+    
+    # Create new identifier comprised of Run Name, Barcode, and Sample Name
+    input.df$identifier <- paste0(input.df$Run.Name, "__", input.df$Barcode, "__", input.df$Sample.Name)
+    
+    # Format into a matrix, genetic section
+    input.df <- input.df[,c("identifier", "Allele.Name", "Ref", "Variant", "Allele.Call")]
+    #dim(input.df)
+    #head(input.df)
+    
+    # Reporting
+    print("Currently the dataset is comprised of: ")
+    print(paste0(length(unique(input.df$identifier)), " samples"))
+    print(paste0(length(unique(input.df$Allele.Name)), " markers"))
+    
+    
+    
+    
+    
+  }
   
-}
-
-#dim(proton.df)
-
-print(paste0("Currently, there are ", length(unique(proton.df$Allele.Name)), " unique markers"))
-
-# Create new identifier comprised of Run Name, Barcode, and Sample Name
-proton.df$identifier <- paste0(proton.df$Run.Name, "__", proton.df$Barcode, "__", proton.df$Sample.Name)
-
-# Format into a matrix, genetic section
-proton_trim.df <- proton.df[,c("identifier", "Allele.Name", "Ref", "Variant", "Allele.Call")]
-dim(proton_trim.df)
-head(proton_trim.df)
+  
+  }
 
 
 #### 02. Convert from Allele.Call to actual markers, incl. genepop format ####
