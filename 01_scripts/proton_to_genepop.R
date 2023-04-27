@@ -1,7 +1,7 @@
 # Load and convert proton data to genepop format
 # Sutherland Bioinformatics, 2022-09-09
 
-proton_to_genepop <- function(data = obj, hotspot_only = TRUE, neg_control="BLANK"){
+proton_to_genepop <- function(hotspot_only = TRUE, neg_control="BLANK"){
 
   inputs <- list.files(path = "02_input_data/", pattern = ".xls")
   
@@ -52,93 +52,110 @@ proton_to_genepop <- function(data = obj, hotspot_only = TRUE, neg_control="BLAN
     
     # Format into a matrix, genetic section
     input.df <- input.df[,c("identifier", "Allele.Name", "Ref", "Variant", "Allele.Call")]
-    #dim(input.df)
-    #head(input.df)
     
     # Reporting
     print("Currently the dataset is comprised of: ")
     print(paste0(length(unique(input.df$identifier)), " samples"))
     print(paste0(length(unique(input.df$Allele.Name)), " markers"))
     
+    # The data is now in 5 cols, with sample identifier, allele name, ref, variant, and the geno call for the sample
+    head(input.df)
+    
+    #### 02. Convert allele calls to markers  ####
+    # Per indiv, per marker, convert to actual genotype in genepop format
+    
+    # Create blank cols to be filled
+    input.df$allele1 <- NA
+    input.df$allele2 <- NA
+    input.df$genepop <- NA
+    
+    # Reporting
+    print("Converting Allele.Call to genotypes, incl. genepop format. Please be patient, this may take a while")
+    print(paste0("Your dataset has ", nrow(input.df), " rows (1 row is 1 marker for 1 indiv.)"))
+    
+    # Loop to convert Allele.Call to allele 1 and 2 for each sample and marker
+    print("Note: both actual nucleotides and the genepop format genotype will be retained in output")
+    for(i in 1:nrow(input.df)){
+      
+      # Absent means homozygous reference
+      if(input.df$Allele.Call[i]=="Absent"){
+        
+        input.df[i, "allele1"] <- input.df[i, "Ref"]
+        input.df[i, "allele2"] <- input.df[i, "Ref"]
+        input.df[i, "genepop"] <- "0101"
+        
+        # No Call means missing data  
+      }else if(input.df$Allele.Call[i]=="No Call"){
+        
+        input.df[i, "allele1"] <- "missing"
+        input.df[i, "allele2"] <- "missing"
+        input.df[i, "genepop"] <- "0000"
+        
+        # Heterozygous means het 
+      }else if(input.df$Allele.Call[i]=="Heterozygous"){
+        
+        input.df[i, "allele1"] <- input.df[i, "Ref"]
+        input.df[i, "allele2"] <- input.df[i, "Variant"]
+        input.df[i, "genepop"] <- "0102"
+        
+        # Homozygous means homozygous variant 
+      }else if(input.df$Allele.Call[i]=="Homozygous"){
+        
+        input.df[i, "allele1"] <- input.df[i, "Variant"]
+        input.df[i, "allele2"] <- input.df[i, "Variant"]
+        input.df[i, "genepop"] <- "0202"
+        
+      }
+    }
+    
+    # Reporting
+    if(length(table(is.na(input.df$genepop)))==1){
+      
+      print("Completed conversion successfully")
+      
+    }else{
+      
+      #stop("There are NAs in the genepop formatted column, stopping function")
+      ## the problem with this is that it will become hard to troubleshoot if it just crashes after the long run, #TODO: save output then crash
+      
+    }
+    
+    # Now have a complete, allele-based matrix
+    head(input.df, n = 10)
+    
+    # # Save output
+    # write.table(x = proton_trim.df, file = paste0("03_results/", proton.FN, "_proton_data_converted.txt")
+    #             , quote = F, sep = "\t", row.names = F
+    # )
+     
+    
+    # Removing negative control samples
+    # What are the neg. control samples?
+    print(paste0("Removing, ", length(unique(input.df[grep(pattern = neg_control, x = input.df$identifier), "identifier"]))
+                 , " negative control samples."))
+    
+    # Remove any neg. control samples
+    print(paste0("Size of df prior to removal: ", nrow(input.df), " rows and ", ncol(input.df), " cols"))
+    print(paste0("Includes ", length(unique(input.df$identifier)), " samples"))
+    input.df <- input.df[grep(pattern = neg_control, x = input.df$identifier, invert = T), ]
+    print(paste0("Size of df after removal: ", nrow(input.df), " rows and ", ncol(input.df), " cols"))
+    print(paste0("Includes ", length(unique(input.df$identifier)), " retained samples"))
+    
+    ## Reporting
+    # Output genotype summary
+    print(table(input.df$genepop))
+    print(paste0("Total number of genotypes in formatted output: ", sum(table(input.df$genepop))))
+    
     
     
     
     
   }
   
-  
-  }
-
-
-#### 02. Convert from Allele.Call to actual markers, incl. genepop format ####
-# Per indiv, per marker, provide true nucleotide genotype (and genepop format)
-#  Create new columns to be filled below
-proton_trim.df$allele1 <- NA
-proton_trim.df$allele2 <- NA
-proton_trim.df$genepop <- NA
-
-# # For debugging
-# proton_trim.df <- head(proton_trim.df, n = 200)
-# head(proton_trim.df)
-
-print("Converting Allele.Call to genotypes, incl. genepop format. Please be patient, this may take a while")
-
-# Loop to convert Allele.Call to allele 1 and 2 for each sample and marker
-for(i in 1:nrow(proton_trim.df)){
-  
-  # Absent means homozygous reference
-  if(proton_trim.df$Allele.Call[i]=="Absent"){
-    
-    proton_trim.df[i, "allele1"] <- proton_trim.df[i, "Ref"]
-    proton_trim.df[i, "allele2"] <- proton_trim.df[i, "Ref"]
-    proton_trim.df[i, "genepop"] <- "0101"
-    
-  # No Call means missing data  
-  }else if(proton_trim.df$Allele.Call[i]=="No Call"){
-    
-    proton_trim.df[i, "allele1"] <- "missing"
-    proton_trim.df[i, "allele2"] <- "missing"
-    proton_trim.df[i, "genepop"] <- "0000"
-  
-  # Heterozygous means het 
-  }else if(proton_trim.df$Allele.Call[i]=="Heterozygous"){
-    
-    proton_trim.df[i, "allele1"] <- proton_trim.df[i, "Ref"]
-    proton_trim.df[i, "allele2"] <- proton_trim.df[i, "Variant"]
-    proton_trim.df[i, "genepop"] <- "0102"
-    
-  # Homozygous means homozygous variant 
-  }else if(proton_trim.df$Allele.Call[i]=="Homozygous"){
-    
-    proton_trim.df[i, "allele1"] <- proton_trim.df[i, "Variant"]
-    proton_trim.df[i, "allele2"] <- proton_trim.df[i, "Variant"]
-    proton_trim.df[i, "genepop"] <- "0202"
-    
-  }
 }
 
-# Now have a complete, allele-based matrix
-head(proton_trim.df, n = 10)
 
-# Save output
-write.table(x = proton_trim.df, file = paste0("03_results/", proton.FN, "_proton_data_converted.txt")
-            , quote = F, sep = "\t", row.names = F
-            )
 
-# Backup
-#proton_trim.df.bck <- proton_trim.df
-
-# What are the neg. control samples? 
-unique(proton_trim.df[grep(pattern = neg_control, x = proton_trim.df$identifier), "identifier"])
-
-# Remove any neg. control samples
-dim(proton_trim.df)
-proton_trim.df <- proton_trim.df[grep(pattern = neg_control, x = proton_trim.df$identifier, invert = T), ]
-dim(proton_trim.df)
-head(proton_trim.df)
-
-# See summary of data
-table(proton_trim.df$genepop)
 
 
 #### 03. Change structure into matrix to prepare for genepop format ####
