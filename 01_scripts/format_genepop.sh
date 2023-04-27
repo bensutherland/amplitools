@@ -31,8 +31,8 @@ echo "formatting $INPUT"
 # Create pathless FILENAME (see above)
 shortname=$(basename $INPUT)
 
-# Create output filename
-OUT_FN=$(echo $INPUT | sed 's/.txt/.gen/g')
+# Create output filename, updating .txt to .gen, and output folder from prepped_matrices to prepped_genepops
+OUT_FN=$(echo $INPUT | sed 's/.txt/.gen/g' | sed 's/prepped_matrices/prepped_genepops/g')
 
 # Create temp header (i.e., filename in top row followed by each marker name per row
 head -n 1 $INPUT | sed 's/\t/\n/g' | 
