@@ -7,7 +7,17 @@
 # Clear space
 # rm(list=ls())
 
-# Install packages
+# Install and load packages
+#install.packages("devtools")
+#devtools::install_github("hadley/devtools")
+#install.packages("Rcpp")
+#install.packages("tidyverse")
+#devtools::install_github("eriqande/CKMRsim", build_vignettes = TRUE)
+
+#library("Rcpp")
+library("devtools")
+library("tidyverse")
+library("CKMRsim")
 
 
 ## Set working directory
