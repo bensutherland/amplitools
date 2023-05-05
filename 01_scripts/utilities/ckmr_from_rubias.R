@@ -9,29 +9,27 @@
 #vignette("CKMRsim-example-1")
 ## ...other vignettes available from CKMRsim page
 
-ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", parent_pop = "VIU_F1", offspring_pop = "VIU_F2", parent_pattern = "BR"){
+ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", parent_pop = "VIU_F1", offspring_pop = "VIU_F2", parent_pattern = "BR"
+                             , cutoff = 5){
   
-  #### 01. Read in genotype dataset ####
+  #### 01. Read in genotype dataset, keep selected pops, and remove extra annot ####
+  print(paste0("Reading in data from ", input.FN))
   data.df <- read.delim(file = input.FN, header = T, sep = "\t")
-  print(data.df[1:10, 1:10]) # note: numeric header receives 'X' prefix
-  
-  # Reporting
+  #print(data.df[1:10, 1:10]) # note: numeric header receives 'X' prefix
   print(paste0("The data has ", nrow(data.df), " rows and ", ncol(data.df), " columns"))
   
   # Only keep parentage samples
+  print(paste0("Keeping only the samples noted as the parent_pop: '", parent_pop, "'; or as the offspring_pop: '", offspring_pop))
   data.df <- data.df[data.df$repunit==parent_pop | data.df$repunit==offspring_pop, ]
-  print(data.df[1:10, 1:10])
-  
-  # Reporting
   print(paste0("The selected data has ", nrow(data.df), " rows and ", ncol(data.df), " columns"))
   
   # Remove annotation columns except for the indiv col
-  print("Removing annotation columns except the one containing individual names")
+  print("Removing annotation columns 'sample_type|collection|repunit', and keeping the column with individual names")
   data.df <- data.df[, grep(pattern = "sample_type|collection|repunit", x = colnames(data.df), invert = T) ]
   print(data.df[1:5, 1:10])
   
   # Reporting
-  print(paste0("The selected, trimmed data has ", nrow(data.df), " rows and ", ncol(data.df), " columns"))
+  print(paste0("After removing extra annotation columns, the selected data has ", nrow(data.df), " rows and ", ncol(data.df), " columns"))
   
   # For now, keep parents and offspring together
   genos <- data.df
@@ -40,8 +38,8 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   
   
   #### 02. Compute Allele Frequencies from Genotype Data ####
-  print("Computing allele frequences")
-  nc <- ncol(genos) # note: this will include the indiv ID column first
+  print("Computing allele frequences on selected samples")
+  nc <- ncol(genos) # note: the col count also includes the 1st col, indiv ID
   
   ## Rename columns ##
   # Find the names of each locus (only one per allele pair)
@@ -54,7 +52,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   names(genos)[seq(2, nc, by = 2)] <- str_c(loci, "1", sep = ".")
   names(genos)[seq(3, nc, by = 2)] <- str_c(loci, "2", sep = ".")
   
-  genos[1:5,1:5]
+  print(genos[1:5,1:5])
   
   # ## Optional rarefy ##
   # # Half loci
@@ -69,11 +67,11 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   # ## /END/ Optional rarefy ##
   
   # Make into a tibble
-  print("Making genotypes into a tibble")
+  print("Converting to a tibble")
   genos <- tibble(genos)
   print(genos)
   
-  # Convert genotypes into long form (from tutorial)
+  # Convert genotypes into long form (from CKMRsim tutorial)
   print("Converting genotypes to long form")
   long_genos <- genos %>% 
     
@@ -89,8 +87,8 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   
   print(long_genos)
   
-  # Generate allele frequencies (from tutorial)
-  print("Generating allele frequencies")
+  # Calculate allele frequencies (from CKMRsim tutorial)
+  print("Calculating allele frequencies")
   alle_freqs <- long_genos %>%
     
     count(Locus, Allele) %>%
@@ -121,7 +119,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   
   
   #### 03. Create a CKMR object ####
-  print("To create a CKMR object will use the kappas df supplied with CKMRsim")
+  print("Create a CKMR object by using the kappas df supplied with CKMRsim")
   print(kappas) # data supplied with package
   
   # Create ckmr object
@@ -158,12 +156,15 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   print(PO_U_logls)
   
   # Plot densities of logl_ratio for FS, HS, PO, U
-  print("Plotting densities of logl_ratios for Parent-Offspring and Unrelated")
+  print("Plotting densities of logl_ratios for parent-offspring (PO) and unrelated (U)")
   print("Saving density plot as 03_results/logl_ratio_u_hs_fs_po.pdf")
-  pdf(file = "03_results/logl_ratio_u_hs_fs_po.pdf", width = 7, height = 5)
-  ggplot(PO_U_logls,
+  
+  p <- ggplot(PO_U_logls,
          aes(x = logl_ratio, fill = true_relat)) +
-    geom_density(alpha = 0.25)
+       geom_density(alpha = 0.25)
+  
+  pdf(file = "03_results/logl_ratio_u_hs_fs_po.pdf", width = 7, height = 5)
+  print(p)
   dev.off()
   
   # # Plot densities for logl_ratio for U, PO (only consider PO and U from true_relat)
@@ -175,7 +176,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   
   
   # Computing logl: FS, U
-  print("Extracting logl from simultated fullsib compared to unrelated")
+  print("Extracting logl from simultated fullsib (FS) compared to unrelated (U)")
   FS_U_logls <- extract_logls(ex1_Qs,
                               numer = c(FS = 1),
                               denom = c(U = 1))
@@ -189,56 +190,56 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   # dev.off()
   
   
-  #### 05. Estimate False Positive Rate and False Negative Rate ####
+  #### 05. Estimate false positive rates and false negative rates ####
   print("Estimating false positive and false negative rates")
-  # PO/U
   
-  # Estimating false negative and false positive rates
-  # by default will compute FPR assoc. with FNR of 0.3, 0.2, 0.1, 0.05, 0.01, 0.001
+  # PO/U
+  # by default computes FPR assoc. with FNR of 0.3, 0.2, 0.1, 0.05, 0.01, 0.001
   ex1_PO_is <- mc_sample_simple(ex1_Qs, 
                                 nu = "PO",
                                 de = "U")
   
-  ex1_PO_is
-  # This shows FPR ~7e-17 when FNR is 0.01
+  print("Follows is the default FPR assoc. with FNR of 0.01, 0.05, 0.1, 0.2, 0.3")
+  print(ex1_PO_is)
   
   # What would the results look like if we use a logl ratio of 5 as a cutoff (from tutorial)
+  print("Consider results if use logl = 5 as a cutoff? i.e.,  lamdba_stars = 5")
   ex1_PO_is_5 <- mc_sample_simple(ex1_Qs, 
                                   nu = "PO",
                                   de = "U", 
                                   lambda_stars = 5)
   
-  ex1_PO_is_5
-  # FPR ~1e-12 if we use logl ratio cutoff of 5
+  print(ex1_PO_is_5)
   
   # What cutoff do we want to use? 
-  
-  ### TODO: needs generalization ###
-  
   # How many potential adults and offspring in the study? 
-  num_parents <- length(grep(pattern = parent_pattern, x = data.df$indiv))             # 49 adults
-  num_offspring <- length(grep(pattern = parent_pattern, x = data.df$indiv, invert = T)) # 102 offspring
+  num_parents <- length(grep(pattern = parent_pattern, x = data.df$indiv))
+  num_offspring <- length(grep(pattern = parent_pattern, x = data.df$indiv, invert = T))
   print(paste0("With ", num_parents, " possible parents and ", num_offspring, " possible offspring, "))
-  print(paste0("...there are ", num_parents * num_offspring, " pairs being tested.")) # 4998
+  print(paste0("...there are ", num_parents * num_offspring, " pairs being tested. (i.e., num parents x num offspring)"))
   
   # per pair FPR 3e-14 would leave us with expected number of FP: 
-  print(paste0("Considering the FPR above for a logl ratio of 5, this leaves us with: "))
+  print(paste0("Considering the FPR above for a logl ratio of 5, '"
+               , formatC(ex1_PO_is_5$FPR[1], format = "e", digits = 2) 
+               ,"', this leaves us with: ")
+        )
   print(paste0(    formatC(num_parents * num_offspring * ex1_PO_is_5$FPR[1], format = "e", digits = 2)
                , " possible false positive pairs"))
   
-  print("The vignette recommends requiring an FPR that is ~10-100 times smaller than the reciprocal of the number of comparisons, which for this data would be:")
+  print("The vignette recommends req. FPR that is ~10-100 times smaller than the reciprocal of the number of comparisons, which for this data would be:")
   print(  formatC(0.1 * (num_parents * num_offspring) ^ (-1) , format = "e", digits= 2))
-  print("If this value is ~10-100 times larger than your calculated FPR, then you should be good.")
+  print("If this value is ~10-100 times larger than your calculated FPR, then proceed.")
   
   # View what other logl Lambda_star would provide
-  print("For comparison, see what other lamda_star values would produce")
+  print("For comparison, also see what other lamda_star values would produce: ")
   ex1_PO_is_5_30 <- mc_sample_simple(ex1_Qs, 
                                      nu = "PO",
                                      de = "U", 
                                      lambda_stars = seq(5, 30, by = 2))
   print(ex1_PO_is_5_30)
   
-  ## Fullsib FPR and FNR
+  
+  ## FS/U
   print("Also estimating FPR and FNR for fullsibs vs. unrelated")
   ex1_FS_is <- mc_sample_simple(ex1_Qs, 
                                 nu = "FS",
@@ -249,26 +250,37 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   print(ex1_FS_is)
   
   # How many potential pairs? 
-  ### TODO ###
+  print(paste0("With ", num_offspring, " offspring, there are ", num_offspring * num_offspring, " pairs being tested."))
   
-  num_offspring * num_offspring
+  # TODO: do we also need to choose logl for these?
+  print("The vignette recommends req. FPR that is ~10-100 times smaller than the reciprocal of the number of comparisons, which for this data would be:")
+  print(  formatC(0.1 * (num_offspring * num_offspring) ^ (-1) , format = "e", digits= 2))
+  print("If this value is ~10-100 times larger than your calculated FPR, then proceed.")
   
+  print("***Completed selection of logl cutoffs***")
   
   #### 06. Screen out duplicates ####
+  print("Before proceeding, check for duplicate individuals that exist in the dataset using the 'find_close_matching_genotypes() function'")
   matchers <- find_close_matching_genotypes(LG = long_genos,
                                             CK = ex1_ckmr,
-                                            max_mismatch = 6)
+                                            max_mismatch = 6
+                                            )
   print(matchers)
-  print("If the above is empty, then there are no close matching individuals (no replicates)")
+  print("If the above printed df is empty, then there are no close matching individuals (no replicate individuals)")
   
   
   #### 07. Compute logl ratios for all pairwise comparisons to look for parent offspring pairs ####
+  print("Computing logl ratios for all pairwise comparisons to identify parent-offspring pairs")
+  print(paste0("Here, parents are defined by the pattern '", parent_pattern, "' in their indiv name"))
+  print(paste0("...and offspring are all other samples without this pattern"))
+  
+  
   # Identify parent and offspring IDs
   indiv_names <- unique(long_genos$Indiv)
   parent_ids <- indiv_names[grep(pattern = parent_pattern, x = indiv_names)]
   offspring_ids <- indiv_names[grep(pattern = parent_pattern, x = indiv_names, invert = T)]
   
-  ### NOTE: will need a solution here too, if the indiv name does not hold the brood year
+  ### TODO NOTE for db mgmt: will need a solution here too, if the indiv name does not hold the brood year
   
   print("Separating parent and offspring data")
   
@@ -287,7 +299,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   print(unique(candidate_offspring$Indiv))
   
   # Compute parent-offspring logls
-  print("Estimating pairwise logl ratios from empirical data")
+  print("Estimating PO pairwise logl ratios from empirical data")
   po_pairwise_logls <- pairwise_kin_logl_ratios(D1 = candidate_parents, 
                                                 D2 = candidate_offspring, 
                                                 CK = ex1_ckmr,
@@ -296,20 +308,23 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
                                                 #num_cores = 1
   )
   
-  ### TODO: this should be a flag
-  cutoff <- 5
-  
+
+  # Keep pairwise that are above the logl threshold
+  print(paste0("Keeping pairwise logls above set threshold logl = ", cutoff))
   po_pairwise_logls_over_threshold <- po_pairwise_logls %>%
     filter(logl_ratio > cutoff) %>%
     arrange(desc(logl_ratio))
   
-  print("Writing out data as '03_results/po_pairwise_logls.txt'")
-  write.table(x = po_pairwise_logls_over_threshold, file = "03_results/po_pairwise_logls.txt"
+  # Write out results
+  po_output.FN <- paste0("03_results/po_pairwise_logls_greater_than_", cutoff, ".txt")
+  print(paste0("Writing out data as ", po_output.FN))
+  write.table(x = po_pairwise_logls_over_threshold, file = po_output.FN
               , sep = "\t", row.names = F, quote = F
   )
   
   
   ## Compute offspring-offspring logls
+  print("Estimating FS (offspring) pairwise logl ratios from empirical data")
   fs_pairwise_logls <- pairwise_kin_logl_ratios(D1 = candidate_offspring,
                                                 D2 = candidate_offspring,
                                                 CK = ex1_ckmr,
@@ -318,18 +333,22 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
                                                 #num_cores = 1
   )
   
-  # Keeping only those greater than 5
-  fs_pairwise_logls_greater_than_5 <- fs_pairwise_logls %>%
+  # Keeping only those greater than cutoff
+  fs_pairwise_logls_over_threshold <- fs_pairwise_logls %>%
     filter(logl_ratio > cutoff) %>%
     arrange(desc(logl_ratio))
   
-  print("Writing out data as '03_results/fs_pairwise_logls_greater_than_5.txt'")
-  write.table(x = fs_pairwise_logls_greater_than_5, file = "03_results/fs_pairwise_logls_greater_than_5.txt"
+  # Write out results
+  fs_output.FN <- paste0("03_results/offspring_fs_pairwise_logls_greater_than_", cutoff, ".txt")
+  
+  print(paste0("Writing out data as ", fs_output.FN))
+  write.table(x = fs_pairwise_logls_over_threshold, file = fs_output.FN
               , sep = "\t", row.names = F, quote = F
   )
   
   
-  ## Compute offspring-offspring logls
+  ## Compute parental FS logls
+  print("Estimating FS (parent) pairwise logl ratios from empirical data")
   fs_pairwise_logls_parents <- pairwise_kin_logl_ratios(D1 = candidate_parents,
                                                         D2 = candidate_parents,
                                                         CK = ex1_ckmr,
@@ -338,16 +357,19 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
                                                         #num_cores = 1
   )
   
-  fs_pairwise_logls_parents_greater_than_5 <- fs_pairwise_logls_parents %>%
+  # Keeping only those greater than cutoff
+  fs_pairwise_logls_parents_over_threshold <- fs_pairwise_logls_parents %>%
     filter(logl_ratio > cutoff) %>%
     arrange(desc(logl_ratio))
   
-  print("Writing out data as '03_results/fs_pairwise_logls_greater_than_5_parents.txt'")
-  write.table(x = fs_pairwise_logls_parents_greater_than_5, file = "03_results/fs_pairwise_logls_greater_than_5_parents.txt"
+  # Write out results
+  fs_output_parents.FN <- paste0("03_results/parent_fs_pairwise_logls_greater_than_", cutoff, ".txt")
+  print(paste0("Writing out data as ", fs_output_parents.FN))
+  write.table(x = fs_pairwise_logls_parents_over_threshold, file = fs_output_parents.FN
               , sep = "\t", row.names = F, quote = F
   )
   
-  #### TODO: update the names a bit, and ensure FPR and FNR was assessed and reported for PO, FS (offspring), and FS (parents)
+  #### TODO: FPR and FNR assessed and reported for FS (parents)
 
 }
 
