@@ -26,3 +26,7 @@ obj_nr_best
 
 # Source 00_initiator.R
 
+# Estimate log likelihoods from the data and simulated sibs/ parents, then calculate on your existing data
+# provide logl cutoff
+ckmr_from_rubias(input.FN = "03_prepped_data/cgig_all_rubias.txt", parent_pop = "VIU_F1", offspring_pop = "VIU_F2", parent_pattern = "BR", cutoff = 5)
+
