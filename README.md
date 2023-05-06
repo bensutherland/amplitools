@@ -56,7 +56,7 @@ This function will also output a genind file to the global environment containin
 
 
 ## 03. Population genetic analysis example ##
-Follow the interactive script or adapt similar steps to filter and analyze your genepop as shown in        
+You can now use the genepop created above, or the genind from (02), to analyze your data in simple_pop_stats or elsewhere. For example, follow the interactive script or adapt similar steps to filter and analyze your genepop as shown in:        
 `ms_amplicon_panel/01_scripts/sps_popgen_analysis.R`       
 
 
