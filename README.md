@@ -1,24 +1,23 @@
 # amplitools
-Tools for working with amplicon sequencing data.       
-Currently designed for S5XL variantCaller output data.     
+Tools for working with amplicon sequencing data.        
+In development stage. No guarantees of usefulness.        
 
-## 00. Setup ##
-Put your input torrent data in folder `02_input_data`.      
+Platforms supported:       
+- Ion Torrent
 
-## 01. Conversion from proton to genepop (R steps) ##
-Open `01_scripts/proton_to_genepop.R`.        
-Set the variable `proton.FN` to the first input torrent data filename.      
-Set the variable `hotspot_only` true or false to only include hotspot SNPs (exclude novel)        
+Requirements:       
+- Linux or Mac system
+- R (and packages within RScripts herein)
 
-This script will:      
-**Load the data, reformat**         
-Although many columns will be present (~51), the first step will reduce this to only 14 columns:      
-"Chrom", "Position", "Ref", "Variant", "Allele.Call", "Type", "Allele.Source", "Allele.Name", "Region.Name", "Coverage", "Strand.Bias", "Sample.Name", "Barcode", "Run.Name"        
+## 01. Convert input to nucleotide and genepop formats ##
+Put any number of tab-delimited Ion Torrent VariantCaller output (*.xls) in `02_input_data`.      
+Per file, the following function will convert genotype calls to nucleotide and genepop formats and output a multilocus genotype matrix:        
+`proton_to_genepop(hotspot_only=TRUE, neg_control="BLANK")`          
+flags:      
+- hotspot_only (T/F) will select only the hotspot targets, not novel variants (note: F not implem. yet)
+- neg_control is the string indicating negative controls
 
-Based on user input, novel SNPs will be dropped, keeping hotspot SNPs only.      
-A new column, 'identifier' will be created, comprised of `<RunName>__<Barcode>__<SampleName>`.      
-e.g., `R_2022_08_04_09_19_56_user_S5XL-00533-1089-OYR-20220729_7__IonCode_0501__F2-03`        
-
+Note: will create sample identifiers in the form of `<RunName>__<Barcode>__<SampleName>`.        
 
 **Per sample, per marker, convert from Allele.Call to the actual genotypes (nucleotides)**        
 This will also provide the column, 'genepop', which will give numeric genotypes.        
