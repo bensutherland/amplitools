@@ -8,6 +8,9 @@ Platforms supported:
 Requirements:       
 - Linux or Mac system
 - R (and packages within Rscripts therein)
+- [simple_pop_stats](https://github.com/bensutherland/simple_pop_stats)
+- [ms_amplicon_panel](https://github.com/bensutherland/ms_amplicon_panel) for demo analysis
+- [CKMRsim](https://github.com/eriqande/CKMRsim)
 
 ## 01. Convert input to genepop format ##
 #### Create genotype block ####
@@ -37,7 +40,28 @@ For each prepped matrix (see above), run the following bash script to create sam
 This will output as `02_input_data/prepped_genepops/*.gen`       
 
 
-## 02. 
+## 02. Compare technical replicates ##
+Note: if you do not have technical replicates or do not wish to screen them for repeatability, go to Step 3.     
+
+Open `simple_pop_stats_start.R`, clear space, and update `on_network` to FALSE, then source.      
+
+Use the following command to compare technical replicates from two genepop files:      
+`comp_tech_reps(format_type = "amplitools", max_missing=0.5)`      
+flags:      
+- format_type indicates that the genepops and individual IDs were created in the present repo
+- max_missing sets a cutoff where if the missing data per individual is greater than this proportion the sample will be removed and not considered in the technical replicate comparison
+
+This function will also output a genind file to the global environment containing the best of the two technical replicates (and the other samples without technical replicates). Use the following command to save this before clearing space again:      
+`save(obj_nr_best, file = "02_input_data/obj_nr_best_2023-05-01.RData")`      
+
+
+## 03. Population genetic analysis example ##
+Follow the interactive script or adapt similar steps to filter and analyze your genepop as shown in        
+`ms_amplicon_panel/01_scripts/sps_popgen_analysis.R`       
+
+
+## 04. Estimate parent-offspring and fullsibs using CKMR-Sim
+
 
 
 
