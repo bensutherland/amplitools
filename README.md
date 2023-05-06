@@ -7,9 +7,10 @@ Platforms supported:
 
 Requirements:       
 - Linux or Mac system
-- R (and packages within RScripts herein)
+- R (and packages within Rscripts therein)
 
-## 01. Convert input to nucleotide and genepop formats ##
+## 01. Convert input to genepop format ##
+#### Create genotype block ####
 Put any number of tab-delimited Ion Torrent VariantCaller output (*.xls) in `02_input_data`.      
 Per file, the following function will convert genotype calls to nucleotide and genepop formats and output a multilocus genotype matrix:        
 `proton_to_genepop(hotspot_only=TRUE, neg_control="BLANK")`          
@@ -17,29 +18,26 @@ flags:
 - hotspot_only (T/F) will select only the hotspot targets, not novel variants (note: F not implem. yet)
 - neg_control is the string indicating negative controls
 
-Note: will create sample identifiers in the form of `<RunName>__<Barcode>__<SampleName>`.        
+This will output as `02_input_data/prepped_matrices/*.txt`      
 
-**Per sample, per marker, convert from Allele.Call to the actual genotypes (nucleotides)**        
-This will also provide the column, 'genepop', which will give numeric genotypes.        
+*Notes:*     
+Sample identifiers will be created as per `<RunName>__<Barcode>__<SampleName>`.        
 
-Note: in variantCaller Allele.Call data,        
+VariantCaller format interpretation:     
 'Absent' means homozygous reference (0101)       
 'No Call' means missing data (0000)         
 'Heterozygous' means heterozygous (0102)        
 'Homozygous' means homozygous variant (0202)        
 
-Note: this assumes that per marker, the identity of the reference and variant alleles in the line item is always the same, regardless of the specific sample.      
+Warning: all VC input files must have been generated using the same hotspot file, for one because it assumes that the designated 'reference' and 'variant' alleles for a marker remains constant across all samples.      
 
-Your output will be written out as: `03_results/<run_name>_proton_data_converted.txt`, but this is purely for troubleshooting, this file will not be used again in the pipeline.      
+#### Finalize genepop ####
+For each prepped matrix (see above), run the following bash script to create sample names:      
+`./01_scripts/format_genepop.sh <filename>.txt`      
+This will output as `02_input_data/prepped_genepops/*.gen`       
 
-**Collect data into a genetic block**         
-The genepop genotypes, connected to the alleles, will be generated into a large dataframe, and written out as `03_results/<run_name>_genetic_data_only.txt`. (temp file only)         
-The final genepop genotypes will be named `03_results/<run_name>_genetic_data_only_final.txt`.       
 
-## 02. Finalization of proton to genepop (bash steps) ##
-Use the following script to format the genepop genotypes to a genepop file
-`01_scripts/format_genepop.sh 03_results/R_2022_08_04_09_19_56_user_S5XL-00533-1089-OYR-20220729_7_2_.xls_genetic_data_only_final.txt`        
-Note: there cannot be any spaces or special characters in the name.    
+## 02. 
 
 
 
