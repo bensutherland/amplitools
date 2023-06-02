@@ -23,6 +23,15 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   data.df <- data.df[data.df$repunit==parent_pop | data.df$repunit==offspring_pop, ]
   print(paste0("The selected data has ", nrow(data.df), " rows and ", ncol(data.df), " columns"))
   
+  # Identify the individual names within each of the retained parentage samples
+  print(paste0("Keeping samples annotated as ", parent_pop, " or ", offspring_pop))
+  parent_indivs    <- data.df[data.df$repunit==parent_pop, "indiv"]
+  offspring_indivs <- data.df[data.df$repunit==offspring_pop, "indiv"]
+  print("The retained potential parent samples are: ")
+  print(parent_indivs)
+  print("The retained potential offspring samples are: ")
+  print(offspring_indivs)
+  
   # Remove annotation columns except for the indiv col
   print("Removing annotation columns 'sample_type|collection|repunit', and keeping the column with individual names")
   data.df <- data.df[, grep(pattern = "sample_type|collection|repunit", x = colnames(data.df), invert = T) ]
@@ -41,7 +50,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   print("Computing allele frequences on selected samples")
   nc <- ncol(genos) # note: the col count also includes the 1st col, indiv ID
   
-  ## Rename columns ##
+  ## Rename marker names in cols ##
   # Find the names of each locus (only one per allele pair)
   loci <- str_replace(string = names(genos)[seq(2, nc, by = 2)]
                       , pattern = "\\.\\.\\.[0-9]+$"
@@ -213,12 +222,12 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   
   # What cutoff do we want to use? 
   # How many potential adults and offspring in the study? 
-  num_parents <- length(grep(pattern = parent_pattern, x = data.df$indiv))
-  num_offspring <- length(grep(pattern = parent_pattern, x = data.df$indiv, invert = T))
+  num_parents <- length(parent_indivs)
+  num_offspring <- length(offspring_indivs)
   print(paste0("With ", num_parents, " possible parents and ", num_offspring, " possible offspring, "))
   print(paste0("...there are ", num_parents * num_offspring, " pairs being tested. (i.e., num parents x num offspring)"))
   
-  # per pair FPR 3e-14 would leave us with expected number of FP: 
+  # Calculated per pair would leave us with expected number of FP: 
   print(paste0("Considering the FPR above for a logl ratio of 5, '"
                , formatC(ex1_PO_is_5$FPR[1], format = "e", digits = 2) 
                ,"', this leaves us with: ")
@@ -259,6 +268,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   
   print("***Completed selection of logl cutoffs***")
   
+  
   #### 06. Screen out duplicates ####
   print("Before proceeding, check for duplicate individuals that exist in the dataset using the 'find_close_matching_genotypes() function'")
   matchers <- find_close_matching_genotypes(LG = long_genos,
@@ -271,16 +281,15 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   
   #### 07. Compute logl ratios for all pairwise comparisons to look for parent offspring pairs ####
   print("Computing logl ratios for all pairwise comparisons to identify parent-offspring pairs")
-  print(paste0("Here, parents are defined by the pattern '", parent_pattern, "' in their indiv name"))
-  print(paste0("...and offspring are all other samples without this pattern"))
-  
-  
+
   # Identify parent and offspring IDs
   indiv_names <- unique(long_genos$Indiv)
-  parent_ids <- indiv_names[grep(pattern = parent_pattern, x = indiv_names)]
-  offspring_ids <- indiv_names[grep(pattern = parent_pattern, x = indiv_names, invert = T)]
+  parent_ids    <- indiv_names[indiv_names %in% parent_indivs] # do this way in case filtering happened between identifying IDs and now (e.g., duplicates)
+  offspring_ids <- indiv_names[indiv_names %in% offspring_indivs]
   
-  ### TODO NOTE for db mgmt: will need a solution here too, if the indiv name does not hold the brood year
+  # Clean space
+  rm(parent_indivs)
+  rm(offspring_indivs)
   
   print("Separating parent and offspring data")
   
@@ -316,7 +325,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
     arrange(desc(logl_ratio))
   
   # Write out results
-  po_output.FN <- paste0("03_results/po_pairwise_logls_greater_than_", cutoff, ".txt")
+  po_output.FN <- paste0("03_results/po_", parent_pop, "_vs_", offspring_pop, "_pw_logl_", cutoff, ".txt")
   print(paste0("Writing out data as ", po_output.FN))
   write.table(x = po_pairwise_logls_over_threshold, file = po_output.FN
               , sep = "\t", row.names = F, quote = F
@@ -339,7 +348,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
     arrange(desc(logl_ratio))
   
   # Write out results
-  fs_output.FN <- paste0("03_results/offspring_fs_pairwise_logls_greater_than_", cutoff, ".txt")
+  fs_output.FN <- paste0("03_results/offsp_fs_", offspring_pop, "_pw_logl_", cutoff, ".txt")
   
   print(paste0("Writing out data as ", fs_output.FN))
   write.table(x = fs_pairwise_logls_over_threshold, file = fs_output.FN
@@ -363,7 +372,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
     arrange(desc(logl_ratio))
   
   # Write out results
-  fs_output_parents.FN <- paste0("03_results/parent_fs_pairwise_logls_greater_than_", cutoff, ".txt")
+  fs_output_parents.FN <- paste0("03_results/parent_fs_", parent_pop, "_pw_logl_", cutoff, ".txt")
   print(paste0("Writing out data as ", fs_output_parents.FN))
   write.table(x = fs_pairwise_logls_parents_over_threshold, file = fs_output_parents.FN
               , sep = "\t", row.names = F, quote = F
