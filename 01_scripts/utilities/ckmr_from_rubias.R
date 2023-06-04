@@ -9,8 +9,7 @@
 #vignette("CKMRsim-example-1")
 ## ...other vignettes available from CKMRsim page
 
-ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", parent_pop = "VIU_F1", offspring_pop = "VIU_F2", parent_pattern = "BR"
-                             , cutoff = 5){
+ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", parent_pop = "VIU_F1", offspring_pop = "VIU_F2", cutoff = 5){
   
   #### 01. Read in genotype dataset, keep selected pops, and remove extra annot ####
   print(paste0("Reading in data from ", input.FN))
@@ -18,7 +17,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   #print(data.df[1:10, 1:10]) # note: numeric header receives 'X' prefix
   print(paste0("The data has ", nrow(data.df), " rows and ", ncol(data.df), " columns"))
   
-  # Only keep parentage samples
+  # Keep only target populations
   print(paste0("Keeping only the samples noted as the parent_pop: '", parent_pop, "'; or as the offspring_pop: '", offspring_pop))
   data.df <- data.df[data.df$repunit==parent_pop | data.df$repunit==offspring_pop, ]
   print(paste0("The selected data has ", nrow(data.df), " rows and ", ncol(data.df), " columns"))
@@ -31,6 +30,15 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   print(parent_indivs)
   print("The retained potential offspring samples are: ")
   print(offspring_indivs)
+  
+  # Export names of analyzed individuals by population
+  write.table(x = parent_indivs, file = "parent_indiv.txt"
+              , sep = "\t", row.names = F, quote = F
+  )
+  
+  write.table(x = offspring_indivs, file = "offspring_indiv.txt"
+              , sep = "\t", row.names = F, quote = F
+  )
   
   # Remove annotation columns except for the indiv col
   print("Removing annotation columns 'sample_type|collection|repunit', and keeping the column with individual names")
