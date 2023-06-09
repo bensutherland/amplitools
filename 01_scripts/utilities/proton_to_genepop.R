@@ -15,8 +15,8 @@ proton_to_genepop <- function(hotspot_only = TRUE, neg_control="BLANK"){
     # Read in input
     print(paste0("Reading in file ", inputs[c]))
     input.df <- read.delim(file = paste0("02_input_data/", inputs[c]), header = T, sep = "\t")
-    print("Data loaded; rows, cols:")
-    print(dim(input.df))
+    print(paste0("Data loaded as ", nrow(input.df), " rows and ", ncol(input.df), " cols"))
+    
     
     # Reduce columns
     print("Reducing columns to retain essentials")
@@ -26,8 +26,9 @@ proton_to_genepop <- function(hotspot_only = TRUE, neg_control="BLANK"){
                               , "Allele.Name", "Region.Name", "Coverage", "Strand.Bias"
                               , "Sample.Name", "Barcode", "Run.Name")]
     
-    print("Columns limited; rows, cols:")
-    print(dim(input.df))
+    print(paste0("Data limited to ", nrow(input.df), " rows and ", ncol(input.df), " cols"))
+    print("Now includes only the following columns: ")
+    print(colnames(input.df))
     
     # Reporting
     print(paste0("Currently, there are ", length(unique(input.df$Allele.Name)), " unique markers"))
@@ -45,6 +46,28 @@ proton_to_genepop <- function(hotspot_only = TRUE, neg_control="BLANK"){
       
     }
     
+    ## Data characteristics
+    # Summarize average coverage per locus for each individual
+    mean_cov_per_sample.df <- aggregate(Coverage ~ Sample.Name, data = input.df, mean)
+    
+    # Reporting
+    print(paste0(
+      "Set negative control samples have a mean coverage of "
+      , round(mean(mean_cov_per_sample.df[grep(pattern = neg_control, x = mean_cov_per_sample.df$Sample.Name), "Coverage"]), digits = 3)
+    ))
+    
+    # Reporting
+    print(paste0(
+      "Non-control samples have a mean coverage of "
+      , round(mean(mean_cov_per_sample.df[grep(pattern = neg_control, x = mean_cov_per_sample.df$Sample.Name, invert = T), "Coverage"]), digits = 3)
+    ))
+    
+    # Save out data characteristics
+    coverage.FN <- paste0("03_results/", "mean_cov_per_sample_", gsub(pattern = "\\.xls", x = inputs[c], replacement = ""), ".txt")
+    write.table(x = mean_cov_per_sample.df, file = coverage.FN, quote = F, col.names = T, row.names = F, sep = "\t")
+    
+    
+    ## Identifier creation
     # Create new identifier comprised of Run Name, Barcode, and Sample Name
     input.df$identifier <- paste0(input.df$Run.Name, "__", input.df$Barcode, "__", input.df$Sample.Name)
     
