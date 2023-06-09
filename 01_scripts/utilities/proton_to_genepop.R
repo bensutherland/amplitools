@@ -46,31 +46,71 @@ proton_to_genepop <- function(hotspot_only = TRUE, neg_control="BLANK"){
       
     }
     
-    ## Data characteristics
-    # Summarize average coverage per locus for each individual
-    mean_cov_per_sample.df <- aggregate(Coverage ~ Sample.Name, data = input.df, mean)
-    
-    # Reporting
-    print(paste0(
-      "Set negative control samples have a mean coverage of "
-      , round(mean(mean_cov_per_sample.df[grep(pattern = neg_control, x = mean_cov_per_sample.df$Sample.Name), "Coverage"]), digits = 3)
-    ))
-    
-    # Reporting
-    print(paste0(
-      "Non-control samples have a mean coverage of "
-      , round(mean(mean_cov_per_sample.df[grep(pattern = neg_control, x = mean_cov_per_sample.df$Sample.Name, invert = T), "Coverage"]), digits = 3)
-    ))
-    
-    # Save out data characteristics
-    coverage.FN <- paste0("03_results/", "mean_cov_per_sample_", gsub(pattern = "\\.xls", x = inputs[c], replacement = ""), ".txt")
-    write.table(x = mean_cov_per_sample.df, file = coverage.FN, quote = F, col.names = T, row.names = F, sep = "\t")
-    
-    
+
     ## Identifier creation
     # Create new identifier comprised of Run Name, Barcode, and Sample Name
     input.df$identifier <- paste0(input.df$Run.Name, "__", input.df$Barcode, "__", input.df$Sample.Name)
     
+    
+    ## Summarize data characteristics
+    # Summarize per sample mean marker read depth
+    print("Summarizing per sample mean/median marker read depth")
+    mean_cov_per_sample.df   <- aggregate(Coverage ~ identifier, data = input.df, mean)
+    median_cov_per_sample.df <- aggregate(Coverage ~ identifier, data = input.df, median)
+    
+    coverage_fig.FN <- paste0("03_results/", "per_sample_marker_depth_", gsub(pattern = "\\.xls", x = inputs[c], replacement = ""), ".pdf")
+    
+    pdf(file = coverage_fig.FN, width = 5, height = 7)
+    par(mfrow=c(2,1))
+    hist(x = mean_cov_per_sample.df$Coverage, breaks = 20, main = ""
+         , xlab = "Per sample mean marker read depth"
+    )
+    
+    hist(x = median_cov_per_sample.df$Coverage, breaks = 20, main = ""
+         , xlab = "Per sample median marker read depth"
+    )
+    dev.off()
+    rm(coverage_fig.FN)
+    
+    # Summarize per marker mean marker read depth (summarize across samples)
+    print("Summarizing per marker mean/median read depth, summarizing across samples")
+    mean_cov_per_marker.df   <- aggregate(Coverage ~ Allele.Name, data = input.df, mean)
+    median_cov_per_marker.df <- aggregate(Coverage ~ Allele.Name, data = input.df, median)
+    
+    coverage_fig.FN <- paste0("03_results/", "per_marker_depth_across_samples_", gsub(pattern = "\\.xls", x = inputs[c], replacement = ""), ".pdf")
+    pdf(file = coverage_fig.FN, width = 5, height = 7)
+    par(mfrow=c(2,1))
+    hist(x = mean_cov_per_marker.df$Coverage, breaks = 20, main = ""
+         , xlab = "Marker average read depth (summarized across samples)"
+    )
+    
+    hist(x = median_cov_per_marker.df$Coverage, breaks = 20, main = ""
+         , xlab = "Marker median read depth (summarized across samples)"
+    )
+    dev.off()
+    
+    
+    # Reporting
+    print(paste0(
+      "Negative control samples have an average mean marker coverage of "
+      , round(mean(mean_cov_per_sample.df[grep(pattern = neg_control, x = mean_cov_per_sample.df$identifier), "Coverage"]), digits = 3)
+    ))
+    
+    print(paste0(
+      "Experimental samples have an average mean marker coverage of "
+      , round(mean(mean_cov_per_sample.df[grep(pattern = neg_control, x = mean_cov_per_sample.df$identifier, invert = T), "Coverage"]), digits = 3)
+    ))
+    
+    # Save out data characteristics
+    coverage.FN <- paste0("03_results/", "mean_marker_cov_per_sample_", gsub(pattern = "\\.xls", x = inputs[c], replacement = ""), ".txt")
+    write.table(x = mean_cov_per_sample.df, file = coverage.FN, quote = F, col.names = T, row.names = F, sep = "\t")
+    
+    # Save out data characteristics
+    coverage.FN <- paste0("03_results/", "mean_marker_cov_per_marker_", gsub(pattern = "\\.xls", x = inputs[c], replacement = ""), ".txt")
+    write.table(x = mean_cov_per_marker.df, file = coverage.FN, quote = F, col.names = T, row.names = F, sep = "\t")
+    
+    
+    ### Prepare data into matrix
     # Format into a matrix, genetic section
     input.df <- input.df[,c("identifier", "Allele.Name", "Ref", "Variant", "Allele.Call")]
     
