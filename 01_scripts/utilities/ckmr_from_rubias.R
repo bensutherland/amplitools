@@ -32,12 +32,12 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   print(offspring_indivs)
   
   # Export names of analyzed individuals by population
-  write.table(x = parent_indivs, file = "parent_indiv.txt"
-              , sep = "\t", row.names = F, quote = F
+  write.table(x = parent_indivs, file = "03_results/parent_indiv.txt"
+              , sep = "\t", row.names = F, col.names = F, quote = F
   )
   
-  write.table(x = offspring_indivs, file = "offspring_indiv.txt"
-              , sep = "\t", row.names = F, quote = F
+  write.table(x = offspring_indivs, file = "03_results/offspring_indiv.txt"
+              , sep = "\t", row.names = F, col.names = F, quote = F
   )
   
   # Remove annotation columns except for the indiv col
