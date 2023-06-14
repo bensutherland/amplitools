@@ -18,7 +18,7 @@ echo "Removing $OUTPUT to make new file"
 rm $OUTPUT_FOLDER/$OUTPUT
 
 # Identify if duplicate markers are present
-echo "*** Duplicate markers reported: ***"
+echo "*** If present, duplicate markers reported here: ***"
 awk '{ print $1 }' $INPUT_FOLDER/$MNAMES_FN | 
     grep -vE '^mname' |
     sort | uniq -c | sort -n | 
@@ -42,7 +42,8 @@ cat $INPUT_FOLDER/$MNAMES_FN |
 
     # Remove positional and variant information from the mname. 
     # Add colon to match VCF mname. Add variant position, plus 1 due to 0-based count.   
-    awk -F_ '{ print $1 ":" $2+1 ":"}' - | 
+    # note: assumes that the positional data does not need +1 due to 0- vs. 1-based count
+    awk -F_ '{ print $1 ":" $2 ":"}' - | 
 
     # For each mname, extract the relevant section of the vcf
     while read i
