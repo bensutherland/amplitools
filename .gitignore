@@ -8,4 +8,6 @@
 *.sam
 *.xlsx
 *Rhistory
+*.vcf
+*.csv
 
