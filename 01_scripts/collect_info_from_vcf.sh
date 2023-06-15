@@ -59,3 +59,11 @@ cat $INPUT_FOLDER/$MNAMES_FN |
 
 echo "Completed, the relevant sections of the VCF are in $OUTPUT_FOLDER/$OUTPUT"
 
+echo "Removing any records that have fewer than 201 bp upstream of the variant"     
+awk -F, '( $2 > 201 )' $OUTPUT_FOLDER/$OUTPUT > $OUTPUT_FOLDER/temp.txt 
+mv $OUTPUT_FOLDER/temp.txt $OUTPUT_FOLDER/$OUTPUT 
+
+echo "The output file now has the following number of records available" 
+wc -l $OUTPUT_FOLDER/$OUTPUT 
+
+echo "Process finished."
