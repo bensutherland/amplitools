@@ -15,10 +15,12 @@ Requirements:
 
 ## Sections ##
 [VariantCaller to genepop](#a-variantcaller-to-genepop)          
-[Store results](#store-raw-genotypes)                   
-[Analyze tech reps](#analyze-tech-reps)              
-[Parentage analysis](#parentage-analysis)               
-[Genomic coordinates](#genomic-coordinates)              
+[Store results](#b-result-storage)                   
+[Analyze tech reps](#c-analyze-technical-replicates)              
+[Population genetic analyses](#d-population-genetic-analyses)
+[Parentage analysis](#e-parentage-analysis)               
+[Panel designer](#f-panel-designer)
+[Genomic coordinates](#g-characterize-genomic-location-of-panel) 
 
 
 ## A. VariantCaller to genepop ##
@@ -91,7 +93,7 @@ You can now use the genepop created above, or the genind from (02), to analyze y
 This section will (#TODO)      
 
 
-## F. Panel Designer ##
+## F. Panel designer ##
 This section will use as input a tab-delimited list of marker names and a corresponding VCF file and reference genome to extract a sequence window flanking the target variant and prepare it for submission to a commercial provider for primer panel design.       
 
 
