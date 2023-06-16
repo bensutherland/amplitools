@@ -6,13 +6,22 @@ Platforms supported:
 - Ion Torrent
 
 Requirements:       
-- Linux or Mac system
-- R (and packages within Rscripts therein)
+- Linux or Mac operating system
+- R (and packages within Rscripts)
 - [simple_pop_stats](https://github.com/bensutherland/simple_pop_stats)
-- [ms_amplicon_panel](https://github.com/bensutherland/ms_amplicon_panel) for demo analysis
+- [ms_oyster_panel](https://github.com/bensutherland/ms_oyster_panel) for demo analysis
 - [CKMRsim](https://github.com/eriqande/CKMRsim)
 
-## 01. Convert input to genepop format ##
+
+## Sections ##
+[VariantCaller to genepop](#variantcaller-to-genepop)
+[Store results](#store-raw-genotypes)
+[Analyze tech reps](#analyze-tech-reps)
+[Parentage analysis](#parentage-analysis)
+[Genomic coordinates](#genomic-coordinates)
+
+
+### VariantCaller to genepop
 #### Create genotype block ####
 Put any number of tab-delimited Ion Torrent VariantCaller output (*.xls) in `02_input_data`.      
 Per file, the following function will convert genotype calls to nucleotide and genepop formats and output a multilocus genotype matrix:        
