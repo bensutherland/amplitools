@@ -21,14 +21,22 @@ Requirements:
 [Genomic coordinates](#genomic-coordinates)              
 
 
-### VariantCaller to genepop
-#### Create genotype block ####
-Put any number of tab-delimited Ion Torrent VariantCaller output (*.xls) in `02_input_data`.      
-Per file, the following function will convert genotype calls to nucleotide and genepop formats and output a multilocus genotype matrix:        
-`proton_to_genepop(hotspot_only=TRUE, neg_control="BLANK")`          
+### VariantCaller to genepop ###
+This section will allow you to convert the output of the Ion Torrent variantCaller to a genepop file that can be used for analyzing technical replicates or go into other population genetic or parentage analyses.       
+
+#### 01. Prepare genotype block ####
+Put any number of tab-delimited Ion Torrent VariantCaller output (suffix: xls) in the folder `02_input_data`. An example of the data can be found here: [test data](#TOADD)       
+
+Open the Rscript `01_scripts/00_initiator.R` and source the script. This will initiate R functions used in this section.      
+
+In R, use the following function to convert genotype calls to genepop format to output a multilocus genotype matrix (rows: samples; columns: loci):         
+```
+proton_to_genepop(hotspot_only=TRUE, neg_control="BLANK")          
 flags:      
-- hotspot_only (T/F) will select only the hotspot targets, not novel variants (note: F not implem. yet)
-- neg_control is the string indicating negative controls
+- hotspot_only (T/F; default: T): select only hotspot targets, remove novel variants
+- neg_control (string): negative control pattern
+warning: hotspot_only = FALSE is not implemented yet    
+```
 
 This will output as `02_input_data/prepped_matrices/*.txt`      
 
