@@ -103,6 +103,7 @@ Use a tab-delimited file with the first column as marker names to extract necess
 Output:      
 `10_designer/vcf_selection.csv`, which will be a comma-delimited file in the format of:     
 `NW_018405745.1, 19515, 100055:13:-, C, T`        
+This is a text file with fields (1) chr; (2) pos of SNP in ref genome; (3) info about marker; (4) ref allele; (5) alt allele.     
 
 Note: this script will remove any marker from the output that is within 200-bp from the start of the contig, as the full window will not be extractable.       
 
@@ -124,6 +125,11 @@ Output:
 #### 04. Prepare submission form ####
 Interactively run the following script to prepare a tab-delimited file that can be used to submit for primer design by a commercial provider:      
 `01_scripts/designer/04_make_sub_form.R`        
+
+**Outputs**
+- `10_designer/seq_and_minfo_all_data.csv` (full information for data checking)
+- `10_designer/seq_and_minfo_for_submission.csv` (submission info only)
+The submission csv has fields (1) marker name; (2) chr; (3) ref allele (based on genome); (4) alt allele; (5) strand; (6) marker type; (7) priority level; (8) formatted seq (e.g., ATGC[A/G]ATGC). More details are available in the script.
 
 
 
