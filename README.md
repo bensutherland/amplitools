@@ -71,23 +71,31 @@ Open the [simple_pop_stats](#simple_pop_stats) Rscript `01_scripts/simple_pop_st
 Use the following command to compare technical replicates from two genepop files:      
 ```
 comp_tech_reps(format_type = "amplitools", max_missing=0.5)      
-flags:      
-- format_type indicates that the genepops and individual IDs were created in the present repo
-- max_missing sets a cutoff where if the missing data per individual is greater than this proportion the sample will be removed and not considered in the technical replicate comparison
 
-This function will also output a genind file to the global environment containing the best of the two technical replicates (and the other samples without technical replicates). Use the following command to save this before clearing space again:      
-`save(obj_nr_best, file = "02_input_data/obj_nr_best_2023-05-01.RData")`      
+# flags:      
+# - format_type (string): indicates the source of the genepop and individual IDs (default: amplitools)
+# - max_missing (proportion): sets a cutoff for maximum missing genotype proportion to consider a sample for technical replicate comparison
 
+# Note: this will also output a genind to the global environment containing the best individual sample for each unique sample (based on #TODO), where the best is considered the sample with the highest genotyping rate.    
+# Retain this object as follows:    
+save(obj_nr_best, file = "02_input_data/obj_nr_best_2023-05-01.RData")     
 
-## 03. Population genetic analysis example ##
-You can now use the genepop created above, or the genind from (02), to analyze your data in simple_pop_stats or elsewhere. For example, follow the interactive script or adapt similar steps to filter and analyze your genepop as shown in:        
+```
+
+### D. Population genetic analysis ### 
+You can now use the genepop created above, or the genind from (02), to analyze your data in `simple_pop_stats` or elsewhere. For example, follow the interactive script or adapt similar steps to filter and analyze your genepop as shown in:        
 `ms_amplicon_panel/01_scripts/sps_popgen_analysis.R`       
 
 
-## 04. Estimate parent-offspring and fullsibs using CKMR-Sim
+### E. Parentage analysis ###
+This section will (#TODO)      
 
 
+### F. Panel Designer ###
+This section will use as input a tab-delimited list of marker names and a corresponding VCF file and reference genome to extract a sequence window flanking the target variant and prepare it for submission to a commercial provider for primer panel design.       
 
+
+### G. Characterize genomic location of panel 
 
 ## 03. Other functions ##
 Align a FASTA against a reference genome to see where your markers are:       
