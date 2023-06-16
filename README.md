@@ -21,7 +21,7 @@ Requirements:
 [Genomic coordinates](#genomic-coordinates)              
 
 
-### A. VariantCaller to genepop ###
+## A. VariantCaller to genepop ##
 This section will allow you to convert the output of the Ion Torrent variantCaller to a genepop file that can be used for analyzing technical replicates or to go into other population genetic or parentage analyses.       
 
 #### 01. Prepare genotype block ####
@@ -59,11 +59,11 @@ Finalize the genepop files by running the following script for each genotype blo
 The output will be a genepop file for each file output as `02_input_data/prepped_genepops/*.gen`       
 
 
-### B. Store Results ###
+## B. Result storage ##
 This section will provide suggestions as to how to best store amplicon sequence data from variantCaller outputs. (#TODO) 
 
 
-### C. Analyze technical replicates ###
+## C. Analyze technical replicates ##
 This section will...      
 
 Open the [simple_pop_stats](#simple_pop_stats) Rscript `01_scripts/simple_pop_stats_start.R`, update the `on_network` variable to FALSE, and then source the script. This will initiate R functions used in this section (#TODO: note: comp tech reps fn remains in dev scripts).      
@@ -82,20 +82,20 @@ save(obj_nr_best, file = "02_input_data/obj_nr_best_2023-05-01.RData")
 
 ```
 
-### D. Population genetic analysis ### 
+## D. Population genetic analyses ## 
 You can now use the genepop created above, or the genind from (02), to analyze your data in `simple_pop_stats` or elsewhere. For example, follow the interactive script or adapt similar steps to filter and analyze your genepop as shown in:        
 `ms_amplicon_panel/01_scripts/sps_popgen_analysis.R`       
 
 
-### E. Parentage analysis ###
+## E. Parentage analysis ##
 This section will (#TODO)      
 
 
-### F. Panel Designer ###
+## F. Panel Designer ##
 This section will use as input a tab-delimited list of marker names and a corresponding VCF file and reference genome to extract a sequence window flanking the target variant and prepare it for submission to a commercial provider for primer panel design.       
 
 
-### G. Characterize genomic location of panel 
+## G. Characterize genomic location of panel ## 
 
 ## 03. Other functions ##
 Align a FASTA against a reference genome to see where your markers are:       
