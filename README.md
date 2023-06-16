@@ -17,10 +17,10 @@ Requirements:
 [A. VariantCaller to genepop](#a-variantcaller-to-genepop)          
 [B. Store results](#b-result-storage)                   
 [C. Analyze tech reps](#c-analyze-technical-replicates)              
-[D. Population genetic analyses](#d-population-genetic-analyses)
+[D. Population genetic analyses](#d-population-genetic-analyses)      
 [E. Parentage analysis](#e-parentage-analysis)               
-[F. Panel designer](#f-panel-designer)
-[G. Genomic coordinates](#g-characterize-genomic-location-of-panel) 
+[F. Panel designer](#f-panel-designer)      
+[G. Genomic coordinates](#g-characterize-genomic-location-of-panel)      
 
 
 ## A. VariantCaller to genepop ##
