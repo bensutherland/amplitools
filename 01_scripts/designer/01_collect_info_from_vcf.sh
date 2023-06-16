@@ -17,7 +17,7 @@ OUTPUT="vcf_selection.csv"
 echo "Removing $OUTPUT to make new file" 
 rm $OUTPUT_FOLDER/$OUTPUT
 
-# Identify if duplicate markers are present
+# Report on presence of duplicate markers
 echo "*** If present, duplicate markers reported here: ***"
 awk '{ print $1 }' $INPUT_FOLDER/$MNAMES_FN | 
     grep -vE '^mname' |
