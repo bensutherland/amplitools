@@ -14,11 +14,11 @@ Requirements:
 
 
 ## Sections ##
-[VariantCaller to genepop](#variantcaller-to-genepop)
-[Store results](#store-raw-genotypes)
-[Analyze tech reps](#analyze-tech-reps)
-[Parentage analysis](#parentage-analysis)
-[Genomic coordinates](#genomic-coordinates)
+[VariantCaller to genepop](#variantcaller-to-genepop)          
+[Store results](#store-raw-genotypes)                   
+[Analyze tech reps](#analyze-tech-reps)              
+[Parentage analysis](#parentage-analysis)               
+[Genomic coordinates](#genomic-coordinates)              
 
 
 ### VariantCaller to genepop
