@@ -7,12 +7,11 @@
 
 ## Install and load packages
 #install.packages("tidyr")
-
 library("tidyr")
 
 # Set working directory
 current.path <- dirname(rstudioapi::getSourceEditorContext()$path)
-current.path <- gsub(pattern = "\\/01_scripts", replacement = "", x = current.path)
+current.path <- gsub(pattern = "\\/01_scripts\\/designer", replacement = "", x = current.path)
 setwd(current.path)
 rm(current.path)
 
@@ -34,6 +33,7 @@ seq.df <- read.delim2(file = paste0(input.dir, "/selected_chr_and_seq.txt"), hea
 seq.df <- as.data.frame(x = seq.df)
 colnames(seq.df) <- c("chr_info", "seq")
 head(seq.df, n = 1)
+tail(seq.df, n = 3)
 
 # Separate columns into individual details
 seq.df <- separate(data = seq.df, col = "chr_info", into = c("mname", "chr_info"), sep = "::", remove = T)
@@ -55,6 +55,7 @@ str(seq.df)
 minfo.df <- read.delim2(file = paste0(input.dir, "/vcf_selection.csv"), header = F, sep = ",")
 minfo.df <- as.data.frame(x = minfo.df, stringsAsFactors = F)
 head(minfo.df)
+tail(minfo.df)
 colnames(x = minfo.df) <- c("chr", "pos", "info", "ref", "alt")
 
 minfo.df$ref <- as.character(minfo.df$ref)
@@ -67,6 +68,7 @@ str(minfo.df)
 # Separate columns into individual details
 minfo.df <- separate(data = minfo.df, col = "info", into = c("mname", "SNP_pos", "align_strand"), sep = ":", remove = T)
 head(minfo.df, n = 2)
+tail(minfo.df, n = 3)
 str(minfo.df)
 
 # Add species name to mname
@@ -76,6 +78,7 @@ minfo.df$mname <- paste0(species, "_", minfo.df$mname)
 #### 02. Combine datasets into one ####
 ## Merge data
 head(x = seq.df, n = 1)
+tail(x = seq.df, n = 3)
 head(minfo.df, n = 1)
 nrow(seq.df)
 nrow(minfo.df)
@@ -97,9 +100,7 @@ seq_and_minfo.df$right_seq <- substr(x = seq_and_minfo.df$seq, start = 202, stop
 # Data checking
 head(seq_and_minfo.df, n = 1)
 seq_and_minfo.df[1:20, c("ref", "alt", "ref_nuc")]
-
-
-#TODO#: warning, this assumes that all POS are greater than 202 bp from the front, perhaps add a datacheck to verify this #
+# Note: it appears that the ref nucl does not always equal the ref allele here, but that is expected. It should be either ref or alt though. 
 
 # Add values into the constant columns
 seq_and_minfo.df$strand <- rep("NA", times = nrow(seq_and_minfo.df))
@@ -111,6 +112,8 @@ head(seq_and_minfo.df, n = 1)
 # How many didn't match the expectation for either the ref or alt nucl?
 table(seq_and_minfo.df$ref_nuc == seq_and_minfo.df$ref | seq_and_minfo.df$ref_nuc == seq_and_minfo.df$alt)
 # That should be all TRUE
+
+seq_and_minfo.df[which((seq_and_minfo.df$ref_nuc == seq_and_minfo.df$ref | seq_and_minfo.df$ref_nuc == seq_and_minfo.df$alt)==FALSE), ]
 
 # # Create a vector to indicate the non-matching amplicons
 # seq_and_minfo.df$ref_allele_match <- seq_and_minfo.df$ref_nuc == seq_and_minfo.df$ref
