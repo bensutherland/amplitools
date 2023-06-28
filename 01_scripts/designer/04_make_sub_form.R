@@ -42,6 +42,7 @@ seq.df <- separate(data = seq.df, col = "chr_info", into = c("chr", "pos_range")
 seq.df <- separate(data = seq.df, col = "pos_range", into = c("lower_range", "upper_range"), sep = "-", remove = T)
 
 head(x = seq.df, n = 2)
+tail(x = seq.df, n = 3)
 
 # Update formats
 seq.df$seq         <- as.character(seq.df$seq)
@@ -52,6 +53,7 @@ str(seq.df)
 
 
 ### Import marker data ###
+# This marker info was taken from the VCF, that was taken from the original genotyping
 minfo.df <- read.delim2(file = paste0(input.dir, "/vcf_selection.csv"), header = F, sep = ",")
 minfo.df <- as.data.frame(x = minfo.df, stringsAsFactors = F)
 head(minfo.df)
@@ -63,6 +65,7 @@ minfo.df$alt <- as.character(minfo.df$alt)
 minfo.df$chr <- as.character(minfo.df$chr)
 
 head(minfo.df, n = 2)
+tail(minfo.df, n = 3)
 str(minfo.df)
 
 # Separate columns into individual details
@@ -91,16 +94,19 @@ head(seq_and_minfo.df, n = 2)
 # Change nucleotides to all upper case
 seq_and_minfo.df$seq <- toupper(x = seq_and_minfo.df$seq)
 
-
-# Separate the sequence into the first 200 bp, the variant (ref allele), then the second 200 bp 
+# Separate the sequence into the flanking 5' 200 bp, the target (genome's ref allele), then the flanking 3' 200 bp
 seq_and_minfo.df$left_seq  <- substr(x = seq_and_minfo.df$seq, start =   1, stop = 200) 
 seq_and_minfo.df$ref_nuc   <- substr(x = seq_and_minfo.df$seq, start = 201, stop = 201)
 seq_and_minfo.df$right_seq <- substr(x = seq_and_minfo.df$seq, start = 202, stop = 401)
 
 # Data checking
 head(seq_and_minfo.df, n = 1)
-seq_and_minfo.df[1:20, c("ref", "alt", "ref_nuc")]
-# Note: it appears that the ref nucl does not always equal the ref allele here, but that is expected. It should be either ref or alt though. 
+tail(seq_and_minfo.df, n = 3)
+seq_and_minfo.df[1:30, c("ref", "alt", "ref_nuc")]
+# Note: the 'ref_nuc' is from the genome itself, the ref and alt alleles are defined by the genotyping VCF 
+#  and as a result, the 'ref' doesn't always equal 'ref_nuc' 
+#  but generally speaking the ref_nuc should be either the ref or alt
+#  Custom markers may be different, as they were not genotyped using this ref genome
 
 # Add values into the constant columns
 seq_and_minfo.df$strand <- rep("NA", times = nrow(seq_and_minfo.df))
