@@ -37,7 +37,11 @@ tail(seq.df, n = 3)
 
 # Separate columns into individual details
 seq.df <- separate(data = seq.df, col = "chr_info", into = c("mname", "chr_info"), sep = "::", remove = T)
+
+# Substitute the generic mname with the chosen species name
 seq.df$mname <- gsub(pattern = "mname", replacement = species, x = seq.df$mname)
+
+# Separate columns into additional individual details
 seq.df <- separate(data = seq.df, col = "chr_info", into = c("chr", "pos_range"), sep = ":", remove = T)
 seq.df <- separate(data = seq.df, col = "pos_range", into = c("lower_range", "upper_range"), sep = "-", remove = T)
 
@@ -121,46 +125,40 @@ table(seq_and_minfo.df$ref_nuc == seq_and_minfo.df$ref | seq_and_minfo.df$ref_nu
 
 seq_and_minfo.df[which((seq_and_minfo.df$ref_nuc == seq_and_minfo.df$ref | seq_and_minfo.df$ref_nuc == seq_and_minfo.df$alt)==FALSE), ]
 
-# # Create a vector to indicate the non-matching amplicons
-# seq_and_minfo.df$ref_allele_match <- seq_and_minfo.df$ref_nuc == seq_and_minfo.df$ref
-# 
-# head(x = seq_and_minfo.df, n = 1)
-
-
-### Confirm no issue with nucleotides and hotspot design
-# SPECIAL NOTE: It appears that stacks doesn't always call the genome nucleotide the 'reference allele'
+### Designate true reference and alt alleles
+oddball.vec <- NULL
 for(i in 1:nrow(seq_and_minfo.df)){
   
+  # If the ref allele in the VCF equals ref allele in the genome, keep constant
   if(seq_and_minfo.df$ref_nuc[i]==seq_and_minfo.df$ref[i]){
     
     seq_and_minfo.df$true_ref[i] <- seq_and_minfo.df$ref[i]
     seq_and_minfo.df$true_alt[i] <- seq_and_minfo.df$alt[i]
     
-    # If they aren't correctly oriented to the reference genome, flip them
-    
+  # If the alt allele in the genome equals the ref allele in the genome, invert the designation
   } else if(seq_and_minfo.df$ref_nuc[i]==seq_and_minfo.df$alt[i]){
     
     seq_and_minfo.df$true_ref[i] <- seq_and_minfo.df$alt[i]
     seq_and_minfo.df$true_alt[i] <- seq_and_minfo.df$ref[i]
-    
+  
+  # If a third is observed, designate as unexpected, then keep the genome as the ref, and set the VCF ref as the alt  
   } else {
     
-    print(paste0("The marker at ", seq_and_minfo.df$mname[i], " is unexpected, adding unknown to this record"))
+    print(paste0("Warning! The marker at ", seq_and_minfo.df$mname[i], " is unexpected"))
     
-    seq_and_minfo.df$true_ref[i] <- "unkn"
-    seq_and_minfo.df$true_alt[i] <- "unkn"
+    seq_and_minfo.df$true_ref[i] <- seq_and_minfo.df$ref_nuc[i]
+    seq_and_minfo.df$true_alt[i] <- seq_and_minfo.df$ref[i]
+    
+    # Save the oddball mname
+    oddball.vec <- c(oddball.vec, seq_and_minfo.df$mname[i])
     
   }
 }
 
 # How many oddballs failed? 
-table(seq_and_minfo.df$true_ref=="unkn")
-
-# # If ok with losing the marker: 
-# seq_and_minfo.df <- seq_and_minfo.df[which(seq_and_minfo.df$true_ref!="unkn"), ]
-
+print(paste0("In total, ", length(oddball.vec), " records did not match ref or alt from the VCF to the genome"))
+print("So the genome was used as the ref, and the ref VCF was used as the alt in these cases")
 nrow(seq_and_minfo.df)
-table(seq_and_minfo.df$true_ref=="unkn")
 
 head(seq_and_minfo.df, n = 1)
 
