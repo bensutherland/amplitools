@@ -7,6 +7,7 @@ In development stage. No guarantees of usefulness.
 
 #### Requirements:       
 - Linux or Mac operating system
+- devtools       
 - R (and packages within Rscripts)
 - [simple_pop_stats](https://github.com/bensutherland/simple_pop_stats)
 - [CKMRsim](https://github.com/eriqande/CKMRsim)
