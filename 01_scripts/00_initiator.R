@@ -8,8 +8,12 @@
 # rm(list=ls())
 
 # Install and load packages
-#install.packages("devtools")
-#devtools::install_github("hadley/devtools")
+# Devtools
+#  Mac instructions:  
+#   #install.packages("devtools")
+#   #devtools::install_github("hadley/devtools")
+# Ubuntu suggest installing devtools with apt-get or similar package manager
+
 #install.packages("Rcpp")
 #install.packages("tidyverse")
 #devtools::install_github("eriqande/CKMRsim", build_vignettes = TRUE)
@@ -37,3 +41,5 @@ rm(fun, file_sources) # clean up
 
 # Ready for analysis
 options(scipen = 99999999)
+
+print("amplitools is loaded and ready for analysis")
