@@ -9,8 +9,8 @@ In development stage. No guarantees of usefulness.
 - Linux or Mac operating system
 - R (and packages within Rscripts)
 - [simple_pop_stats](https://github.com/bensutherland/simple_pop_stats)
-- [ms_oyster_panel](https://github.com/bensutherland/ms_oyster_panel) for demo analysis
 - [CKMRsim](https://github.com/eriqande/CKMRsim)
+- [ms_oyster_panel](https://github.com/bensutherland/ms_oyster_panel) for demo analysis
 
 
 ## Sections ##
@@ -22,14 +22,16 @@ In development stage. No guarantees of usefulness.
 [F. Panel designer](#f-panel-designer)      
 [G. Genomic coordinates](#g-characterize-genomic-location-of-panel)      
 
+To get started, clone this repo onto your computer and change into the main directory.     
 
 ## A. VariantCaller to genepop ##
-This section will allow you to convert the output of the Ion Torrent variantCaller to a genepop file that can be used for analyzing technical replicates or to go into other population genetic or parentage analyses.       
+Convert [VariantCaller](#add link) output to a genepop file for downstream analysis. An example of the input file is provided [here](#toadd)     
+
 
 #### 00. Data preparation
 Ensure that your input filename is only alphanumeric characters connected with hyphens or underscores (no spaces).    
 
-Put any number of tab-delimited Ion Torrent VariantCaller output (suffix: xls) in the folder `02_input_data`. An example of the data can be found here: [test data](#TOADD)       
+Copy any number of input files in the folder `02_input_data`.      
 
 
 #### 01. Prepare genotype block ####
