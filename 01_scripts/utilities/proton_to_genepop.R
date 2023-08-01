@@ -44,13 +44,26 @@ proton_to_genepop <- function(hotspot_only = TRUE, neg_control="BLANK"){
       
       print(paste0("Currently, there are ", length(unique(input.df$Allele.Name)), " unique markers"))
       
+    # If hotspot only is not true, then keep all SNP variants
+    }else if(hotspot_only==FALSE){
+      
+      # Reporting
+      print("Keeping all SNP variants, including non-hotspot variants")
+      
+      # Retain all SNPs
+      input.df <- input.df[input.df$Type=="SNP", ]
+      
+      print(paste0("Currently, there are ", length(unique(input.df$Allele.Name)), " unique markers"))
+      
+      #if(keep_type=="top_maf"){
+      #  }
+      
     }
     
 
     ## Identifier creation
     # Create new identifier comprised of Run Name, Barcode, and Sample Name
     input.df$identifier <- paste0(input.df$Run.Name, "__", input.df$Barcode, "__", input.df$Sample.Name)
-    
     
     ## Summarize data characteristics
     # Summarize per sample mean marker read depth
