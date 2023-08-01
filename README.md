@@ -26,9 +26,13 @@ In development stage. No guarantees of usefulness.
 ## A. VariantCaller to genepop ##
 This section will allow you to convert the output of the Ion Torrent variantCaller to a genepop file that can be used for analyzing technical replicates or to go into other population genetic or parentage analyses.       
 
-#### 01. Prepare genotype block ####
+#### 00. Data preparation
+Ensure that your input filename is only alphanumeric characters connected with hyphens or underscores (no spaces).    
+
 Put any number of tab-delimited Ion Torrent VariantCaller output (suffix: xls) in the folder `02_input_data`. An example of the data can be found here: [test data](#TOADD)       
 
+
+#### 01. Prepare genotype block ####
 Open the Rscript `01_scripts/00_initiator.R` and source the script. This will initiate R functions used in this section.      
 
 In R, use the following function to convert genotype calls to genepop format to output a multilocus genotype matrix (rows: samples; columns: loci):         
