@@ -25,7 +25,7 @@ In development stage. No guarantees of usefulness.
 To get started, clone this repo onto your computer and change into the main directory.     
 
 ## A. VariantCaller to genepop ##
-Convert [VariantCaller](#add link) output to a genepop file for downstream analysis. An example of the input file is provided [here](#toadd)     
+Convert [VariantCaller](https://www.thermofisher.com/ca/en/home/life-science/sequencing/next-generation-sequencing/ion-torrent-next-generation-sequencing-workflow/ion-torrent-next-generation-sequencing-data-analysis-workflow/ion-torrent-suite-software.html) output to a genepop file for downstream analysis. An example of the input file is provided [here](#toadd)     
 
 
 #### 00. Data preparation
