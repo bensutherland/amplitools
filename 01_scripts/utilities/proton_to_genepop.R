@@ -50,10 +50,13 @@ proton_to_genepop <- function(hotspot_only = TRUE, neg_control="BLANK"){
       # Reporting
       print("Keeping all SNP variants, including non-hotspot variants")
       
-      # Retain all SNPs
-      input.df <- input.df[input.df$Type=="SNP", ]
+      # Stop execution, this function has not yet been developed
+      stop("**Process stopped: characterizing non-hotspot variants (i.e., 'novel SNPs') is not yet implemented, but is planned for future development**")
       
-      print(paste0("Currently, there are ", length(unique(input.df$Allele.Name)), " unique markers"))
+      # Retain all SNPs
+      #input.df <- input.df[input.df$Type=="SNP", ]
+      
+      #print(paste0("Currently, there are ", length(unique(input.df$Allele.Name)), " unique markers"))
       
       #if(keep_type=="top_maf"){
       #  }
