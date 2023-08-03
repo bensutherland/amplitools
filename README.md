@@ -100,6 +100,23 @@ You can now use the genepop created above, or the genind from (02), to analyze y
 This section will (#TODO)      
 
 
+
+#### Plotting ####
+It is now possible to graph the relatives based on the output of CKMR-sim, using the following function, with inputs being the paired relatives and associated log likelihood values (.txt format):      
+```
+graph_relatives(input.FN = "03_results/parent_fs_broodstock_pw_logl_5.txt"   
+                            , logl_cutoff = 5      # Additional logl cutoff as needed
+                            , drop_string = "G00"  # String constant to remove from sample names
+                            , directed = FALSE     # Should the plotted graph be directed? 
+                            , plot_width = 5       # Plotting width
+                            , plot_height = 5      # Plotting height
+                            )
+ 
+Other inputs may include offspring sibship, or parent-offspring relationships.     
+
+``` 
+
+
 ## F. Panel designer ##
 This section will use as input a tab-delimited list of marker names and a corresponding VCF file and reference genome to extract a sequence window flanking the target variant and prepare it for submission to a commercial provider for primer panel design.       
 
