@@ -51,7 +51,7 @@ graph_relatives <- function(input.FN = "03_results/parent_fs_broodstock_pw_logl_
   # )
   
   # Set output filename
-  out_plot.FN <- gsub(pattern = ".txt", replacement = "_plot.pdf", x = input.FN)
+  out_plot.FN <- gsub(pattern = ".txt", replacement = paste0("_filtered_to_logl_", logl_cutoff, "_plot.pdf"), x = input.FN)
   
   # Plot and output
   pdf(file = out_plot.FN, width = plot_width, height = plot_height)
