@@ -15,11 +15,16 @@ graph_relatives <- function(input.FN = "03_results/parent_fs_broodstock_pw_logl_
                         , header = T, sep = "\t"
   )
   
-  print(paste0("There are a total of ", nrow(interacts.df), " pairs in the input")) # how many interactions? 
+  # Format the logl ratio as numeric (necessary)
+  #str(interacts.df)
+  interacts.df$logl_ratio <- as.numeric(interacts.df$logl_ratio)
   
   # Reduce length of names
   interacts.df$D2_indiv <- gsub(pattern = drop_string, replacement = "", x = interacts.df$D2_indiv)
   interacts.df$D1_indiv <- gsub(pattern = drop_string, replacement = "", x = interacts.df$D1_indiv)
+  
+  # Reporting
+  print(paste0("There are a total of ", nrow(interacts.df), " pairs in the input")) # how many interactions? 
   
   # Reporting
   print(paste0("Reducing pairs to only those with log likelihood value > ", logl_cutoff))
