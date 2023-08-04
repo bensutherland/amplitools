@@ -34,6 +34,10 @@ Ensure that your input filename is only alphanumeric characters connected with h
 
 Copy any number of input files in the folder `02_input_data`.      
 
+##### General inspection
+Load your data as individual files with a reduced filenames and updated identifiers using the following:      
+`load_vc(input_folder="02_input_data")`         
+
 
 #### 01. Prepare genotype block ####
 Open the Rscript `01_scripts/00_initiator.R` and source the script. This will initiate R functions used in this section.      
