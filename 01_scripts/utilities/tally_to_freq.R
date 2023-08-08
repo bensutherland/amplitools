@@ -27,9 +27,7 @@ tally_to_freq <- function(df = "df", allele_source = "novel"){
   # Provide warning
   cat("Caution: \nfrequencies only approximated, \nassumes no missing data and \nabsence of calls as homo ref for novel variants")
   
-  # Reporting
-  # print("Working with the following file")
-  # print(head(df, n = 3))
+  head(df, n = 3)
    
   # Assess how many unique individuals are present in the df
   num_indiv <- length(unique(x = df$identifier))
@@ -45,12 +43,15 @@ tally_to_freq <- function(df = "df", allele_source = "novel"){
   # Reporting
   print(paste0("There are a total of ", length(unique(df$locus.id)), " unique loci"))
   
+  # Retain backup before filtering
+  df.bck <- df
+
   # Only keep specified variants
-  print(tolower(paste0("Retaining only specified variants from the ", allele_source, " allele source")))
+  print(paste0("Retaining only specified variants from the ", tolower(allele_source), " allele source"))
   df <- df[df$Allele.Source==allele_source,]
-  print(paste0("Retained  ", length(unique(df$locus.id)), " unique loci"))
+  print(paste0("Retained ", length(unique(df$locus.id)), " unique loci"))
   
-  #print(head(df, n = 3))
+  head(df, n = 3)
   
   # Per row, tally minor allele variants
   print("Tallying variants")
@@ -59,7 +60,7 @@ tally_to_freq <- function(df = "df", allele_source = "novel"){
   df[df$Allele.Call=="Heterozygous", "allele.count"] <- 1
   df[df$Allele.Call=="Absent"|df$Allele.Call=="No Call", "allele.count"] <- 0
   
-  #print(head(df, n = 3))
+  head(df, n = 3)
   
   # Tally minor allele (hotspot) or non-ref (novel) variants
   tallies <- df %>% group_by(locus.id) %>%
@@ -69,7 +70,11 @@ tally_to_freq <- function(df = "df", allele_source = "novel"){
   
   tallies <- tallies[order(tallies$total_views, decreasing = T),]
   
-  #head(tallies)
+  head(tallies)
+  
+  
+  
+  
   
   # Calculate frequency of , assuming 100% genotyping (no missing data)
   tallies$freq <- tallies$total_views / (num_indiv*2)
