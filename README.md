@@ -29,19 +29,20 @@ To get started, clone this repo onto your computer and change into the main dire
 Convert [VariantCaller](https://www.thermofisher.com/ca/en/home/life-science/sequencing/next-generation-sequencing/ion-torrent-next-generation-sequencing-workflow/ion-torrent-next-generation-sequencing-data-analysis-workflow/ion-torrent-suite-software.html) output to a genepop file for downstream analysis. An example of the input file is provided [here](#toadd)     
 
 
-#### 00. Data preparation
-Ensure that your input filename is only alphanumeric characters connected with hyphens or underscores (no spaces).    
+#### 00. Prepare inputs and functions
+The input filename must be alphanumeric characters only connected with hyphens or underscores (i.e., no spaces).    
 
 Copy any number of input files in the folder `02_input_data`.      
 
-##### General inspection
+Open the Rscript `01_scripts/00_initiator.R` and source the script. This will initiate R functions used in this section.      
+
+
+#### 01. Load data
 Load your data as individual files with a reduced filenames and updated identifiers using the following:      
 `load_vc(input_folder="02_input_data")`         
 
 
 #### 01. Prepare genotype block ####
-Open the Rscript `01_scripts/00_initiator.R` and source the script. This will initiate R functions used in this section.      
-
 In R, use the following function to convert genotype calls to genepop format to output a multilocus genotype matrix (rows: samples; columns: loci):         
 ```
 proton_to_genepop(hotspot_only=TRUE, neg_control="BLANK")          
@@ -64,6 +65,7 @@ VariantCaller format interpretation:
 ```
 
 Please note: all variantCaller input files **must** have been generated using the same hotspot file. The script assumes that all designations of VariantCaller formats are the same for all files.      
+
 
 #### 02. Finalize genepop ####
 Finalize the genepop files by running the following script for each genotype block text file:      
@@ -162,7 +164,7 @@ The submission csv has fields (1) marker name; (2) chr; (3) ref allele (based on
 
 
 ## G. Characterize genomic location of panel ## 
-
+In development.(#todo) 
 
 
 
