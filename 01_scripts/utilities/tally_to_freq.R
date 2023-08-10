@@ -29,30 +29,31 @@ tally_to_freq <- function(df = "df", allele_source = "novel"){
   # Retain backup before filtering
   df.bck <- df
 
-  #### 01. Num indiv genotyped at each amplicon ####
-  ## Determine how many individuals are genotyped at each region (i.e., amplicon)
-  # Retain only hotspot info
+  
+  #### 01. Determine how many indiv are genotyped at the amplicon using hotspot only ####
+  # Limit to hotspot rows only
   df_hotspot <- df[df$Allele.Source=="Hotspot", ]
   head(df_hotspot)
-  nrow(df_hotspot)
-  # Remove any sample-locus that is a no call (i.e., missing)
-  df_hotspot <- df_hotspot[df_hotspot$Allele.Call!="No Call", ] # drop no calls
+  nrow(df_hotspot) # row is indiv sample and indiv geno
+  
+  # Drop uncalled indiv-hotspot
+  df_hotspot <- df_hotspot[df_hotspot$Allele.Call!="No Call", ] 
   nrow(df_hotspot)
   
-  # What are the unique locus IDs? Create a vector
+  # Create a vector of locus.ids for genotyped amplicons (must be genotyped in at least one individual)
   total_locus.id <- unique(df_hotspot$locus.id)
-  length(total_locus.id)
+  print(paste0("Inspecting ", length(total_locus.id), " amplicon hotspots"))
   
-  # Loop over the vector, and for each unique locus ID, determine how many samples were typed at that locus
-  # note: this may be replaced by summarise (later)
-  locus_of_interest <- NULL; num_indiv_genod_at_locus <- NULL; num_indiv_genod_at_locus.vec <- NULL
+  # Per locus.id, determine how many samples were genotyped
+  locus_of_interest <- NULL; region_name <- NULL; num_indiv_genod_at_locus <- NULL; num_indiv_genod_at_locus.vec <- NULL
   for(i in 1:length(total_locus.id)){
     
     locus_of_interest <- total_locus.id[i]
+    region_name <- unique(df_hotspot[df_hotspot$locus.id==locus_of_interest, "Region.Name"])
     
     num_indiv_genod_at_locus     <- length(df_hotspot[df_hotspot$locus.id==locus_of_interest, "Sample.Name"])
-    num_indiv_genod_at_locus     <- paste0(locus_of_interest, "___", num_indiv_genod_at_locus)
-    num_indiv_genod_at_locus.vec <- c(num_indiv_genod_at_locus.vec, num_indiv_genod_at_locus)
+    num_indiv_genod_at_locus     <- paste0(locus_of_interest, "___", region_name, "___", num_indiv_genod_at_locus)
+    num_indiv_genod_at_locus.vec <- c(num_indiv_genod_at_locus, num_indiv_genod_at_locus.vec)
     
   }
   
@@ -60,15 +61,27 @@ tally_to_freq <- function(df = "df", allele_source = "novel"){
   
   # Make into df
   num_indiv_genod_at_locus.df  <- as.data.frame(num_indiv_genod_at_locus.vec)
-  num_indiv_genod_at_locus.df  <- separate(data = num_indiv_genod_at_locus.df, col = "num_indiv_genod_at_locus.vec", into = c("locus.id", "indiv.genod")
+  
+  # Separate back into locus.id, region.name and num indiv geno'd at locus
+  num_indiv_genod_at_locus.df  <- separate(data = num_indiv_genod_at_locus.df, col = "num_indiv_genod_at_locus.vec", into = c("locus.id", "Region.Name", "indiv.genod")
                                                     , sep = "___", remove = T
                                           )
   
+  # Ensure numeric
   num_indiv_genod_at_locus.df$indiv.genod <- as.numeric(num_indiv_genod_at_locus.df$indiv.genod)
+  
+  # Two alleles are possible for each individual, so multiply by 2
   num_indiv_genod_at_locus.df$total.poss.alleles <- num_indiv_genod_at_locus.df$indiv.genod * 2
   head(num_indiv_genod_at_locus.df)
   
-  merge(x = num_indiv_genod_at_locus.df, y = df, by = "locus.id")
+  # Bring this information back into the df object, which contains novel and hotspot
+  nrow(df)
+  df_w_num_genod.df  <- merge(x = df, y = num_indiv_genod_at_locus.df, by = "Region.Name", all.x = T)
+  nrow(df_w_num_genod.df)
+  
+  head(df_w_num_genod.df)
+  
+  
   
   
   #### 02. Tally variants ####
