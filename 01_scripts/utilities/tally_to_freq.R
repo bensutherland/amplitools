@@ -1,21 +1,20 @@
 # General inspection of variant frequency
 # Sutherland Bioinformatics, 2023-08-04
-# caution: these are all approximations of MAF, since non-target reference alleles are not genotyped by the software
 
 tally_to_freq <- function(df = "df", allele_source = "novel"){
   
-  # Replace lower case with the  capitalized term for later matching
-  allele_source <- gsub(pattern = "novel", replacement = "Novel", x = allele_source)
-  allele_source <- gsub(pattern = "hotspot", replacement = "Hotspot", x = allele_source)
-  
-  # Reporting
-  print(paste0("Assessing ", allele_source, " variants"))
+  # # Match software default capitalization
+  # allele_source <- gsub(pattern = "novel", replacement = "Novel", x = allele_source)
+  # allele_source <- gsub(pattern = "hotspot", replacement = "Hotspot", x = allele_source)
+  # 
+  # # Reporting
+  # print(paste0("Assessing ", allele_source, " variants"))
   
   # Provide warning
   cat("Caution: \nnovel variant frequencies only approx. (absence of call is assumed reference) \nand AF is calculated based on amplicon's hotspot presence")
   head(df, n = 3)
   
-  ## Assign locus names to all variants
+  ## Assign locus names to all loci
   print("Assigning universal locus names (i.e., locus.id) to novel variants for broader comparison")
   df$locus.id <- paste0(df$Chrom, "__", df$Position)
   head(df, n = 3)
@@ -26,19 +25,23 @@ tally_to_freq <- function(df = "df", allele_source = "novel"){
   ## How many unique loci are present in the df?
   print(paste0("There are a total of ", length(unique(df$locus.id)), " unique loci"))
   
-  # Retain backup before filtering
-  df.bck <- df
+  # # Retain backup before filtering
+  # df.bck <- df
 
   
-  #### 01. Determine how many indiv are genotyped at the amplicon using hotspot only ####
-  # Limit to hotspot rows only
+  #### 01. Count number of indiv genotyped per amplicon (use hotspot) ####
+  # Retain hotspot rows only
   df_hotspot <- df[df$Allele.Source=="Hotspot", ]
-  head(df_hotspot)
-  nrow(df_hotspot) # row is indiv sample and indiv geno
   
-  # Drop uncalled indiv-hotspot
+  # Reporting
+  print(paste0("Number of unique hotspot loci: ", length(unique(df_hotspot$locus.id))))
+  print(paste0("Number of unique amplicon regions: ", length(unique(df_hotspot$Region.Name))))
+  print("Note: if the number of hotspot loci > number of regions, there may be multiple hotspots per region")
+  
+  # Remove any hotspots that are fully missing data
+  print("Removing fully untyped hotspots (i.e., all 'No Call')")
   df_hotspot <- df_hotspot[df_hotspot$Allele.Call!="No Call", ] 
-  nrow(df_hotspot)
+  print(paste0("Number of unique hotspot loci: ", length(unique(df_hotspot$locus.id))))
   
   # Create a vector of locus.ids for genotyped amplicons (must be genotyped in at least one individual)
   total_locus.id <- unique(df_hotspot$locus.id)
@@ -57,114 +60,177 @@ tally_to_freq <- function(df = "df", allele_source = "novel"){
     
   }
   
-  head(num_indiv_genod_at_locus.vec)
-  
   # Make into df
   num_indiv_genod_at_locus.df  <- as.data.frame(num_indiv_genod_at_locus.vec)
+  head(num_indiv_genod_at_locus.df)
+  
   
   # Separate back into locus.id, region.name and num indiv geno'd at locus
-  num_indiv_genod_at_locus.df  <- separate(data = num_indiv_genod_at_locus.df, col = "num_indiv_genod_at_locus.vec", into = c("locus.id", "Region.Name", "indiv.genod")
-                                                    , sep = "___", remove = T
+  num_indiv_genod_at_locus.df  <- separate(data = num_indiv_genod_at_locus.df
+                                           , col = "num_indiv_genod_at_locus.vec"
+                                           , into = c("locus.id", "Region.Name", "indiv.genod")
+                                           , sep = "___"
+                                           , remove = T
                                           )
+  
+  head(num_indiv_genod_at_locus.df)
+  tail(num_indiv_genod_at_locus.df)
+  nrow(num_indiv_genod_at_locus.df) # 587 rows
   
   # Ensure numeric
   num_indiv_genod_at_locus.df$indiv.genod <- as.numeric(num_indiv_genod_at_locus.df$indiv.genod)
   
-  # Two alleles are possible for each individual, so multiply by 2
+  # Calculate the total genotyped alleles per locus from the total number of indiv x 2 (assumes diploid)
   num_indiv_genod_at_locus.df$total.poss.alleles <- num_indiv_genod_at_locus.df$indiv.genod * 2
   head(num_indiv_genod_at_locus.df)
   
-  # Bring this information back into the df object, which contains novel and hotspot
-  nrow(df)
-  df_w_num_genod.df  <- merge(x = df, y = num_indiv_genod_at_locus.df, by = "Region.Name", all.x = T)
-  nrow(df_w_num_genod.df)
+  # In case of multiple hotspots per region, keep the record with the highest geno rate
+  num_indiv_genod_at_locus.df     <-  num_indiv_genod_at_locus.df[order(num_indiv_genod_at_locus.df$Region.Name
+                                                                        , num_indiv_genod_at_locus.df$indiv.genod
+                                                                        , decreasing = T), ]
   
-  head(df_w_num_genod.df)
+  num_indiv_genod_at_locus.df <- num_indiv_genod_at_locus.df[!duplicated(x = num_indiv_genod_at_locus.df$Region.Name), ]
+  
+  head(num_indiv_genod_at_locus.df)
+  nrow(num_indiv_genod_at_locus.df) # 586 rows
+  min(num_indiv_genod_at_locus.df$indiv.genod) # minimum = 1
+  max(num_indiv_genod_at_locus.df$indiv.genod) # maximum = 191
+  
+  ## This df contains number indiv genod per Region.Name
   
   
+  #### ISSUE #####
+  # 
+  # # Bring this information back into the df object, which contains novel and hotspot
+  # df_w_num_genod.df  <- merge(x = df, y = num_indiv_genod_at_locus.df, by = "Region.Name", all.x = T)
+  # # Rename the df locus.id column (locus.id.x) as locus.id, as the locus.id.y is the hotspot
+  # colnames(df_w_num_genod.df)[colnames(df_w_num_genod.df)=="locus.id.x"] <- "locus.id"
+  # 
+  # print(paste0("Number of rows in input df = ", nrow(df)))
+  # print(paste0("Number of rows in df with new info added = ", nrow(df_w_num_genod.df)))
+  # 
+  # # Rename as df
+  # if(nrow(df)==nrow(df_w_num_genod.df)){
+  #   
+  #   df <- df_w_num_genod.df
+  #   
+  # }else{
+  #   
+  #   stop("There are unequal records before and after bringing in the number indiv per locus info")
+  #   
+  # }
+  # 
+  # head(df)
   
   
   #### 02. Tally variants ####
-  # Only keep specified variants
-  print(paste0("Retaining only specified variants from the ", tolower(allele_source), " allele source"))
-  df <- df[df$Allele.Source==allele_source,]
-  print(paste0("Retained ", length(unique(df$locus.id)), " unique loci"))
-  
-  head(df, n = 3)
+  # # Only keep specified variants
+  # print(paste0("Retaining only specified variants from the ", tolower(allele_source), " allele source"))
+  # df <- df[df$Allele.Source==allele_source,]
+  # print(paste0("Retained ", length(unique(df$locus.id)), " unique loci"))
+  # 
+  # head(df, n = 3)
   
   # Per row, tally minor allele variants
+  head(df, n = 3)
   print("Tallying variants")
   df$allele.count <- NA
   df[df$Allele.Call=="Homozygous", "allele.count"] <- 2
   df[df$Allele.Call=="Heterozygous", "allele.count"] <- 1
   df[df$Allele.Call=="Absent"|df$Allele.Call=="No Call", "allele.count"] <- 0
   
-  head(df, n = 3) 
+  head(df, n = 5) 
   
-  table(df$Allele.Call)
+  #table(df$Allele.Call)
   
-  # Tally minor allele (hotspot) or non-ref (novel) variants
-  tallies <- df %>% group_by(locus.id) %>%
-                  summarise(total_views = sum(allele.count))
+  # Retain the Region.Name with the locus ID when tallying
+  df$locus.id___Region.Name <- paste0(df$locus.id, "___", df$Region.Name)
+  head(df)
   
+  # Tally minor allele occurrences by locus ID
+  # tallies <- df %>% group_by(locus.id) %>%
+  #                 summarise(total_views = sum(allele.count))
+  
+  # Tally minor allele occurrences by locus ID
+  tallies <- df %>% group_by(locus.id___Region.Name) %>%
+                summarise(total_views = sum(allele.count))
+   
   tallies <- as.data.frame(tallies)
   
-  tallies <- tallies[order(tallies$total_views, decreasing = T),]
+  tallies <- separate(data = tallies, col = "locus.id___Region.Name", into = c("locus.id", "Region.Name"), sep = "___", remove = T)
   
+  # tallies <- tallies[order(tallies$total_views, decreasing = T),]
   head(tallies)
+  str(tallies)
+  nrow(tallies)
+  head(num_indiv_genod_at_locus.df)
+  str(num_indiv_genod_at_locus.df)
+  nrow(num_indiv_genod_at_locus.df)
+
   
+  #### MERGE TALLIES WITH NUM INDIV GENOD AT LOCUS
+  # nrow(tallies)
+  # nrow(num_indiv_genod_at_locus.df)
+  all_data.df <- merge(x = tallies, y = num_indiv_genod_at_locus.df, by = "Region.Name", all.x = T)
+  nrow(all_data.df) # 11,046
   
-  #### Bring it all together ####
-  head(num_indiv_genod_at_locus.df) # this is actually the hotspot itself
+  head(all_data.df)
+  
+  all_data.df[all_data.df$total_views > all_data.df$total.poss.alleles, ]
+  
+  # Calculate MAF
+  all_data.df$MAF <- all_data.df$total_views / all_data.df$total.poss.alleles
+  hist(all_data.df$MAF)
+  write_delim(x = df, file = "03_results/output.txt", delim = "\t")
+  
+  #### ISSUE HERE ####
+  
+  # # Add tallies to df
+  # head(df)
+  # head(tallies)
+  # 
+  # nrow(df)
+  # all_data.df <- merge(x = df, y = tallies, by = "locus.id")
+  # nrow(all_data.df)
+  # 
+  # if(nrow(df)==nrow(all_data.df)){
+  #   
+  #   df <- all_data.df
+  #   
+  # }else{
+  #   
+  #   stop("The input df and the output df are not of equal size, quitting")
+  #   
+  # }
+  # 
+  
+  # Combine num_indiv_genod_at_locus.df and tallies based on locus.id
+  head(num_indiv_genod_at_locus.df)
   head(tallies)
-  
-  
-  
-  # Obtain the Region.Name for each locus.id to attach to tallies
-  locus_and_regions <- df.bck[,c("locus.id", "Region.Name")]
-  head(locus_and_regions)
-  locus_and_regions <- paste0(locus_and_regions$locus.id, "___", locus_and_regions$Region.Name)
-  locus_and_regions <- unique(locus_and_regions)
-  locus_and_regions <- as.data.frame(locus_and_regions)
-  head(locus_and_regions)
-  locus_and_regions <- separate(data = locus_and_regions, col = "locus_and_regions", into = c("locus", "region"), sep = "___", remove = T)
-  head(locus_and_regions)
-  
-  test <- merge(x = tallies, y = locus_and_regions, by.x = "locus.id", by.y = "locus", all.x = T)
-  head(test)
-  nrow(test)
-  
-  # Now have the region, the locus id, and the total number of views
-  
-  
-  
-  # Combine with tallies
-  head(tallies)
+  length(intersect(x = num_indiv_genod_at_locus.df$locus.id, y = tallies$locus.id)) # 586
+  nrow(num_indiv_genod_at_locus.df)
   nrow(tallies)
   
-  all_data.df <- merge(x = tallies, y = num_indiv_genod_at_locus.df, by.x = "locus.id", by.y = "locus.id")
-  head(all_data.df)
-  nrow(all_data.df)
   
-  #plot(all_data.df$total_views, all_data.df$total.poss.alleles)
   
-  all_data.df$total_views / all_data.df$total.poss.alleles
+  # Calculate MAF
+  df$MAF <- df$total_views / df$total.poss.alleles
   
-  # Calculate frequency of , assuming 100% genotyping (no missing data)
-  tallies$freq <- tallies$total_views / (num_indiv*2)
+  hist(df$MAF)
   
-  #head(tallies)
+  write_delim(x = df, file = "03_results/output.txt", delim = "\t")
   
-  # Convert to minor allele freq
-  for(i in 1:nrow(tallies)){
-    
-    if(tallies[i,"freq"] > 0.5){
-      
-      tallies[i, "freq"] <- 1 - tallies[i, "freq"]
-      
-    }
-  }
   
+  # # Convert to minor allele freq
+  # for(i in 1:nrow(tallies)){
+  #   
+  #   if(tallies[i,"freq"] > 0.5){
+  #     
+  #     tallies[i, "freq"] <- 1 - tallies[i, "freq"]
+  #     
+  #   }
+  # }
+  # 
   # Reorder again
   tallies <- tallies[order(tallies$total_views, decreasing = T),]
   
