@@ -1,6 +1,11 @@
 # General inspection of variant frequency
 # Sutherland Bioinformatics, 2023-08-04
 
+# Note: the development of this script was halted because one cannot assume that the novel and the hotspot variants within the same Region.Name are genotyped in the same number of individuals, as the genotyping varies across the region. Therefore, one cannot compare frequencies between these types of variants, even within a region. 
+
+# There are currently no plans to continue development of this script. 
+
+
 tally_to_freq <- function(df = "df", allele_source = "novel"){
   
   # # Match software default capitalization
