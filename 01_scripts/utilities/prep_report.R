@@ -11,7 +11,7 @@ prep_report <- function(relationship = "PO"){
     
     files.vec <- list.files(path = "03_results/", pattern = "^po")
     files.vec <- files.vec[grep(pattern = "\\.txt", x = files.vec)]
-    files.vec <- files.vec[grep(pattern = "\\_report.txt$", x = files.vec, invert = )]
+    files.vec <- files.vec[grep(pattern = "\\_report.txt$", x = files.vec, invert = T)]
     
   }else if(relationship=="FS"){
     
@@ -19,11 +19,17 @@ prep_report <- function(relationship = "PO"){
     
   }
 
+  # Reporting
+  print("Providing reports for the following result files: ")
+  print(paste0("**", files.vec, "**"))
   
   ## Read in files
+  # Reporting
+  print("Reading in result files")
+  
   result.list <- list(); filename <- NULL
   for(i in 1:length(files.vec)){
-    
+  
     filename <- files.vec[i]
     
     result.list[[filename]] <- read.delim2(file = paste0("03_results/", files.vec[i]))
@@ -32,12 +38,14 @@ prep_report <- function(relationship = "PO"){
     
   }
   
-  names(result.list)
+  # Debugging
+  #print(names(result.list))
   
-    
   ## For each input file, order it, then write out
   for(r in 1:length(result.list)){
 
+    print(paste0("Working on file **", names(result.list[r]), "**"))
+    
     # Extract the target data
     data.df <- result.list[[r]]
     
@@ -110,7 +118,9 @@ prep_report <- function(relationship = "PO"){
     
     # Write out
     output.FN <- gsub(pattern = "\\.txt$", replacement = "_report.txt", x = names(result.list)[r])
-    write.table(x = output.df, file = paste0("03_results/", output.FN), row.names = F)
+    output.FN <- paste0("03_results/", output.FN)
+    print(paste0("Saving output as ", output.FN))
+    write.table(x = output.df, file = output.FN, row.names = F)
     
   }
   
