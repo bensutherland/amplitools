@@ -40,18 +40,39 @@ save(obj_nr_best, file=paste0("02_input_data/obj_nr_best_", date, ".RData"))
 # Source 00_initiator.R
 
 # Estimate log likelihoods from the data and simulated sibs/ parents, then calculate on your existing data
-# Running manually
-input.FN = "03_prepped_data/cgig_all_rubias.txt"
-cutoff = 5
-parent_pop = "VIU_F1"
-offspring_pop = "VIU_F2"
-#OR
-parent_pop = "VIU_F0"
-offspring_pop = "VIU_F1"
-# then run ckmr_from_rubias.R interactively
+# VIU_F1 vs VIU_F2
+ckmr_from_rubias(input.FN = "03_prepped_data/cgig_all_rubias.txt"
+                 , parent_pop = "VIU_F1"
+                 , offspring_pop = "VIU_F2"
+                 , cutoff = 5
+                 )
 
+# VIU_F0 vs VIU_F1
+ckmr_from_rubias(input.FN = "03_prepped_data/cgig_all_rubias.txt"
+                 , parent_pop = "VIU_F0"
+                 , offspring_pop = "VIU_F1"
+                 , cutoff = 5
+)
 
-# provide logl cutoff
-ckmr_from_rubias(input.FN = "03_prepped_data/cgig_all_rubias.txt", parent_pop = "VIU_F1", offspring_pop = "VIU_F2", cutoff = 5)
+# In terminal, adjust 03_prepped_data/cgig_all_rubias.txt to update F0 and F1 as a single population to demonstrate
+#   the potential issues when including grandparents
+## command:
+# cat 03_prepped_data/cgig_all_rubias.txt | sed 's/VIU_F0/VIU_parent/g' | sed 's/VIU_F1/VIU_parent/g' > 03_prepped_data/cgig_all_rubias_F0_and_F1_combined_as_VIU_parent.txt
 
-# 
+# VIU_F0 AND VIU_F1 vs VIU_F2
+ckmr_from_rubias(input.FN = "03_prepped_data/cgig_all_rubias_F0_and_F1_combined_as_VIU_parent.txt"
+                 , parent_pop = "VIU_parent"
+                 , offspring_pop = "VIU_F2"
+                 , cutoff = 5
+)
+
+# Generate reports
+prep_report(relationship = "PO")
+
+# Generate relatedness graphs
+graph_relatives(input.FN = "03_results/po_VIU_F1_vs_VIU_F2_pw_logl_5.txt", drop_string = "")
+graph_relatives(input.FN = "03_results/po_VIU_F0_vs_VIU_F1_pw_logl_5.txt", drop_string = "")
+graph_relatives(input.FN = "03_results/offsp_fs_VIU_F2_pw_logl_5.txt", drop_string = "")
+graph_relatives(input.FN = "03_results/parent_fs_VIU_F1_pw_logl_5.txt", drop_string = "")
+graph_relatives(input.FN = "03_results/parent_fs_VIU_F0_pw_logl_5.txt", drop_string = "")
+
