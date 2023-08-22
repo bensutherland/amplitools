@@ -1,6 +1,7 @@
 # amplitools
-Tools for working with amplicon sequencing data.        
-In development stage. No guarantees of usefulness.        
+Tools for working with amplicon sequencing data. Developed by Ben J. G. Sutherland, Ph.D. (Sutherland Bioinformatics).          
+**Note**: this software is provided 'as is', without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in action of contract, tort or otherwise, arising from, out of, or in connection with the software or the use or other dealings in the software.             
+The development of this pipeline has been supported by the following organizations: [Support and Funding page](https://github.com/bensutherland/amplitools/README_appendices/funding_support.md).        
 
 #### Platforms supported:       
 - Ion Torrent
@@ -11,8 +12,13 @@ In development stage. No guarantees of usefulness.
 - R (and packages within Rscripts)
 - [simple_pop_stats](https://github.com/bensutherland/simple_pop_stats)
 - [CKMRsim](https://github.com/eriqande/CKMRsim)
-- [ms_oyster_panel](https://github.com/bensutherland/ms_oyster_panel) for demo analysis
+- Demo analysis (optional): [ms_oyster_panel](https://github.com/bensutherland/ms_oyster_panel)       
 
+#### Citation ####
+If you find this tool useful, please cite the original article that uses the tool:        
+Sutherland et al. *in prep*. An amplicon panel for high-throughput and low-cost genotyping of Pacific oyster *Crassostrea gigas*. bioRxiv. DOI: (#toadd).        
+
+Please also be sure to cite the tools applied within each function.      
 
 ## Sections ##
 [A. VariantCaller to genepop](#a-variantcaller-to-genepop)          
@@ -21,7 +27,6 @@ In development stage. No guarantees of usefulness.
 [D. Population genetic analyses](#d-population-genetic-analyses)      
 [E. Parentage analysis](#e-parentage-analysis)               
 [F. Panel designer](#f-panel-designer)      
-[G. Genomic coordinates](#g-characterize-genomic-location-of-panel)      
 
 To get started, clone this repo onto your computer and change into the main directory.     
 
@@ -103,8 +108,7 @@ You can now use the genepop created above, or the genind from (02), to analyze y
 
 
 ## E. Parentage analysis ##
-This section will (#TODO)      
-
+This section is in development. For now, please see instructions in the associated pipeline: [ms_oyster_panel](https://github.com/bensutherland/ms_oyster_panel).         
 
 
 #### Plotting ####
@@ -160,23 +164,5 @@ Interactively run the following script to prepare a tab-delimited file that can 
 - `10_designer/seq_and_minfo_all_data.csv` (full information for data checking)
 - `10_designer/seq_and_minfo_for_submission.csv` (submission info only)
 The submission csv has fields (1) marker name; (2) chr; (3) ref allele (based on genome); (4) alt allele; (5) strand; (6) marker type; (7) priority level; (8) formatted seq (e.g., ATGC[A/G]ATGC). More details are available in the script.
-
-
-
-## G. Characterize genomic location of panel ## 
-In development.(#todo) 
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
