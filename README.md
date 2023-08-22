@@ -9,6 +9,9 @@ The development of this pipeline has been supported by the following organizatio
 #### Platforms supported:       
 - Ion Torrent
 
+#### Panels supported:
+For a comprehensive list of panels that have been developed or tested through this pipeline, as well as updated and documented associated files, please see the following repository: [amplitargets](https://github.com/bensutherland/amplitargets).      
+
 #### Requirements:       
 - Linux or Mac operating system
 - devtools       
