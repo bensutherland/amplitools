@@ -3,7 +3,7 @@ Tools for working with amplicon sequencing data, by Ben J. G. Sutherland, Ph.D. 
 
 **Note**: this software is provided 'as is', without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in action of contract, tort or otherwise, arising from, out of, or in connection with the software or the use or other dealings in the software.             
 
-The development of this pipeline has been supported by the following organizations: [Support and Funding page](https://github.com/bensutherland/amplitools/README_appendices/funding_support.md).        
+The development of this pipeline has been supported by the following organizations: [Support and Funding page](20_docs/funding_support.md).        
 
 #### Platforms supported:       
 - Ion Torrent
