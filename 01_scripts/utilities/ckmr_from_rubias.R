@@ -356,7 +356,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
     arrange(desc(logl_ratio))
   
   # Write out results
-  fs_output.FN <- paste0("03_results/offsp_fs_", offspring_pop, "_pw_logl_", cutoff, ".txt")
+  fs_output.FN <- paste0("03_results/fs_offsp_", offspring_pop, "_pw_logl_", cutoff, ".txt")
   
   print(paste0("Writing out data as ", fs_output.FN))
   write.table(x = fs_pairwise_logls_over_threshold, file = fs_output.FN
@@ -380,7 +380,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
     arrange(desc(logl_ratio))
   
   # Write out results
-  fs_output_parents.FN <- paste0("03_results/parent_fs_", parent_pop, "_pw_logl_", cutoff, ".txt")
+  fs_output_parents.FN <- paste0("03_results/fs_parent_", parent_pop, "_pw_logl_", cutoff, ".txt")
   print(paste0("Writing out data as ", fs_output_parents.FN))
   write.table(x = fs_pairwise_logls_parents_over_threshold, file = fs_output_parents.FN
               , sep = "\t", row.names = F, quote = F
