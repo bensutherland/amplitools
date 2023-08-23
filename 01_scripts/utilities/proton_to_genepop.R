@@ -3,35 +3,13 @@
 
 proton_to_genepop <- function(hotspot_only = TRUE, neg_control="BLANK"){
 
-  inputs <- list.files(path = "02_input_data/", pattern = ".xls")
+  # Load vc data into input.list
+  load_vc(input_folder = "02_input_data")
   
-  # Set nulls
   input.df <- NULL
-  
-  for(c in 1:length(inputs)){
+  for(c in 1:length(names(input.list))){
     
-    
-    #### 01. Read in input, create run.name__barcode__sample.name identifier, then reduce to essential columns ####
-    # Read in input
-    print(paste0("Reading in file ", inputs[c]))
-    input.df <- read.delim(file = paste0("02_input_data/", inputs[c]), header = T, sep = "\t")
-    print(paste0("Data loaded as ", nrow(input.df), " rows and ", ncol(input.df), " cols"))
-    
-    
-    # Reduce columns
-    print("Reducing columns to retain essentials")
-    
-    input.df  <- input.df[,c("Chrom", "Position", "Ref"
-                              , "Variant", "Allele.Call", "Type", "Allele.Source"
-                              , "Allele.Name", "Region.Name", "Coverage", "Strand.Bias"
-                              , "Sample.Name", "Barcode", "Run.Name")]
-    
-    print(paste0("Data limited to ", nrow(input.df), " rows and ", ncol(input.df), " cols"))
-    print("Now includes only the following columns: ")
-    print(colnames(input.df))
-    
-    # Reporting
-    print(paste0("Currently, there are ", length(unique(input.df$Allele.Name)), " unique markers"))
+    input.df <- input.list[[c]]
     
     # Remove non-hotspot if required
     if(hotspot_only==TRUE){
@@ -64,17 +42,13 @@ proton_to_genepop <- function(hotspot_only = TRUE, neg_control="BLANK"){
     }
     
 
-    ## Identifier creation
-    # Create new identifier comprised of Run Name, Barcode, and Sample Name
-    input.df$identifier <- paste0(input.df$Run.Name, "__", input.df$Barcode, "__", input.df$Sample.Name)
-    
     ## Summarize data characteristics
-    # Summarize per sample mean marker read depth
+    # Per sample mean marker read depth
     print("Summarizing per sample mean/median marker read depth")
     mean_cov_per_sample.df   <- aggregate(Coverage ~ identifier, data = input.df, mean)
     median_cov_per_sample.df <- aggregate(Coverage ~ identifier, data = input.df, median)
     
-    coverage_fig.FN <- paste0("03_results/", "per_sample_marker_depth_", gsub(pattern = "\\.xls", x = inputs[c], replacement = ""), ".pdf")
+    coverage_fig.FN <- paste0("03_results/", "per_sample_marker_depth_", gsub(pattern = "\\.df", x = names(input.list)[c], replacement = ""), ".pdf")
     
     pdf(file = coverage_fig.FN, width = 5, height = 7)
     par(mfrow=c(2,1))
@@ -93,7 +67,7 @@ proton_to_genepop <- function(hotspot_only = TRUE, neg_control="BLANK"){
     mean_cov_per_marker.df   <- aggregate(Coverage ~ Allele.Name, data = input.df, mean)
     median_cov_per_marker.df <- aggregate(Coverage ~ Allele.Name, data = input.df, median)
     
-    coverage_fig.FN <- paste0("03_results/", "per_marker_depth_across_samples_", gsub(pattern = "\\.xls", x = inputs[c], replacement = ""), ".pdf")
+    coverage_fig.FN <- paste0("03_results/", "per_marker_depth_across_samples_", gsub(pattern = "\\.df", x = names(input.list)[c], replacement = ""), ".pdf")
     pdf(file = coverage_fig.FN, width = 5, height = 7)
     par(mfrow=c(2,1))
     hist(x = mean_cov_per_marker.df$Coverage, breaks = 20, main = ""
@@ -118,11 +92,11 @@ proton_to_genepop <- function(hotspot_only = TRUE, neg_control="BLANK"){
     ))
     
     # Save out data characteristics
-    coverage.FN <- paste0("03_results/", "mean_marker_cov_per_sample_", gsub(pattern = "\\.xls", x = inputs[c], replacement = ""), ".txt")
+    coverage.FN <- paste0("03_results/", "mean_marker_cov_per_sample_", gsub(pattern = "\\.df", x = names(input.list)[c], replacement = ""), ".txt")
     write.table(x = mean_cov_per_sample.df, file = coverage.FN, quote = F, col.names = T, row.names = F, sep = "\t")
     
     # Save out data characteristics
-    coverage.FN <- paste0("03_results/", "mean_marker_cov_per_marker_", gsub(pattern = "\\.xls", x = inputs[c], replacement = ""), ".txt")
+    coverage.FN <- paste0("03_results/", "mean_marker_cov_per_marker_", gsub(pattern = "\\.df", x = names(input.list)[c], replacement = ""), ".txt")
     write.table(x = mean_cov_per_marker.df, file = coverage.FN, quote = F, col.names = T, row.names = F, sep = "\t")
     
     
@@ -323,7 +297,7 @@ proton_to_genepop <- function(hotspot_only = TRUE, neg_control="BLANK"){
     
     # Create output filename
     output.FN <- paste0("02_input_data/prepped_matrices/"
-                        , gsub(pattern = "\\.xls", replacement = "", x = inputs[c])
+                        , gsub(pattern = "\\.df", replacement = "", x = names(input.list)[c])
                         , "_gen_data.txt"
                         )
     
