@@ -2,7 +2,7 @@
 # Sutherland Bioinformatics
 # 2023-08-02
 
-graph_relatives <- function(input.FN = "03_results/parent_fs_broodstock_pw_logl_5.txt"
+graph_relatives <- function(input.FN = "03_results/po_broodstock_vs_spat_pw_logl_5.txt"
                             , logl_cutoff = 5
                             , drop_string = "G00" 
                             , directed = FALSE
@@ -15,11 +15,10 @@ graph_relatives <- function(input.FN = "03_results/parent_fs_broodstock_pw_logl_
                         , header = T, sep = "\t"
   )
   
-  # Format the logl ratio as numeric (necessary)
-  #str(interacts.df)
+  # Format the logl ratio as numeric
   interacts.df$logl_ratio <- as.numeric(interacts.df$logl_ratio)
   
-  # Reduce length of names
+  # Reduce length of names if drop_string is set
   interacts.df$D2_indiv <- gsub(pattern = drop_string, replacement = "", x = interacts.df$D2_indiv)
   interacts.df$D1_indiv <- gsub(pattern = drop_string, replacement = "", x = interacts.df$D1_indiv)
   
@@ -64,6 +63,8 @@ graph_relatives <- function(input.FN = "03_results/parent_fs_broodstock_pw_logl_
               , vertex.label.cex=0.7
               , vertex.label.dist=1
               , edge.curved=0.2
+              , edge.color = "black"
+              , edge.width = 1
   )
   dev.off()
 
