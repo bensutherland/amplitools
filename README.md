@@ -49,11 +49,7 @@ Open the Rscript `01_scripts/00_initiator.R` and source the script. This will in
 
 
 #### 01. Load data
-Load your data as individual files with a reduced filenames and updated identifiers using the following:      
-`load_vc(input_folder="02_input_data")`         
-
-
-#### 01. Prepare genotype block ####
+##### 01.a. Prepare genotype block ####
 In R, use the following function to convert genotype calls to genepop format to output a multilocus genotype matrix (rows: samples; columns: loci):         
 ```
 proton_to_genepop(hotspot_only=TRUE, neg_control="BLANK")          
@@ -78,7 +74,7 @@ VariantCaller format interpretation:
 Please note: all variantCaller input files **must** have been generated using the same hotspot file. The script assumes that all designations of VariantCaller formats are the same for all files.      
 
 
-#### 02. Finalize genepop ####
+##### 01.b. Finalize genepop ####
 Finalize the genepop files by running the following script for each genotype block text file:      
 `./01_scripts/format_genepop.sh 02_input_data/prepped_matrices/<filename>.txt`      
 
