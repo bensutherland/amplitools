@@ -1,4 +1,8 @@
 # Load variantcaller data
+#  loads all .xls (tab-delim) files in 02_input_data, reduces to only needed cols, 
+#   provides number of unique markers, creates "identifier" column, does NOT remove novel variants
+#   saves output to input.list
+#   "identifier" is comprised of run name, barcode, sample name (all separated by "__")
 # Sutherland Bioinformatics, 2023-08-04
 
 load_vc <- function(input_folder = "02_input_data"){
@@ -6,7 +10,7 @@ load_vc <- function(input_folder = "02_input_data"){
   inputs <- list.files(path = input_folder, pattern = ".xls")
   
   # Set nulls
-  input.df <- NULL
+  input.df <- NULL; input.list <- list()
   
   for(file in 1:length(inputs)){
     
@@ -47,11 +51,10 @@ load_vc <- function(input_folder = "02_input_data"){
     head(input.df, n = 3)
     
     # Reporting
-    print(paste0("Saving object as ", df.name))
+    print("Saving object to input.list")
+    input.list[[df.name]] <- input.df
     
-    assign(x = df.name, value = input.df, envir = .GlobalEnv)
+    assign(x = "input.list", value = input.list, envir = .GlobalEnv)
   
   }
 }
-
-  
