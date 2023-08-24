@@ -28,11 +28,11 @@ Please also be sure to cite the tools applied within each function.
 
 ## Sections ##
 [A. VariantCaller to genepop](#a-variantcaller-to-genepop)          
-[B. Store results](#b-result-storage)                   
-[C. Analyze tech reps](#c-analyze-technical-replicates)              
-[D. Population genetic analyses](#d-population-genetic-analyses)      
-[E. Parentage analysis](#e-parentage-analysis)               
-[F. Panel designer](#f-panel-designer)      
+[B. Analyze tech reps](#b-analyze-technical-replicates)              
+[C. Population genetic analyses](#c-population-genetic-analyses)      
+[D. Parentage analysis](#d-parentage-analysis)               
+[E. Panel designer](#e-panel-designer)      
+[F. Database storage](#f-database-storage)                   
 
 ## Getting started ##
 Clone this repository and change into the main directory.      
@@ -87,11 +87,8 @@ Finalize the genepop files by running the following script for each genotype blo
 The output will be a genepop file for each file output as `02_input_data/prepped_genepops/*.gen`       
 
 
-## B. Result storage ##
-This section will provide suggestions as to how to best store amplicon sequence data from variantCaller outputs. (#TODO) 
 
-
-## C. Analyze technical replicates ##
+## B. Analyze technical replicates ##
 This section will...      
 
 Open the [simple_pop_stats](#simple_pop_stats) Rscript `01_scripts/simple_pop_stats_start.R`, update the `on_network` variable to FALSE, and then source the script. This will initiate R functions used in this section (#TODO: note: comp tech reps fn remains in dev scripts).      
@@ -110,12 +107,12 @@ save(obj_nr_best, file = "02_input_data/obj_nr_best_2023-05-01.RData")
 
 ```
 
-## D. Population genetic analyses ## 
+## C. Population genetic analyses ## 
 You can now use the genepop created above, or the genind from (02), to analyze your data in `simple_pop_stats` or elsewhere. For example, follow the interactive script or adapt similar steps to filter and analyze your genepop as shown in:        
 `ms_amplicon_panel/01_scripts/sps_popgen_analysis.R`       
 
 
-## E. Parentage analysis ##
+## D. Parentage analysis ##
 This section is in development. For now, please see instructions in the associated pipeline: [ms_oyster_panel](https://github.com/bensutherland/ms_oyster_panel).         
 
 
@@ -135,7 +132,7 @@ Other inputs may include offspring sibship, or parent-offspring relationships.
 ``` 
 
 
-## F. Panel designer ##
+## E. Panel designer ##
 This section will use as input a tab-delimited list of marker names and a corresponding VCF file and reference genome to extract a sequence window flanking the target variant and prepare it for submission to a commercial provider for primer panel design.       
 
 #### 01. Obtain information from VCF ####
@@ -173,4 +170,7 @@ Interactively run the following script to prepare a tab-delimited file that can 
 - `10_designer/seq_and_minfo_for_submission.csv` (submission info only)
 The submission csv has fields (1) marker name; (2) chr; (3) ref allele (based on genome); (4) alt allele; (5) strand; (6) marker type; (7) priority level; (8) formatted seq (e.g., ATGC[A/G]ATGC). More details are available in the script.
 
+
+## F. Database storage ##
+This section will provide suggestions as to how to best store amplicon sequence data from variantCaller outputs. (#TODO) 
 
