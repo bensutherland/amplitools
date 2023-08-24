@@ -47,7 +47,7 @@ Convert [VariantCaller](https://www.thermofisher.com/ca/en/home/life-science/seq
 
 
 #### 00. Prepare inputs and functions
-The input filename must be alphanumeric characters only connected with hyphens or underscores (i.e., no spaces).    
+**Important note:** input filename must be alphanumeric characters only connected with hyphens or underscores (i.e., no spaces). Multiple sequential underscores without other alphanumeric characters breaking up the underscores will cause the script to fail (e.g., `this__will_not_work`).      
 
 Copy any number of input files in the folder `02_input_data`.      
 
