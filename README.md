@@ -34,7 +34,13 @@ Please also be sure to cite the tools applied within each function.
 [E. Parentage analysis](#e-parentage-analysis)               
 [F. Panel designer](#f-panel-designer)      
 
-To get started, clone this repo onto your computer and change into the main directory.     
+## Getting started ##
+Clone this repository and change into the main directory.      
+```
+git clone https://github.com/bensutherland/amplitools.git
+cd amplitools
+
+```
 
 ## A. VariantCaller to genepop ##
 Convert [VariantCaller](https://www.thermofisher.com/ca/en/home/life-science/sequencing/next-generation-sequencing/ion-torrent-next-generation-sequencing-workflow/ion-torrent-next-generation-sequencing-data-analysis-workflow/ion-torrent-suite-software.html) output to a genepop file for downstream analysis. An example of the input file is provided [here](#toadd)     
