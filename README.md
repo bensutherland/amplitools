@@ -55,6 +55,15 @@ Open the Rscript `01_scripts/00_initiator.R` and source the script. This will in
 
 
 #### 01. Load data
+**Background**
+VariantCaller format interpretation:     
+'Absent' means homozygous reference (0101)       
+'No Call' means missing data (0000)         
+'Heterozygous' means heterozygous (0102)        
+'Homozygous' means homozygous variant (0202)        
+
+Please note: all variantCaller input files **must** have been generated using the same hotspot file. The script assumes that all designations of VariantCaller formats are the same for all files.      
+
 ##### 01.a. Prepare genotype block ####
 In R, use the following function to convert genotype calls to genepop format to output a multilocus genotype matrix (rows: samples; columns: loci):         
 ```
@@ -65,19 +74,11 @@ flags:
 - neg_control (string): negative control pattern
 Warning: hotspot_only = FALSE is not implemented yet    
 
-The output will be tab-delimited text files in 02_input_data/prepped_matrices/   
-Each input variantCaller xls file will be produced as a separate output file.    
-Sample identifiers will be created as <RunName>__<Barcode>__<SampleName>.   
-
-VariantCaller format interpretation:     
-'Absent' means homozygous reference (0101)       
-'No Call' means missing data (0000)         
-'Heterozygous' means heterozygous (0102)        
-'Homozygous' means homozygous variant (0202)        
-
 ```
+The output will be a tab-delimited text file in `02_input_data/prepped_matrices/`, one per input file. Sample identifiers will be created as <RunName>__<Barcode>__<SampleName>.      
 
-Please note: all variantCaller input files **must** have been generated using the same hotspot file. The script assumes that all designations of VariantCaller formats are the same for all files.      
+To inspect mean marker coverage per experimental or control sample, see output files:     
+`03_results/mean_marker_cov_per_sample_*.txt`          
 
 
 ##### 01.b. Finalize genepop ####
@@ -85,7 +86,6 @@ Finalize the genepop files by running the following script for each genotype blo
 `./01_scripts/format_genepop.sh 02_input_data/prepped_matrices/<filename>.txt`      
 
 The output will be a genepop file for each file output as `02_input_data/prepped_genepops/*.gen`       
-
 
 
 ## B. Analyze technical replicates ##
