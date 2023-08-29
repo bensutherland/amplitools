@@ -120,7 +120,7 @@ prep_report <- function(relationship = "PO"){
     output.FN <- gsub(pattern = "\\.txt$", replacement = "_report.txt", x = names(result.list)[r])
     output.FN <- paste0("03_results/", output.FN)
     print(paste0("Saving output as ", output.FN))
-    write.table(x = output.df, file = output.FN, row.names = F)
+    write.table(x = output.df, file = output.FN, row.names = F, sep = "\t", quote = F)
     
   }
   
