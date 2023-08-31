@@ -220,11 +220,11 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   print(ex1_PO_is)
   
   # What would the results look like if we use a logl ratio of 5 as a cutoff (from tutorial)
-  print("Consider results if use logl = 5 as a cutoff? i.e.,  lamdba_stars = 5")
+  print(paste0("Consider results if use logl = ", cutoff, " as a cutoff? i.e.,  lamdba_stars"))
   ex1_PO_is_5 <- mc_sample_simple(ex1_Qs, 
                                   nu = "PO",
                                   de = "U", 
-                                  lambda_stars = 5)
+                                  lambda_stars = cutoff)
   
   print(ex1_PO_is_5)
   
@@ -236,7 +236,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   print(paste0("...there are ", num_parents * num_offspring, " pairs being tested. (i.e., num parents x num offspring)"))
   
   # Calculated per pair would leave us with expected number of FP: 
-  print(paste0("Considering the FPR above for a logl ratio of 5, '"
+  print(paste0("Considering the FPR above for the set logl ratio, '"
                , formatC(ex1_PO_is_5$FPR[1], format = "e", digits = 2) 
                ,"', this leaves us with: ")
         )
@@ -252,7 +252,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   ex1_PO_is_5_30 <- mc_sample_simple(ex1_Qs, 
                                      nu = "PO",
                                      de = "U", 
-                                     lambda_stars = seq(5, 30, by = 2))
+                                     lambda_stars = seq(cutoff, 30, by = 2))
   print(ex1_PO_is_5_30)
   
   
@@ -261,7 +261,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   ex1_FS_is <- mc_sample_simple(ex1_Qs, 
                                 nu = "FS",
                                 de = "U"
-                                , lambda_stars = seq(0, 5, by = 0.5)
+                                , lambda_stars = seq(0, cutoff, by = 0.5)
   )
   
   print(ex1_FS_is)
