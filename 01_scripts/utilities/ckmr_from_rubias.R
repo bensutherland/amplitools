@@ -339,6 +339,11 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
               , sep = "\t", row.names = F, quote = F
   )
   
+  # Write out all raw results (including below threshold)
+  print("Also writing out all results")
+  write.table(x = po_pairwise_logls, file = "03_results/po_pairwise_all_no_cutoff.txt"
+              , sep = "\t", row.names = F, quote = F
+              )
   
   ## Compute offspring-offspring logls
   print("Estimating FS (offspring) pairwise logl ratios from empirical data")
@@ -385,6 +390,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   write.table(x = fs_pairwise_logls_parents_over_threshold, file = fs_output_parents.FN
               , sep = "\t", row.names = F, quote = F
   )
+  
   
   #### TODO: FPR and FNR assessed and reported for FS (parents)
 
