@@ -22,7 +22,7 @@ For a comprehensive list of panels that have been developed or tested through th
 
 #### Citation ####
 If you find this tool useful, please cite the original article that uses the tool:        
-Sutherland et al. *in prep*. An amplicon panel for high-throughput and low-cost genotyping of Pacific oyster *Crassostrea gigas*. bioRxiv. DOI: (#toadd).        
+Sutherland et al. 2023. An amplicon panel for high-throughput and low-cost genotyping of Pacific oyster. bioRxiv [2023.08.26.554329](https://www.biorxiv.org/content/10.1101/2023.08.26.554329v1).        
 
 Please also be sure to cite the tools applied within each function.      
 
@@ -48,7 +48,7 @@ This should load 8024 rows and 14 columns, with 2079 unique markers, from two di
 
 
 ## A. VariantCaller to genepop ##
-Convert [VariantCaller](https://www.thermofisher.com/ca/en/home/life-science/sequencing/next-generation-sequencing/ion-torrent-next-generation-sequencing-workflow/ion-torrent-next-generation-sequencing-data-analysis-workflow/ion-torrent-suite-software.html) output to a genepop file for downstream analysis. An example of the input file is provided [here](#toadd)     
+Convert [VariantCaller](https://www.thermofisher.com/ca/en/home/life-science/sequencing/next-generation-sequencing/ion-torrent-next-generation-sequencing-workflow/ion-torrent-next-generation-sequencing-data-analysis-workflow/ion-torrent-suite-software.html) output to a genepop file for downstream analysis. An example of the input file is provided in [02_input_data/test_data.xls](https://github.com/bensutherland/amplitools/blob/main/02_input_data/test_data.xls)     
 
 
 #### 00. Prepare inputs and functions
