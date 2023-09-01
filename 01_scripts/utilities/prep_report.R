@@ -12,6 +12,7 @@ prep_report <- function(relationship = "PO"){
     files.vec <- list.files(path = "03_results/", pattern = "^po")
     files.vec <- files.vec[grep(pattern = "\\.txt", x = files.vec)]
     files.vec <- files.vec[grep(pattern = "\\_report.txt$", x = files.vec, invert = T)]
+    files.vec <- files.vec[grep(pattern = "\\_no_cutoff.txt$", x = files.vec, invert = T)]
     
   }else if(relationship=="FS"){
     
