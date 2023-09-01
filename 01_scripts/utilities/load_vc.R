@@ -5,9 +5,29 @@
 #   "identifier" is comprised of run name, barcode, sample name (all separated by "__")
 # Sutherland Bioinformatics, 2023-08-04
 
-load_vc <- function(input_folder = "02_input_data"){
+load_vc <- function(input_folder = "02_input_data", test_only = FALSE){
   
   inputs <- list.files(path = input_folder, pattern = ".xls")
+  
+  # Identify sample files for test dataset or for experimental dataset
+  if(test_only == FALSE){
+    
+    # Remove test data from dataset inputs
+    inputs <- inputs[inputs!="test_data.xls"]
+    
+  }else if(test_only == TRUE){
+    
+    # Reporting
+    print(paste0("Test run with ", input_folder, "/test_data.xls"))
+    
+    # Only use test data
+    inputs <- inputs[inputs=="test_data.xls"]
+    
+  }
+  
+  # Reporting
+  print("Analyzing the following input files: ")
+  print(inputs)
   
   # Set nulls
   input.df <- NULL; input.list <- list()
