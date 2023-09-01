@@ -1,7 +1,7 @@
-# Load and convert proton data to genepop format
+# Load and convert proton data from the '02_input_data' folder to genepop format
 # Sutherland Bioinformatics, 2022-09-09
 
-proton_to_genepop <- function(hotspot_only = TRUE, neg_control="BLANK"){
+proton_to_genepop <- function(neg_control="BLANK"){
 
   # Load vc data into input.list
   load_vc(input_folder = "02_input_data")
@@ -11,37 +11,14 @@ proton_to_genepop <- function(hotspot_only = TRUE, neg_control="BLANK"){
     
     input.df <- input.list[[c]]
     
-    # Remove non-hotspot if required
-    if(hotspot_only==TRUE){
+    # Reporting
+    print("Removing novel (non-hotspot) markers")
       
-      # Reporting
-      print("Removing novel (non-hotspot) markers")
+    # Retain only the hotspot SNPs
+    input.df <- input.df[input.df$Allele.Source=="Hotspot",]
       
-      # Retain hotspot SNPs only
-      input.df <- input.df[input.df$Allele.Source=="Hotspot",]
+    print(paste0("Currently, there are ", length(unique(input.df$Allele.Name)), " unique markers"))
       
-      print(paste0("Currently, there are ", length(unique(input.df$Allele.Name)), " unique markers"))
-      
-    # If hotspot only is not true, then keep all SNP variants
-    }else if(hotspot_only==FALSE){
-      
-      # Reporting
-      print("Keeping all SNP variants, including non-hotspot variants")
-      
-      # Stop execution, this function has not yet been developed
-      stop("**Process stopped: characterizing non-hotspot variants (i.e., 'novel SNPs') is not yet implemented, but is planned for future development**")
-      
-      # Retain all SNPs
-      #input.df <- input.df[input.df$Type=="SNP", ]
-      
-      #print(paste0("Currently, there are ", length(unique(input.df$Allele.Name)), " unique markers"))
-      
-      #if(keep_type=="top_maf"){
-      #  }
-      
-    }
-    
-
     ## Summarize data characteristics
     # Per sample mean marker read depth
     print("Summarizing per sample mean/median marker read depth")
