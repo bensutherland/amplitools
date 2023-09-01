@@ -6,24 +6,31 @@
 
 ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", parent_pop = "VIU_F1", offspring_pop = "VIU_F2", cutoff = 5){
   
-  #### 01. Read in genotype dataset, keep selected pops, and remove extra annot ####
+  #### 01. Read in data ####
+  # Reporting
   print(paste0("Reading in data from ", input.FN))
+  
+  # Read in data
   data.df <- read.delim(file = input.FN, header = T, sep = "\t")
-  #print(data.df[1:10, 1:10]) # note: numeric header receives 'X' prefix
-  print(paste0("The data has ", nrow(data.df), " rows and ", ncol(data.df), " columns"))
+  # data.df[1:10, 1:10]
   
-  # Keep only target populations
-  print(paste0("Keeping only the samples noted as the parent_pop: '", parent_pop, "'; or as the offspring_pop: '", offspring_pop))
+  # Reporting
+  print(paste0("The data contains ", length(unique(data.df$indiv)), " unique individuals and ", (ncol(data.df)-4)/2, " loci"))
+  
+  
+  #### 02. Subset dataset to keep only parent and offspring populations
+  print(paste0("Keeping only the samples from the parent or offspring populations: ", parent_pop, " and ", offspring_pop))
   data.df <- data.df[data.df$repunit==parent_pop | data.df$repunit==offspring_pop, ]
-  print(paste0("The selected data has ", nrow(data.df), " rows and ", ncol(data.df), " columns"))
   
-  # Identify the individual names within each of the retained parentage samples
-  print(paste0("Keeping samples annotated as ", parent_pop, " or ", offspring_pop))
+  # Reporting
+  print(paste0("The data contains ", length(unique(data.df$indiv)), " unique individuals and ", (ncol(data.df)-4)/2, " loci"))
+  
+  # Report and export the names of indiv from each generation
   parent_indivs    <- data.df[data.df$repunit==parent_pop, "indiv"]
   offspring_indivs <- data.df[data.df$repunit==offspring_pop, "indiv"]
-  print("The retained potential parent samples are: ")
+  print(paste0("The ", length(parent_indivs), " samples in the parental population include: "))
   print(parent_indivs)
-  print("The retained potential offspring samples are: ")
+  print(paste0("The ", length(offspring_indivs), " samples in the offspring population include: "))
   print(offspring_indivs)
   
   # Export names of analyzed individuals by population
@@ -35,57 +42,57 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
               , sep = "\t", row.names = F, col.names = F, quote = F
   )
   
+  
+  #### 03. Restrict to only the indiv col and genotypes ####
   # Remove annotation columns except for the indiv col
-  print("Removing annotation columns 'sample_type|collection|repunit', and keeping the column with individual names")
   data.df <- data.df[, grep(pattern = "sample_type|collection|repunit", x = colnames(data.df), invert = T) ]
-  print(data.df[1:5, 1:10])
+  #print(data.df[1:5, 1:10])
   
   # Reporting
-  print(paste0("After removing extra annotation columns, the selected data has ", nrow(data.df), " rows and ", ncol(data.df), " columns"))
-  
-  # For now, keep parents and offspring together
-  genos <- data.df
-  genos[1:5,1:5]
-  print(paste0("The data has ", nrow(genos), " individuals and ", (ncol(genos) -1) / 2, " markers"))
+  print(paste0("The data contains ", length(unique(data.df$indiv)), " unique individuals and ", (ncol(data.df)-1)/2, " loci"))
   
   
-  #### 02. Compute Allele Frequencies from Genotype Data ####
-  print("Computing allele frequences on selected samples")
-  nc <- ncol(genos) # note: the col count also includes the 1st col, indiv ID
+  #### 04. Rename markers to include .1 and .2 suffix ####
+  # How many columns in dataset? 
+  nc <- ncol(data.df) # note: the col count also includes the 1st col, indiv ID
+  
   
   ## Rename marker names in cols ##
-  # Find the names of each locus (only one per allele pair)
-  loci <- str_replace(string = names(genos)[seq(2, nc, by = 2)]
+  # Find the names of each locus (one per allele pair)
+  loci <- str_replace(string = names(data.df)[seq(2, nc, by = 2)]
                       , pattern = "\\.\\.\\.[0-9]+$"
                       , replacement = ""
   ) 
   
   # Add locus suffix (.1 for allele 1 and .2 for allele 2)
-  names(genos)[seq(2, nc, by = 2)] <- str_c(loci, "1", sep = ".")
-  names(genos)[seq(3, nc, by = 2)] <- str_c(loci, "2", sep = ".")
+  names(data.df)[seq(2, nc, by = 2)] <- str_c(loci, "1", sep = ".")
+  names(data.df)[seq(3, nc, by = 2)] <- str_c(loci, "2", sep = ".")
+  #print(data.df[1:5,1:5])
   
-  print(genos[1:5,1:5])
   
-  # ## Optional rarefy ##
+  #### 05. Optional rarefy step ####
   # # Half loci
-  # dim(genos)
-  # genos <- genos[,1:427]
-  # genos[1:5, 420:427]
+  # dim(data.df)
+  # data.df <- data.df[,1:427]
+  # data.df[1:5, 420:427]
   # 
   # # Quarter loci
-  # dim(genos)
-  # genos <- genos[,1:213]
-  # genos[1:5, 210:213]
-  # ## /END/ Optional rarefy ##
+  # dim(data.df)
+  # data.df <- data.df[,1:213]
+  # data.df[1:5, 210:213]
+  
+  
+  #### 06. Compute allele frequencies (from CKMRsim tutorial) ####
+  print("Computing allele frequences on selected samples")
   
   # Make into a tibble
-  print("Converting to a tibble")
-  genos <- tibble(genos)
-  print(genos)
+  data.df <- tibble(data.df)
+  #print(data.df)
   
   # Convert genotypes into long form (from CKMRsim tutorial)
   print("Converting genotypes to long form")
-  long_genos <- genos %>% 
+  
+  long_genos <- data.df %>% 
     
     gather(key = "loc", value = "Allele", -indiv) %>%
     
@@ -97,10 +104,9 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
     
     rename(Indiv = indiv)
   
-  print(long_genos)
+  #print(long_genos)
   
   # Calculate allele frequencies (from CKMRsim tutorial)
-  print("Calculating allele frequencies")
   alle_freqs <- long_genos %>%
     
     count(Locus, Allele) %>%
@@ -122,20 +128,21 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
     
     filter(!is.na(Allele))
   
-  print(alle_freqs)
+  #print(alle_freqs)
   
   # Pass through reindex_markers function to provide a df of AF that CKMRsim will use for sims
-  # function resets values of AlleIdx and LocIdx in case of removals, rescales AF to sum to 1, and sorts loci along chromosomes
-  print("Reindexing markers for CKMRsim")
+  #  function resets values of AlleIdx and LocIdx in case of removals, rescales AF to sum to 1, and sorts loci along chromosomes
   afreqs_ready <- reindex_markers(alle_freqs)
+  print("*** Calculated allele frequencies: ")
+  print(afreqs_ready)
   
   
-  #### 03. Create a CKMR object ####
+  #### 07. Create a CKMR object ####
   print("Create a CKMR object by using the kappas df supplied with CKMRsim")
-  print(kappas) # data supplied with package
+  #print(kappas) # data supplied with package
   
   # Create ckmr object
-  print("Creating ckmr object")
+  print("Creating ckmr object using kappas PO, FS, HS, and U")
   ex1_ckmr <- create_ckmr(
     D = afreqs_ready,
     kappa_matrix = kappas[c("PO", "FS", "HS", "U"), ],
@@ -145,37 +152,37 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
     ge_mod_true_pars_list = list(epsilon = 0.005)
   )
   
-  print(ex1_ckmr)
+  #print(ex1_ckmr)
   
-  # Simulate genotype pairs and calculate log-probabilities
-  print("Simulating genotype pairs, then calculating log-probabilities")
+  
+  #### 08. Simulate genotype pairs and calculate log-probabilities ####
+  print("Simulating genotype pairs")
   ex1_Qs <- simulate_Qij(ex1_ckmr, 
                          calc_relats = c("PO", "FS", "U"),
                          sim_relats = c("PO", "FS", "HS", "U") )
   
-  print(ex1_Qs)
-  
-  
-  #### 04. Compute and extract log-likelihood raios from simulated data
+  # Compute and extract log-likelihood raios from simulated data
   print("Computing log-likelihood ratios from the simulated data")
   
+  
+  ##### 08.1 PO vs. U #####
   # Computing logl: PO, U
-  print("Extracting logl from simultated parent-offspring relationship compared to unrelated")
+  print("Simulated parent-offspring (PO) vs. Unrelated (U)")
   PO_U_logls <- extract_logls(ex1_Qs,
                               numer = c(PO = 1),
                               denom = c(U = 1))
   
-  print(PO_U_logls)
+  #print(PO_U_logls)
   
-  # Plot densities of logl_ratio for FS, HS, PO, U
-  print("Plotting densities of logl_ratios for parent-offspring (PO) and unrelated (U)")
-  print("Saving density plot as 03_results/logl_ratio_u_hs_fs_po.pdf")
+  # Plot densities of logl_ratio for PO, U
+  po_logl_density_plot.FN <- "03_results/logl_ratio_PO_U.pdf"
+  print(paste0("Plotting densities of logl_ratios, saving to ", po_logl_density_plot.FN))
   
   p <- ggplot(PO_U_logls,
          aes(x = logl_ratio, fill = true_relat)) +
        geom_density(alpha = 0.25)
   
-  pdf(file = "03_results/logl_ratio_u_hs_fs_po.pdf", width = 7, height = 5)
+  pdf(file = po_logl_density_plot.FN, width = 7, height = 5)
   print(p)
   dev.off()
   
@@ -187,12 +194,26 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   # dev.off()
   
   
+  ##### 08.2 FS vs. U #####
   # Computing logl: FS, U
-  print("Extracting logl from simultated fullsib (FS) compared to unrelated (U)")
+  print("Simulated full-sib (PO) vs. unrelated (U)")
   FS_U_logls <- extract_logls(ex1_Qs,
                               numer = c(FS = 1),
                               denom = c(U = 1))
-  print(FS_U_logls)
+  #print(FS_U_logls)
+  
+  
+  # Plot densities of logl_ratio for FS, U
+  fs_logl_density_plot.FN <- "03_results/logl_ratio_FS_U.pdf"
+  print(paste0("Plotting densities of logl_ratios, saving to ", fs_logl_density_plot.FN))
+  
+  p <- ggplot(FS_U_logls,
+              aes(x = logl_ratio, fill = true_relat)) +
+    geom_density(alpha = 0.25)
+  
+  pdf(file = fs_logl_density_plot.FN, width = 7, height = 5)
+  print(p)
+  dev.off()
   
   # # Plot densities for logl_ratio for U, FS
   # pdf(file = "03_results/logl_ratio_u_fs.pdf", width = 7, height = 5)
@@ -202,7 +223,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   # dev.off()
   
   
-  #### 05. Estimate false positive rates and false negative rates ####
+  #### 09. Estimate false positive rates and false negative rates ####
   print("Estimating false positive and false negative rates")
   
   # PO/U
