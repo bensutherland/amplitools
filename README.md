@@ -42,6 +42,11 @@ cd amplitools
 
 ```
 
+Testing out the platform with test data:      
+`load_vc(input_folder = "02_input_data", test_only = TRUE)`         
+This should load 8024 rows and 14 columns, with 2079 unique markers, from two different samples, and will save the output as input.list for inspection.              
+
+
 ## A. VariantCaller to genepop ##
 Convert [VariantCaller](https://www.thermofisher.com/ca/en/home/life-science/sequencing/next-generation-sequencing/ion-torrent-next-generation-sequencing-workflow/ion-torrent-next-generation-sequencing-data-analysis-workflow/ion-torrent-suite-software.html) output to a genepop file for downstream analysis. An example of the input file is provided [here](#toadd)     
 
