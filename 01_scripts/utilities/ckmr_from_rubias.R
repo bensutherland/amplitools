@@ -1,13 +1,8 @@
-# Assess parentage and estimate power
-# Inputs: rubias file
-# Sutherland Bioinformatics, Initialized 2022-09-19
-# Note: uses a lot of code from the tutorial for CKMRsim, see README for link. 
-
-## requires sourcing 00_initiator.R before starting
-
-# More information: 
-#vignette("CKMRsim-example-1")
-## ...other vignettes available from CKMRsim page
+# Use the package CKMR-sim to estimate log likelihood distributions and conduct parentage or sibship assignment
+#  Largely adapted from CKMR-sim tutorials. Please cite tutorials
+#  Anderson EC (2023) CKMRsim. https://github.com/eriqande/CKMRsim.
+#  vignette("CKMRsim-example-1")
+#  Sutherland Bioinformatics, Initialized 2022-09-19
 
 ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", parent_pop = "VIU_F1", offspring_pop = "VIU_F2", cutoff = 5){
   
