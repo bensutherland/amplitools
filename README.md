@@ -126,6 +126,8 @@ See `simple_pop_stats` for other methods, such as filtering, plotting data, anal
 
 
 ## D. Parentage analysis ##
+The parentage analysis is largely dependent on the R package [CKMRsim](https://eriqande.github.io/CKMRsim/) by Eric C. Anderson. If you use the function `ckmr_from_rubias.R`, please cite CKMRsim.        
+
 This section is in development. For now, please see instructions in the associated pipeline: [ms_oyster_panel](https://github.com/bensutherland/ms_oyster_panel).         
 
 
