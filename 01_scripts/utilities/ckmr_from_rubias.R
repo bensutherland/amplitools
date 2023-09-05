@@ -218,7 +218,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   # Retain info
   ckmr_results.list[["cutoff_applied"]]    <- cutoff
   
-  # Reporting
+  ##### 09.1 Parent-offspring comparisons #####
   print("Estimating false positive and false negative rates for parent-offspring comparisons")
   
   # Evaluate expected FPR/FNR with default FNR range and user-set cutoff (default FNR: 0.01, 0.05, 0.1, 0.2, 0.3)
@@ -268,42 +268,48 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   print(ckmr_results.list[["PO_range_FNR_FPR"]])
   
   
-  ## FS/U
-  print("Also estimating FPR and FNR for fullsibs vs. unrelated")
+  ##### 09.2 Full-sib comparisons #####
+  # Reporting
+  print("Estimating false positive and false negative rates for full-sib comparisons")
+  
   ex1_FS_is <- mc_sample_simple(ex1_Qs, 
                                 nu = "FS",
                                 de = "U"
-                                , lambda_stars = seq(0, cutoff, by = 0.5)
+                                , lambda_stars = cutoff
   )
   
   print(ex1_FS_is)
   
+  # Retain info
+  ckmr_results.list[["FS_FPRs"]]           <- ex1_FS_is
+  ckmr_results.list[["FS_FPR_set_cutoff"]] <- formatC(x = ex1_FS_is$FPR[1], format = "e", digits = 2)
+  print(paste0("The FPR at the set cutoff is ** ", ckmr_results.list[["FS_FPR_set_cutoff"]], " **"))
+  
   # How many potential pairs? 
   print(paste0("With ", num_offspring, " offspring, there are ", num_offspring * num_offspring, " pairs being tested."))
-  
-  # TODO: do we also need to choose logl for these?
-  print("The vignette recommends req. FPR that is ~10-100 times smaller than the reciprocal of the number of comparisons, which for this data would be:")
+  print("100x smaller than the reciprocal of the number of pairs = ")
   print(  formatC(0.1 * (num_offspring * num_offspring) ^ (-1) , format = "e", digits= 2))
-  print("If this value is ~10-100 times larger than your calculated FPR, then proceed.")
+  print("If your FPR is smaller than the above, then proceed.")
   
   print("***Completed selection of logl cutoffs***")
   
-  
-  #### 06. Screen out duplicates ####
-  print("Before proceeding, check for duplicate individuals that exist in the dataset using the 'find_close_matching_genotypes() function'")
+
+  #### 10. Screen out duplicates ####
+  print("Check for dupl. indiv. that exist in the dataset using the 'find_close_matching_genotypes() function'")
   matchers <- find_close_matching_genotypes(LG = long_genos,
                                             CK = ex1_ckmr,
                                             max_mismatch = 6
                                             )
   print(matchers)
   print("If the above printed df is empty, then there are no close matching individuals (no replicate individuals)")
+  ## TODO: how to screen out if they are present? ##
   
   
-  #### 07. Compute logl ratios for all pairwise comparisons to look for parent offspring pairs ####
+  #### 11. Compute logl ratios for all pairwise comparisons to look for parent offspring pairs ####
   print("Computing logl ratios for all pairwise comparisons to identify parent-offspring pairs")
 
   # Identify parent and offspring IDs
-  indiv_names <- unique(long_genos$Indiv)
+  indiv_names   <- unique(long_genos$Indiv)
   parent_ids    <- indiv_names[indiv_names %in% parent_indivs] # do this way in case filtering happened between identifying IDs and now (e.g., duplicates)
   offspring_ids <- indiv_names[indiv_names %in% offspring_indivs]
   
@@ -403,8 +409,9 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
               , sep = "\t", row.names = F, quote = F
   )
   
-  
-  #### TODO: FPR and FNR assessed and reported for FS (parents)
+  # Write out ckmr_results.list
+  output.FN <- paste0("03_results/ckmr_run_logl_", cutoff, "_result_log.txt")
+  capture.output(ckmr_results.list, file = output.FN)
 
 }
 
