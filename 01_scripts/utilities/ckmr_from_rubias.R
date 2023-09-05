@@ -6,6 +6,9 @@
 
 ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", parent_pop = "VIU_F1", offspring_pop = "VIU_F2", cutoff = 5){
   
+  # Set variables
+  ckmr_results.list <- list()
+  
   #### 01. Read in data ####
   # Reporting
   print(paste0("Reading in data from ", input.FN))
@@ -48,8 +51,8 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   data.df <- data.df[, grep(pattern = "sample_type|collection|repunit", x = colnames(data.df), invert = T) ]
   #print(data.df[1:5, 1:10])
   
-  # Reporting
-  print(paste0("The data contains ", length(unique(data.df$indiv)), " unique individuals and ", (ncol(data.df)-1)/2, " loci"))
+  # # Reporting
+  # print(paste0("The data contains ", length(unique(data.df$indiv)), " unique individuals and ", (ncol(data.df)-1)/2, " loci"))
   
   
   #### 04. Rename markers to include .1 and .2 suffix ####
@@ -68,18 +71,6 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   names(data.df)[seq(2, nc, by = 2)] <- str_c(loci, "1", sep = ".")
   names(data.df)[seq(3, nc, by = 2)] <- str_c(loci, "2", sep = ".")
   #print(data.df[1:5,1:5])
-  
-  
-  #### 05. Optional rarefy step ####
-  # # Half loci
-  # dim(data.df)
-  # data.df <- data.df[,1:427]
-  # data.df[1:5, 420:427]
-  # 
-  # # Quarter loci
-  # dim(data.df)
-  # data.df <- data.df[,1:213]
-  # data.df[1:5, 210:213]
   
   
   #### 06. Compute allele frequencies (from CKMRsim tutorial) ####
@@ -224,52 +215,57 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   
   
   #### 09. Estimate false positive rates and false negative rates ####
-  print("Estimating false positive and false negative rates")
+  # Retain info
+  ckmr_results.list[["cutoff_applied"]]    <- cutoff
   
-  # PO/U
-  # by default computes FPR assoc. with FNR of 0.3, 0.2, 0.1, 0.05, 0.01, 0.001
-  ex1_PO_is <- mc_sample_simple(ex1_Qs, 
-                                nu = "PO",
-                                de = "U")
+  # Reporting
+  print("Estimating false positive and false negative rates for parent-offspring comparisons")
   
-  print("Follows is the default FPR assoc. with FNR of 0.01, 0.05, 0.1, 0.2, 0.3")
-  print(ex1_PO_is)
-  
-  # What would the results look like if we use a logl ratio of 5 as a cutoff (from tutorial)
-  print(paste0("Consider results if use logl = ", cutoff, " as a cutoff? i.e.,  lamdba_stars"))
+  # Evaluate expected FPR/FNR with default FNR range and user-set cutoff (default FNR: 0.01, 0.05, 0.1, 0.2, 0.3)
   ex1_PO_is_5 <- mc_sample_simple(ex1_Qs, 
                                   nu = "PO",
                                   de = "U", 
                                   lambda_stars = cutoff)
-  
   print(ex1_PO_is_5)
   
-  # What cutoff do we want to use? 
-  # How many potential adults and offspring in the study? 
-  num_parents <- length(parent_indivs)
+  # Retain info
+  ckmr_results.list[["PO_FPRs"]]           <- ex1_PO_is_5
+  ckmr_results.list[["PO_FPR_set_cutoff"]] <- formatC(x = ex1_PO_is_5$FPR[1], format = "e", digits = 2)
+  print(paste0("The FPR at the set cutoff is ** ", ckmr_results.list[["PO_FPR_set_cutoff"]], " **"))
+  
+  # Summarize and record the number of comparisons applied
+  num_parents   <- length(parent_indivs)
   num_offspring <- length(offspring_indivs)
-  print(paste0("With ", num_parents, " possible parents and ", num_offspring, " possible offspring, "))
-  print(paste0("...there are ", num_parents * num_offspring, " pairs being tested. (i.e., num parents x num offspring)"))
+  ckmr_results.list[["PO_number_pairs_tested"]] <- num_parents * num_offspring
+  print(paste0("With ", num_offspring, " offspring and ", num_parents
+               , " parents, there are ", ckmr_results.list[["PO_number_pairs_tested"]]
+               , " pairs being tested."))
   
-  # Calculated per pair would leave us with expected number of FP: 
-  print(paste0("Considering the FPR above for the set logl ratio, '"
-               , formatC(ex1_PO_is_5$FPR[1], format = "e", digits = 2) 
-               ,"', this leaves us with: ")
-        )
-  print(paste0(    formatC(num_parents * num_offspring * ex1_PO_is_5$FPR[1], format = "e", digits = 2)
-               , " possible false positive pairs"))
+  # How many false positives are expected in the dataset with the chosen cutoff? 
+  FP_expected <- ckmr_results.list[["PO_number_pairs_tested"]] * as.numeric(ckmr_results.list[["PO_FPR_set_cutoff"]])
+  ckmr_results.list[["PO_estim_FP_pairs"]] <- formatC(x = FP_expected, format = "e", digits = 2)
+  print(paste0("The expected number of false positives in the dataset is: ", ckmr_results.list[["PO_estim_FP_pairs"]]))
   
-  print("The vignette recommends req. FPR that is ~10-100 times smaller than the reciprocal of the number of comparisons, which for this data would be:")
-  print(  formatC(0.1 * (num_parents * num_offspring) ^ (-1) , format = "e", digits= 2))
-  print("If this value is ~10-100 times larger than your calculated FPR, then proceed.")
+  # The vignette recommends considering the reciprocal of the number of comparisons being made
+  recip_of_comps <- 0.1 * ckmr_results.list[["PO_number_pairs_tested"]] ^ (-1)
+  ckmr_results.list[["PO_reciproc_num_comps"]] <- formatC(x = recip_of_comps, format = "e", digits = 2)
   
-  # View what other logl Lambda_star would provide
-  print("For comparison, also see what other lamda_star values would produce: ")
+  # Compare between the two
+  print("The calculated FPR at user-set logl cutoff: ")
+  print(ckmr_results.list[["PO_FPR_set_cutoff"]])
+  print("0.1x the reciprocal of the number of comparisons is: ")
+  print(ckmr_results.list[["PO_reciproc_num_comps"]])
+  print("If the calc FPR is smaller than the reciprocal number of comparisons, then proceed.")
+  
+  # Also retain other lambda star values
+  print("For comparison, also see what other lambda_star values would produce: ")
   ex1_PO_is_5_30 <- mc_sample_simple(ex1_Qs, 
                                      nu = "PO",
                                      de = "U", 
                                      lambda_stars = seq(cutoff, 30, by = 2))
-  print(ex1_PO_is_5_30)
+  
+  ckmr_results.list[["PO_range_FNR_FPR"]] <- ex1_PO_is_5_30
+  print(ckmr_results.list[["PO_range_FNR_FPR"]])
   
   
   ## FS/U
