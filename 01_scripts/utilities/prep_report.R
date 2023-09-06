@@ -2,22 +2,43 @@
 # Ben J. G. Sutherland
 # 2023-08-14
 
-prep_report <- function(relationship = "PO"){
+prep_report <- function(relationship = "PO", input.FN = NULL, offspring_ids = NULL){
   
-  ## Identify files
-  files.vec <- NULL
-  
-  if(relationship=="PO"){
+  # If no input.FN is provided, run function on all po*.txt report files in folder
+  # note: this approach will likely be removed in the future, only running prep_report from within the parentage wrapper
+  if(is.null(input.FN)){
     
-    files.vec <- list.files(path = "03_results/", pattern = "^po")
-    files.vec <- files.vec[grep(pattern = "\\.txt", x = files.vec)]
-    files.vec <- files.vec[grep(pattern = "\\_report.txt$", x = files.vec, invert = T)]
-    files.vec <- files.vec[grep(pattern = "\\_no_cutoff.txt$", x = files.vec, invert = T)]
+    ## Identify files
+    files.vec <- NULL
     
-  }else if(relationship=="FS"){
+    if(relationship=="PO"){
+      
+      files.vec <- list.files(path = "03_results/", pattern = "^po")
+      files.vec <- files.vec[grep(pattern = "\\.txt", x = files.vec)]
+      files.vec <- files.vec[grep(pattern = "\\_report.txt$", x = files.vec, invert = T)]
+      files.vec <- files.vec[grep(pattern = "\\_no_cutoff.txt$", x = files.vec, invert = T)]
+      
+    }else if(relationship=="FS"){
+      
+      print("This output is not yet implemented.")
+      
+    }
+ 
+  # If an input.FN is provided, and it is a PO result file, use this as the input vector   
+  }else if(!is.null(input.FN)){
     
-    print("This output is not yet implemented.")
-    
+    if(relationship=="PO"){
+      
+      # Temporary, to match with previous method
+      input.FN <- gsub(pattern = "03_results/", replacement = "", x = input.FN)
+      
+      files.vec <- input.FN
+      
+    }else{
+      
+      print("This output is not yet implemented.")
+      
+    }
   }
 
   # Reporting
@@ -59,6 +80,14 @@ prep_report <- function(relationship = "PO"){
     # Identify unique offspring
     D2_unique.vec <- unique(x = data.df$D2_indiv)
     
+    # If there were offspring IDs provided (i.e., was run as a wrapper)
+    if(!is.null(offspring_ids)){ 
+      
+      # Include any offspring that were completely unassigned
+      D2_unique.vec <- unique(c(D2_unique.vec, offspring_ids))
+      
+      }
+    
     # Prepare the output matrix
     output.df <- matrix(data = NA, nrow = length(D2_unique.vec), ncol = 8)
     colnames(output.df) <- c("indiv", "p1", "p1_logl", "p1_nloc", "p2", "p2_logl", "p2_nloc", "other_assigns")
@@ -86,28 +115,37 @@ prep_report <- function(relationship = "PO"){
         
       }
       
+      # If no assignments at all
+      if(num_assigns==0){
+        
+        # Collect the name of the individual
+        output.df[indiv, "indiv"] <- rownames(output.df)[indiv]
+        output.df[indiv,"other_assigns"] <- ""
+        
+      }
       
-      # Obtain the top two assignments
-      indiv.df <- head(x = data.df[data.df$D2_indiv==D2_unique.vec[indiv],], n = 2)
-      
-      output.df[indiv, "indiv"] <- indiv.df[1,"D2_indiv"]
-      
-      # Obtain info for p1
-      output.df[indiv, "p1"]      <- indiv.df[1,"D1_indiv"]
-      output.df[indiv, "p1_logl"] <- indiv.df[1,"logl_ratio"]
-      output.df[indiv, "p1_nloc"] <- indiv.df[1,"num_loc"]
-      
-      # Obtain info for p2
-      output.df[indiv, "p2"]      <- indiv.df[2,"D1_indiv"]
-      output.df[indiv, "p2_logl"] <- indiv.df[2,"logl_ratio"]
-      output.df[indiv, "p2_nloc"] <- indiv.df[2,"num_loc"]
-      
-      # Add any extra assigns
-      output.df[indiv, "other_assigns"] <- paste0(extra_assigns, collapse = "; ")
-      
-      # Preview
-      head(output.df, n = 10)
-      
+      # If there are more than zero assignments
+      if(num_assigns > 0){
+        
+        # Obtain the top two assignments
+        indiv.df <- head(x = data.df[data.df$D2_indiv==D2_unique.vec[indiv],], n = 2)
+        
+        output.df[indiv, "indiv"] <- indiv.df[1,"D2_indiv"]
+        
+        # Obtain info for p1
+        output.df[indiv, "p1"]      <- indiv.df[1,"D1_indiv"]
+        output.df[indiv, "p1_logl"] <- indiv.df[1,"logl_ratio"]
+        output.df[indiv, "p1_nloc"] <- indiv.df[1,"num_loc"]
+        
+        # Obtain info for p2
+        output.df[indiv, "p2"]      <- indiv.df[2,"D1_indiv"]
+        output.df[indiv, "p2_logl"] <- indiv.df[2,"logl_ratio"]
+        output.df[indiv, "p2_nloc"] <- indiv.df[2,"num_loc"]
+        
+        # Add any extra assigns
+        output.df[indiv, "other_assigns"] <- paste0(extra_assigns, collapse = "; ")
+
+      }
     }
     
     # Convert logls to numeric and round
