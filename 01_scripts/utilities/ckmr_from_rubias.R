@@ -19,6 +19,25 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   # Reporting
   print(paste0("The data contains ", length(unique(data.df$indiv)), " unique individuals and ", (ncol(data.df)-4)/2, " loci"))
   
+  # Retain the number of genotyped loci in each indiv (untyped = NA)
+  missing.df <- matrix(data = NA, nrow = nrow(data.df), ncol = 2)
+  colnames(missing.df) <- c("indiv", "num_genos")
+  missing.df <- as.data.frame(missing.df)
+  
+  for(row in 1:nrow(data.df)){
+    
+    missing.df[row,"indiv"] <- data.df[row,"indiv"]
+    
+    # Note: assumes there are four columns with metadata
+    missing.df[row, "num_genos"] <- (ncol(data.df) - sum(is.na(data.df[row,])) - 4)/2
+    
+  }
+  
+  # Write out number of genotypes per individual to output
+  write.table(x = missing.df, file = "03_results/per_indiv_geno_loci.txt"
+              , sep = "\t", row.names = F, col.names = T, quote = F
+  )
+  
   
   #### 02. Subset dataset to keep only parent and offspring populations
   print(paste0("Keeping only the samples from the parent or offspring populations: ", parent_pop, " and ", offspring_pop))
