@@ -1,6 +1,5 @@
 # Use the package CKMR-sim to estimate log likelihood distributions and conduct parentage or sibship assignment
-#  Largely adapted from CKMR-sim tutorials. Please cite tutorials
-#  Anderson EC (2023) CKMRsim. https://github.com/eriqande/CKMRsim.
+#  Largely adapted from CKMR-sim tutorials. Please cite: Anderson EC (2023) CKMRsim. https://github.com/eriqande/CKMRsim.
 #  vignette("CKMRsim-example-1")
 #  Sutherland Bioinformatics, Initialized 2022-09-19
 
@@ -412,6 +411,9 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   # Write out ckmr_results.list
   output.FN <- paste0("03_results/ckmr_run_logl_", cutoff, "_result_log.txt")
   capture.output(ckmr_results.list, file = output.FN)
+  
+  ##### 12. Prepare final report ####
+  prep_report(relationship = "PO", input.FN = po_output.FN, offspring_ids = offspring_ids)
 
 }
 
