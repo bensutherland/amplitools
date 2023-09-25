@@ -3,6 +3,8 @@
 *.xls
 *.gen
 *.fa
+*.fq
+*.fq.gz
 *.pdf
 *.bam
 *.sam
