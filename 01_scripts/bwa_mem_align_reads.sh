@@ -9,6 +9,7 @@ GENOMEFOLDER="/home/greent/genomes"
 GENOME="GCF_902806645.1_cgigas_uk_roslin_v1_genomic" # note: this is the prefix given during index
 INPUTFOLDER="12_input_data_mhp"
 OUTPUTFOLDER="13_mapped_mhp"
+IDXFOLDER="idx_output"
 NCPU="$1"
 
 # For all files in the input, align
@@ -27,13 +28,17 @@ do
         samtools view -Sb -q 1 -F 4 -F 256 -F 2048 \
         - > "$OUTPUTFOLDER"/"${name%.fq.gz}".bam
 
-
     # Samtools sort
     samtools sort --threads "$NCPU" -o "$OUTPUTFOLDER"/"${name%.fq.gz}".sorted.bam \
         "$OUTPUTFOLDER"/"${name%.fq.gz}".bam
 
+    # Index output
     samtools index "$OUTPUTFOLDER"/"${name%.fq.gz}".sorted.bam
+
+    # Generate stats
+    samtools idxstats --threads $NCPU "$OUTPUTFOLDER"/"${name%.fq.gz}".sorted.bam > "$OUTPUTFOLDER"/"$IDXFOLDER"/"${name%.fq.gz}"_idxstats.txt 
 
     # Cleanup
     rm "$OUTPUTFOLDER"/"${name%.fq.gz}".bam
+
 done
