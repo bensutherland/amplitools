@@ -19,7 +19,8 @@ do
     echo "Aligning file $file"
 
     name=$(basename "$file")
-    ID="@RG\tID:ind\tSM:ind\tPL:IonProton"
+    ID="@RG\tID:$name\tSM:$name\tPL:IonProton"
+    # note: this was updated to be sure to add a unique RG ID for downstream processing
 
     # Align reads 1 step
     bwa mem -t "$NCPU" -k 19 -c 500 -O 0,0 -E 2,2 -T 0 \
