@@ -334,4 +334,17 @@ tally_to_freq <- function(df = "df", allele_source = "novel"){
   # Export result
   write_delim(x = export_data, file = "03_results/all_SNP.txt", delim = "\t")
   
+  # Export as BED
+  export_data$pos  <- as.numeric(export_data$pos)
+  export_data$start <- export_data$pos - 1
+  head(export_data)
+  export_data.bed <- export_data[,c("chr", "start", "pos")]
+  colnames(export_data.bed)[which(colnames(export_data.bed)=="pos")] <- "end"
+  head(export_data.bed)
+  
+  # Export result
+  write_delim(x = export_data.bed, file = "03_results/all_SNP.bed", delim = "\t")
+  
+  
+  
 }
