@@ -62,9 +62,28 @@ freebayes-parallel <(fasta_generate_regions.py ~/genomes/GCF_902806645.1_cgigas_
 freebayes -f ~/genomes/GCF_902806645.1_cgigas_uk_roslin_v1_genomic.fna -L ./bamlist.txt --haplotype-length 0 -kwVa --throw-away-mnps-obs --throw-away-complex-obs > 14_VCF_mhp/OCP23.vcf 
 
 ```
+This path was very slow.      
 
 
+#### 05. Use previously identified variants from flat file ####
+Create bed file by using the tally script. 
+`01_scripts/dev/tally_to_freq.R`     
 
+This will output `03_results/all_SNP.bed`.       
+This path did not work.     
+
+
+#### 06. Use previously identified variants from VCF ####
+To do this, will need to merge all single-sample VCF files provided by the sequencing facility.     
+
+First, create a list of all VCFs to be merged:        
+`ls -1 *.vcf.gz > VCF_file_list.txt`      
+
+Combine all VCF files into a single VCF, as follows:      
+`bcftools merge --file-list VCF_file_list.txt -o merged.vcf`        
+
+Filtering:        
+`vcftools --vcf merged.vcf --max-missing 0.5 --mac 3 --minQ 30 --remove-indels --minDP 3 --recode --recode-INFO-all --out filtered`     
 
 
 
