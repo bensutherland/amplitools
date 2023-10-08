@@ -85,6 +85,35 @@ Combine all VCF files into a single VCF, as follows:
 Filtering:        
 `vcftools --vcf merged.vcf --max-missing 0.5 --mac 3 --minQ 30 --remove-indels --minDP 3 --recode --recode-INFO-all --out filtered`     
 
+Need to use SNPLift to convert the VCF positions from the reference genome used for amplicon panel and that used for alignments.      
+Clone the repo for SNPLift into the parent folder of the present repo. Change into the SNPLift main directory for the rest of this section.     
+Copy the chromosome and contig-level assemblies into `03_genomes`.         
+Copy the contig-level assembly into `04_input_vcf`.      
+
+Ensure that both assemblies are indexed with BWA.    
+
+Update the following lines in `02_infos/snplift_config.sh`:       
+
+```
+export OLD_GENOME="03_genomes/GCA_000297895.1_oyster_v9_genomic.fna"
+export NEW_GENOME="03_genomes/GCF_902806645.1_cgigas_uk_roslin_v1_genomic.fna"
+
+# Output files
+export INPUT_FILE="04_input_vcf/filtered.recode.vcf"
+export OUTPUT_FILE="contig_to_chr_2023-10-09.vcf"
+
+# Do final corrections to VCF file
+export CORRECT_ID=0         # Recompute the ID column from columns 1 and 2 [0, 1].
+
+```
+Note: setting the `CORRECT_ID` to 0 above prevents the ID column from being recalculated, so that your original IDs are carried through to the new VCF.       
+
+Run SNPLift:      
+`time ./snplift 02_infos/snplift_config.sh`      
+
+The output VCF file provides chromosome locations of the SNP variants.     
+
+Exit the SNPLift repo. 
 
 
 
