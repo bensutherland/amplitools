@@ -116,7 +116,10 @@ The output VCF file provides chromosome locations of the SNP variants.
 Exit the SNPLift repo. 
 
 
-
+Go to amplitools and obtain the names of all of the alignment files:       
+`ls 13_mapped_mhp/*.bam | sed 's/13\_mapped\_mhp\///g' - > 13_mapped_mhp/label.txt`    
+"Label file path. This customized label file is a tab-separate file that
+contains entries of SAM file name, individual ID, and group label. Required"
 
 
 
