@@ -79,7 +79,7 @@ As an alternative to identifying variants anew, you can use the variantCaller VC
 
 To use this option, first merge all single-sample VCF files:     
 ```
-# Create a list of all VCF files
+# Create a list of all VCF files (note: assumes all .vcf.gz are to be merged)
 ls -1 12_input_mhap/*.vcf.gz > 12_input_mhap/VCF_file_list.txt
 
 Combine all VCF files into a single VCF, as follows:      
@@ -99,6 +99,7 @@ The user should choose their own filters as they see fit, and the above is only 
 If you'd like to prove it to yourself, see how many variants are only present in a single VCF:    
 `gunzip -c 12_input_mhap/TSVC_variants_IonCode_0103.vcf.gz | bcftools query -f '%CHROM\_%POS\n' - > TSVC_IonCode_0103_variants.txt`         
 ...and compare to another sample. You will see many variants only present in a single file.      
+
 
 #### 06. Call microhaplotypes ####
 
