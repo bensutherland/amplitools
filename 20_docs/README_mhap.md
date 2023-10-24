@@ -83,19 +83,25 @@ To use this option, first merge all single-sample VCF files:
 ls -1 12_input_mhap/*.vcf.gz > 12_input_mhap/VCF_file_list.txt
 
 Combine all VCF files into a single VCF, as follows:      
-`bcftools merge --file-list VCF_file_list.txt -o merged.vcf`        
+bcftools merge --file-list VCF_file_list.txt -o merged.vcf        
  
 ```
 
 Next, some light filtering will remove some noise from the data:        
 ```
-vcftools --vcf 12_input_mhap/merged.vcf  --mac 3 --minQ 30 --remove-indels --minDP 3 --recode --recode-INFO-all --out filtered
+bcftools view --types snps -i 'MIN(FMT/DP)>3 & MIN(FMT/GQ)>30' -q 0.01:minor 12_input_mhap/merged.vcf -o 12_input_mhap/merged_filtered.vcf
+
 ```
-...however, remember that since missing data (i.e., no alt observed by the variantcaller) will be highly (and artificially) prevalent, so it makes sense to not filter yet using --max-missing.       
+...however, remember that since missing data (i.e., no alt observed by the variantcaller) will be highly (and artificially) prevalent, so it makes sense to not filter yet using missing data.       
+
+The user should choose their own filters as they see fit, and the above is only used as an example.     
 
 If you'd like to prove it to yourself, see how many variants are only present in a single VCF:    
 `gunzip -c 12_input_mhap/TSVC_variants_IonCode_0103.vcf.gz | bcftools query -f '%CHROM\_%POS\n' - > TSVC_IonCode_0103_variants.txt`         
 ...and compare to another sample. You will see many variants only present in a single file.      
+
+#### 06. Call microhaplotypes ####
+
 
 
 
