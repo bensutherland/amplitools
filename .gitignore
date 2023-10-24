@@ -11,7 +11,7 @@
 *.sam
 *.xlsx
 *Rhistory
-*.vcf
+*.vcf*
 *.csv
 *.bed
 *.fna
