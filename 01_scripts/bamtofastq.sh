@@ -2,7 +2,7 @@
 # Convert bam file to fastq file using bedtools
 
 # System variables
-INPUT_FOLDER="12_input_data_mhp"
+INPUT_FOLDER="12_input_mhap"
 
 # Convert samples from BAM to FASTQ
 ls -1 $INPUT_FOLDER/*.bam | 
