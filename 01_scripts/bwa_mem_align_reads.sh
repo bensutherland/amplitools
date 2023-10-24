@@ -6,9 +6,9 @@
 
 # Global variables
 GENOMEFOLDER="/home/greent/genomes"
-GENOME="GCF_902806645.1_cgigas_uk_roslin_v1_genomic" # note: this is the prefix given during index
-INPUTFOLDER="12_input_data_mhp"
-OUTPUTFOLDER="13_mapped_mhp"
+GENOME="GCA_000297895.1_oyster_v9_genomic.fna" # note: this is the prefix given during index
+INPUTFOLDER="12_input_mhap"
+OUTPUTFOLDER="13_mapped_mhap"
 IDXFOLDER="idx_output"
 NCPU="$1"
 
