@@ -11,14 +11,21 @@ multiqc
 _If identifying new variants_       
 vcflib `https://github.com/vcflib/vcflib`     
 freebayes (use apt-get)       
-also installed from github to get the freebayes-parallel script. The main freebayes binary did not seem to be included with the github install. 
+also installed from github to get the freebayes-parallel script. The main freebayes binary did not seem to be included with the github install.       
 
 #### General Comments ####
-There are two approaches that can be taken: (1) uses the variantCaller variants that are output by TorrentSuite software (ThermoFisher); and (2) identifies new variants. Both approaches share some commonalities, and the two approaches are described below, indicated where the two approaches diverge.       
+There are two approaches that can be taken:       
+(1) use the variantCaller SNPs output by TorrentSuite software (ThermoFisher); and         
+(2) identify new variants based on alignments against a ref genome.        
+
+Both approaches share some commonalities, and the two approaches are described below, indicated where the two approaches diverge.       
+
 
 #### 00. Prepare data
 The input sequence data for the pipeline will be in either fastq or bam format. Put these files in the folder `12_input_mhap`.         
-If the input data is in bam format, proceed to (01) below, and if it is in fastq format already, proceed to step (02).       
+
+If the input data is in bam format, proceed to [Step 01](#01-convert-from-bam-to-fq) below to convert to fastq format.        
+If the input data is in fastq format, skip Step 01 and proceed to [Step 02](#02-quality-check-sequence-data).       
 
 If you plan to use the **variantCaller identified variants**, put the compressed VCF files (.vcf.gz), one per individual, and the accompanying index file (.vcf.gz.tbi) in the folder `12_input_mhap`.      
 
