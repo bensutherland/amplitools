@@ -1,8 +1,6 @@
-### Support and Funding
-The development of this pipeline would not have been possible without the support of the following funding organizations or universities:      
-- University of British Columbia (Laboratory of Curtis A. Suttle)     
-- Vancouver Island University (Laboratory of Timothy J. Green)
-- Gordon and Betty Moore Foundation (GBMF#5600)
-- Province of British Columbia (SPARCC2)
+### Support and Funding ###
+This analytic pipeline is funded in part by:        
+- the Gordon and Betty Moore Foundation (GBMF) through grant GBMF5600 to Curtis A. Suttle of the University of British Columbia (UBC)
+- the Province of British Columbia through grant SPARCC2 to Timothy J. Green of Vancouver Island University (VIU)
 
 
