@@ -7,6 +7,7 @@ samtools
 bcftools       
 fastqc      
 multiqc     
+microTyper v.2.0      
 
 _If identifying new variants_       
 vcflib `https://github.com/vcflib/vcflib`     
@@ -98,7 +99,7 @@ bcftools merge --file-list VCF_file_list.txt -o merged.vcf
 
 Next, use light filtering to remove less reliable variants:        
 ```
-bcftools view --types snps -i 'MIN(FMT/DP)>3 & MIN(FMT/GQ)>30' -q 0.01:minor 12_input_mhap/merged.vcf -o 12_input_mhap/merged_filtered.vcf
+bcftools view -i 'TYPE="snp" & MIN(FMT/DP)>3 & MIN(FMT/GQ)>30' -q 0.01:minor 12_input_mhap/merged.vcf -o 12_input_mhap/merged_filtered.vcf     
 
 # Note: this is only suggested, and the user should determine their own cutoffs.     
 # The above keeps a variant if any one individual the following is true:      
@@ -106,6 +107,7 @@ bcftools view --types snps -i 'MIN(FMT/DP)>3 & MIN(FMT/GQ)>30' -q 0.01:minor 12_
 #  -min geno qual > 30
 # ...and if the following is true for the dataset altogether:      
 #  -minor allele freq (not non-ref, but true MAF) > 0.01
+#  -do not keep multi-nucleotide polymorphisms (MNPs)
 
 ```
 
@@ -116,9 +118,30 @@ Optional aside: if you'd like to prove it to yourself, see how many variants are
 
 
 #### 06. Call microhaplotypes ####
+Here we will use microTyper2.0 to pull the information out of the bam files in the mapped folder, but first we need to create a Position File to provide to microTyper2.0, based on the VCF with all the SNPs in it.         
+
+```
+# Create the content of the position file
+grep -vE '^#' 12_input_mhap/merged_filtered.vcf | awk '{ print $1 "\t" $2 "\t" "S" "\t" $5 }' - > 14_extract_mhap/position_file_body.txt
+
+# Add a header to the position file
+sed '1i Locus \t RefPos \t Type \t ValidAlt' 14_extract_mhap/position_filei_body.txt > 14_extract_mhap/position_file.txt
+
+# Clean up
+rm 14_extract_mhap/position_file_body.txt
+ 
+```
+
+We also need to clean up the reference genome, specifically to remove any characters after the first space in the accession header, as this will cause a mismatch between the ref genome and the position file and bams. Suggested fix, as example:     
+`awk '{print $1}' GCA_000297895.1_oyster_v9_genomic.fna > GCA_000297895.1_oyster_v9_genomic_shortname.fna`      
 
 
+Now that the position file is made (and ref genome cleaned up if needed), we can extract genotypes as follows:     
+```
+mtype2 -f 13_mapped_mhap/*.bam -p 14_extract_mhap/position_file.txt -r ~/genomes/GCA_000297895.1_oyster_v9_genomic_shortname.fna -d 10 -c .99 -o 14_extract_mhap/genos.txt    
+```
 
+This will output a file called `14_extract_mhap/genos.txt`.           
 
 
 #### Addendum ####
