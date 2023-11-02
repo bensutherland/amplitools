@@ -27,9 +27,11 @@ Both approaches share some commonalities, and the two approaches are described b
 **If need an amplicon-only assembly**      
 Obtain the regions file and reference genome sourced from [amplitargets](https://github.com/bensutherland/amplitargets), and put in `00_archive`.     
 
+Expand out a bit from the start and end of the region, for example using an approach as outlined in the non-generalized script `01_scripts/dev/expand_bed.R`. This will make the contigs work with SNPLift later, as if the contig is too short it will not work. Note: some of the contigs may be skipped if bedtools is requested to extract ranges beyond the end of the contig. There is no fix for this yet, but may involve reading in the fasta to get the sequence lengths at a future date.       
+
 Demonstrated with Pacific oyster:       
 ```
-getfasta -fi ./00_archive/GCA_000297895.1_oyster_v9_genomic.fna -bed 00_archive/WGAG22008_BJS_OYRv01_Region_A.bed > 00_archive/Cgig_v.1.0_amplicon_ref_2023-10-31.fna
+getfasta -fi ./00_archive/GCA_000297895.1_oyster_v9_genomic.fna -bed 00_archive/WGAG22008_BJS_OYRv01_Region_A_expanded.bed > 00_archive/Cgig_v.1.0_amplicon_ref_2023-10-31.fna
 
 # index the newly created fasta
 bwa index 00_archive/Cgig_v.1.0_amplicon_ref_2023-10-31.fna     

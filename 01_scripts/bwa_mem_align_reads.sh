@@ -5,8 +5,8 @@
 # https://github.com/enormandeau/stacks_workflow
 
 # Global variables
-GENOMEFOLDER="/home/greent/genomes"
-GENOME="GCA_000297895.1_oyster_v9_genomic.fna" # note: this is the prefix given during index
+GENOMEFOLDER="00_archive"
+GENOME="Cgig_v.1.0_amplicon_ref_2023-10-31.fna" # note: this is the prefix given during index
 INPUTFOLDER="12_input_mhap"
 OUTPUTFOLDER="13_mapped_mhap"
 IDXFOLDER="idx_output"
