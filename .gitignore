@@ -14,7 +14,7 @@
 *.vcf*
 *.csv
 *.bed
-*.fna
+*.fna*
 *.fai
 *#
 *.swp
