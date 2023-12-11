@@ -1,14 +1,14 @@
 ## This is a demonstration analysis of VariantCaller input data to accompany the cgig_ms_panel manuscript
 # B. Sutherland (2023-08-16)
-# Please see the README for cgig_ms_panel for more detailed instructions
+# See the README for cgig_ms_panel for more detailed instructions
+#  available here: https://github.com/bensutherland/ms_oyster_panel/blob/main/README.md
 
 #### 01. amplitools input to genepop format ####
 # Clear the workspace then source the 00_initiator.R to activate all functions
 
-# Convert all files in 02_input_data from proton to create genepop matrices
-proton_to_genepop(hotspot_only=TRUE, neg_control="BLANK")
+# Convert all files in 02_input_data from proton format to create genepop matrices
+proton_to_genepop(neg_control="BLANK")
 #  neg_control = name of the negative control wells
-#  hotspot_only = hotspot targets only (default and only method as of 2023-08-16)
 
 # Then run `amplitools/01_scripts/format_genepop.sh <filename>` for each file
 # You will then have *.gen files prepared in 02_input_data/prepped_matrices/
@@ -32,7 +32,7 @@ save(obj_nr_best, file=paste0("02_input_data/obj_nr_best_", date, ".RData"))
 #   , given the retention of the best tech rep
 
 ## the population genetic analysis is all described in full in 
-#   'ms_amplicon_panel/01_scripts/sps_popgen_analysis.R' 
+#   'ms_oyster_panel/01_scripts/sps_popgen_analysis.R' 
 #    and will output a rubias formatted file to 'amplitools/03_prepped_data/cgig_all_rubias.txt'
 
 
