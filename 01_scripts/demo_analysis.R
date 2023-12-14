@@ -40,12 +40,22 @@ save(obj_nr_best, file=paste0("02_input_data/obj_nr_best_", date, ".RData"))
 # Source 00_initiator.R
 
 # Estimate log likelihoods from the data and simulated sibs/ parents, then calculate on your existing data
-# VIU_F1 vs VIU_F2
-ckmr_from_rubias(input.FN = "03_prepped_data/cgig_all_rubias.txt"
+# # VIU_F1 vs VIU_F2
+# ckmr_from_rubias(input.FN = "03_prepped_data/cgig_all_rubias.txt"
+#                  , parent_pop = "VIU_F1"
+#                  , offspring_pop = "VIU_F2"
+#                  , cutoff = 5
+#                  )
+
+# VIU_F1 vs VIU_F2, no monomorph, no multimapper
+ckmr_from_rubias(input.FN = "03_prepped_data/cgig_no_monomorphs_no_multimapper.txt"
                  , parent_pop = "VIU_F1"
                  , offspring_pop = "VIU_F2"
                  , cutoff = 5
-                 )
+)
+
+
+
 
 # VIU_F0 vs VIU_F1
 # ckmr_from_rubias(input.FN = "03_prepped_data/cgig_all_rubias.txt"
@@ -68,7 +78,7 @@ ckmr_from_rubias(input.FN = "03_prepped_data/cgig_all_rubias.txt"
 # )
 
 # Generate reports
-prep_report(relationship = "PO")
+#prep_report(relationship = "PO", offspring_ids = "03_results/offspring_indiv.txt")
 
 # Generate relatedness graphs
 graph_relatives(input.FN = "03_results/po_VIU_F1_vs_VIU_F2_pw_logl_5.txt", drop_string = "")
