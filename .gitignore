@@ -22,3 +22,5 @@
 *.html
 multiqc_data/
 *.log
+*.DS_Store
+
