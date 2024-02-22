@@ -1,6 +1,6 @@
-## This is a demonstration analysis of VariantCaller input data to accompany the cgig_ms_panel manuscript
+## This is a demonstration analysis of VariantCaller input data to accompany the ms_oyster_panel manuscript
 # B. Sutherland (2023-08-16)
-# See the README for cgig_ms_panel for more detailed instructions
+# See the README for ms_oyster_panel for more detailed instructions
 #  available here: https://github.com/bensutherland/ms_oyster_panel/blob/main/README.md
 
 #### 01. amplitools input to genepop format ####
@@ -20,6 +20,7 @@ proton_to_genepop(neg_control="BLANK")
 # Clear the workspace and source simple_pop_stats_start.R
 
 ## also source comp_tech_reps.R, which is currently in the dev scripts
+#    comp_tech_reps operates on all genepop (*.gen) files in 02_input_data
 comp_tech_reps(format_type = "amplitools", max_missing = 0.5)
 
 date <- format(Sys.time(), "%Y-%m-%d")
@@ -37,6 +38,7 @@ save(obj_nr_best, file=paste0("02_input_data/obj_nr_best_", date, ".RData"))
 
 
 #### 04. amplitools for parentage analysis ####
+## Run this after running ms_cgig_panel/01_scripts/sps_popgen_analysis.R
 # Source 00_initiator.R
 
 # Estimate log likelihoods from the data and simulated sibs/ parents, then calculate on your existing data
@@ -77,7 +79,7 @@ ckmr_from_rubias(input.FN = "03_prepped_data/cgig_no_monomorphs_no_multimapper.t
 #                  , cutoff = 5
 # )
 
-# Generate reports
+# Generate reports (note: this is now done automatically from the above)
 #prep_report(relationship = "PO", offspring_ids = "03_results/offspring_indiv.txt")
 
 # Generate relatedness graphs
