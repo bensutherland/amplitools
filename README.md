@@ -81,7 +81,7 @@ To inspect mean marker coverage per experimental or control sample, see output f
 
 
 ##### 01.b. Finalize genepop ####
-Finalize the genepop files by running the following script for each genotype block text file:      
+From the terminal, finalize the genepop by running the following script for each genotype block text file:      
 `./01_scripts/format_genepop.sh 02_input_data/prepped_matrices/<filename>.txt`      
 
 The output will be a genepop file for each file output as `02_input_data/prepped_genepops/*.gen`       
