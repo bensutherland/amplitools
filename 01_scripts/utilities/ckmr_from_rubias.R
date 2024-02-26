@@ -3,7 +3,8 @@
 #  vignette("CKMRsim-example-1")
 #  Sutherland Bioinformatics, Initialized 2022-09-19
 
-ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", parent_pop = "VIU_F1", offspring_pop = "VIU_F2", cutoff = 5){
+ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", parent_pop = "VIU_F1", offspring_pop = "VIU_F2", cutoff = 5
+                             , output.dir = "03_results"){
   
   # Set variables
   ckmr_results.list <- list()
@@ -34,7 +35,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   }
   
   # Write out number of genotypes per individual to output
-  write.table(x = missing.df, file = "03_results/per_indiv_geno_loci.txt"
+  write.table(x = missing.df, file = paste0(output.dir, "/per_indiv_geno_loci.txt")
               , sep = "\t", row.names = F, col.names = T, quote = F
   )
   
@@ -55,11 +56,11 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   print(offspring_indivs)
   
   # Export names of analyzed individuals by population
-  write.table(x = parent_indivs, file = "03_results/parent_indiv.txt"
+  write.table(x = parent_indivs, file = paste0(output.dir, "/parent_indiv.txt")
               , sep = "\t", row.names = F, col.names = F, quote = F
   )
   
-  write.table(x = offspring_indivs, file = "03_results/offspring_indiv.txt"
+  write.table(x = offspring_indivs, file = paste0(output.dir, "/offspring_indiv.txt")
               , sep = "\t", row.names = F, col.names = F, quote = F
   )
   
@@ -184,7 +185,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   #print(PO_U_logls)
   
   # Plot densities of logl_ratio for PO, U
-  po_logl_density_plot.FN <- "03_results/logl_ratio_PO_U.pdf"
+  po_logl_density_plot.FN <- paste0(output.dir, "/logl_ratio_PO_U.pdf")
   print(paste0("Plotting densities of logl_ratios, saving to ", po_logl_density_plot.FN))
   
   p <- ggplot(PO_U_logls,
@@ -213,7 +214,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   
   
   # Plot densities of logl_ratio for FS, U
-  fs_logl_density_plot.FN <- "03_results/logl_ratio_FS_U.pdf"
+  fs_logl_density_plot.FN <- paste0(output.dir, "/logl_ratio_FS_U.pdf")
   print(paste0("Plotting densities of logl_ratios, saving to ", fs_logl_density_plot.FN))
   
   p <- ggplot(FS_U_logls,
@@ -369,7 +370,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
     arrange(desc(logl_ratio))
   
   # Write out results
-  po_output.FN <- paste0("03_results/po_", parent_pop, "_vs_", offspring_pop, "_pw_logl_", cutoff, ".txt")
+  po_output.FN <- paste0(output.dir, "/po_", parent_pop, "_vs_", offspring_pop, "_pw_logl_", cutoff, ".txt")
   print(paste0("Writing out data as ", po_output.FN))
   write.table(x = po_pairwise_logls_over_threshold, file = po_output.FN
               , sep = "\t", row.names = F, quote = F
@@ -377,7 +378,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   
   # Write out all raw results (including below threshold)
   print("Also writing out all results")
-  write.table(x = po_pairwise_logls, file = "03_results/po_pairwise_all_no_cutoff.txt"
+  write.table(x = po_pairwise_logls, file = paste0(output.dir, "/po_pairwise_all_no_cutoff.txt")
               , sep = "\t", row.names = F, quote = F
               )
   
@@ -397,7 +398,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
     arrange(desc(logl_ratio))
   
   # Write out results
-  fs_output.FN <- paste0("03_results/fs_offsp_", offspring_pop, "_pw_logl_", cutoff, ".txt")
+  fs_output.FN <- paste0(output.dir, "/fs_offsp_", offspring_pop, "_pw_logl_", cutoff, ".txt")
   
   print(paste0("Writing out data as ", fs_output.FN))
   write.table(x = fs_pairwise_logls_over_threshold, file = fs_output.FN
@@ -421,18 +422,18 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
     arrange(desc(logl_ratio))
   
   # Write out results
-  fs_output_parents.FN <- paste0("03_results/fs_parent_", parent_pop, "_pw_logl_", cutoff, ".txt")
+  fs_output_parents.FN <- paste0(output.dir, "/fs_parent_", parent_pop, "_pw_logl_", cutoff, ".txt")
   print(paste0("Writing out data as ", fs_output_parents.FN))
   write.table(x = fs_pairwise_logls_parents_over_threshold, file = fs_output_parents.FN
               , sep = "\t", row.names = F, quote = F
   )
   
   # Write out ckmr_results.list
-  output.FN <- paste0("03_results/ckmr_run_logl_", cutoff, "_result_log.txt")
+  output.FN <- paste0(output.dir, "/ckmr_run_logl_", cutoff, "_result_log.txt")
   capture.output(ckmr_results.list, file = output.FN)
   
   ##### 12. Prepare final report ####
-  prep_report(relationship = "PO", input.FN = po_output.FN, offspring_ids = offspring_ids)
+  prep_report(relationship = "PO", input.FN = po_output.FN, offspring_ids = offspring_ids, output.dir = output.dir)
 
 }
 

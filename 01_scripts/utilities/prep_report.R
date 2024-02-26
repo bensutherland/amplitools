@@ -2,7 +2,7 @@
 # Ben J. G. Sutherland
 # 2023-08-14
 
-prep_report <- function(relationship = "PO", input.FN = NULL, offspring_ids = NULL){
+prep_report <- function(relationship = "PO", input.FN = NULL, offspring_ids = NULL, output.dir = NULL){
   
   # If no input.FN is provided, run function on all po*.txt report files in folder
   # note: this approach will likely be removed in the future, only running prep_report from within the parentage wrapper
