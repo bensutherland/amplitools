@@ -23,4 +23,5 @@
 multiqc_data/
 *.log
 *.DS_Store
+03_results/*
 
