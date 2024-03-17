@@ -18,12 +18,14 @@
 #install.packages("tidyverse")
 #devtools::install_github("eriqande/CKMRsim", build_vignettes = TRUE)
 #install.packages("igraph")
+#install.packages("adegenet")
 
 #library("Rcpp")
 library("devtools")
 library("tidyverse")
 library("CKMRsim")
 library("igraph")
+library("adegenet")
 
 ## Set working directory
 current.path <- dirname(rstudioapi::getSourceEditorContext()$path)
