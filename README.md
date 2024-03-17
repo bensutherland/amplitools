@@ -133,7 +133,7 @@ Create a sample information file to be used for downstream analyses:
 This will produce a form to complete in `simple_pop_stats/00_archive/my_data_ind-to-pop.txt`      
 It will automatically produce a row per sample (indiv), and provide empty fields for pop, an alternate identifier (alt.ID), sex, and whether the sample should be ignored.     
 Manually annotate the above file and save it as `my_data_ind-to-pop_annot.txt`.       
-Note: do not include any spaces in field names     
+Note: do not include any spaces in field names, and do not start populations with numbers.           
 
 Load and population per-sample information based on the completed file above:     
 `annotate_from_popmap(df = obj, popmap.FN = "00_archive/my_data_ind-to-pop_annot.txt")`      
