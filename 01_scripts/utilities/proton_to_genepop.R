@@ -9,6 +9,8 @@ proton_to_genepop <- function(neg_control="BLANK"){
   input.df <- NULL
   for(c in 1:length(names(input.list))){
     
+    print(paste0("**Converting file ", names(input.list)[c], "**"))
+    
     input.df <- input.list[[c]]
     
     # Reporting

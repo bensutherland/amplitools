@@ -39,7 +39,7 @@ load_vc <- function(input_folder = "02_input_data", test_only = FALSE){
     
     ## Read in input file
     # Reporting
-    print(paste0("Reading in file ", inputs[file]))
+    print(paste0("**Reading in file ", inputs[file], "**"))
     
     # Read in
     input.df <- read.delim(file = paste0(input_folder, "/", inputs[file]), header = T, sep = "\t")
