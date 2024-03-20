@@ -6,14 +6,14 @@
 
 # Global variables
 GENOMEFOLDER="00_archive"
-GENOME="Cgig_v.1.0_amplicon_ref_2023-10-31.fna" # note: this is the prefix given during index
+GENOME="cgig_v.1.0_amplicon_ref.fna" # note: this is the prefix given during index
 INPUTFOLDER="12_input_mhap"
 OUTPUTFOLDER="13_mapped_mhap"
 IDXFOLDER="idx_output"
 NCPU="$1"
 
 # For all files in the input, align
-for file in $(ls -1 "$INPUTFOLDER"/*.fq.gz)
+for file in $(ls -1 "$INPUTFOLDER"/*.fastq)
 do
     # Name of uncompressed file
     echo "Aligning file $file"
@@ -27,19 +27,20 @@ do
         -R "$ID" \
         "$GENOMEFOLDER"/"$GENOME" "$INPUTFOLDER"/"$name" 2> /dev/null |
         samtools view -Sb -q 1 -F 4 -F 256 -F 2048 \
-        - > "$OUTPUTFOLDER"/"${name%.fq.gz}".bam
+        - > "$OUTPUTFOLDER"/"${name%.fastq}".bam
 
     # Samtools sort
-    samtools sort --threads "$NCPU" -o "$OUTPUTFOLDER"/"${name%.fq.gz}".sorted.bam \
-        "$OUTPUTFOLDER"/"${name%.fq.gz}".bam
+    samtools sort --threads "$NCPU" -o "$OUTPUTFOLDER"/"${name%.fastq}".sorted.bam \
+        "$OUTPUTFOLDER"/"${name%.fastq}".bam
 
     # Index output
-    samtools index "$OUTPUTFOLDER"/"${name%.fq.gz}".sorted.bam
+    samtools index "$OUTPUTFOLDER"/"${name%.fastq}".sorted.bam
 
     # Generate stats
-    samtools idxstats --threads $NCPU "$OUTPUTFOLDER"/"${name%.fq.gz}".sorted.bam > "$OUTPUTFOLDER"/"$IDXFOLDER"/"${name%.fq.gz}"_idxstats.txt 
+    samtools idxstats --threads $NCPU "$OUTPUTFOLDER"/"${name%.fastq}".sorted.bam > "$OUTPUTFOLDER"/"$IDXFOLDER"/"${name%.fastq}"_idxstats.txt 
 
     # Cleanup
-    rm "$OUTPUTFOLDER"/"${name%.fq.gz}".bam
+    rm "$OUTPUTFOLDER"/"${name%.fastq}".bam
 
 done
+
