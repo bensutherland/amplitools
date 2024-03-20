@@ -34,6 +34,9 @@ Please also be sure to cite the tools applied within each function.
 [E. Panel designer](#e-panel-designer)      
 [F. Database storage](#f-database-storage)                   
 
+Looking for **microhaplotype workflow**? A separate README is available [here](20_docs/README_mhap.md).       
+
+
 ## Getting started ##
 Clone this repository and change into the main directory.      
 ```
