@@ -4,6 +4,7 @@
 *.gen
 *.fa
 *.fq
+*.fastq
 *.fq.gz
 *.pdf
 *.bam
@@ -12,6 +13,7 @@
 *.xlsx
 *Rhistory
 *.vcf*
+*.bcf
 *.csv
 *.bed
 *.fna*
