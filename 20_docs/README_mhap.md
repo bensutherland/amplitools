@@ -1,21 +1,21 @@
 # Microhaplotype Analysis
-Note: in development mode only currently (2023-10-31).       
+As with the main analysis, this workflow comes with no guarantees of usefulness. This workflow is currently under development.       
 
 #### Requirements: ####
-bwa       
-samtools      
-bcftools       
-bedtools      
-fastqc      
-multiqc     
-microTyper v.2.0      
-SNPlift      
+This workflow should work on either linux or mac OS.      
+[bwa](https://github.com/lh3/bwa)       
+[samtools](https://samtools.sourceforge.net)      
+[bcftools](https://samtools.github.io/bcftools/bcftools.html)       
+[bedtools](https://bedtools.readthedocs.io/en/latest/)        
+[fastqc](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)      
+[multiqc](https://multiqc.info)    
+[microTyper](https://github.com/delomast/microTyper)      
 
 
 ### General Comments ###
 To identify novel variants, the following approach will be taken:      
 (1) create an amplicon-only reference genome to align against (one contig = one mhap);      
-(2) align amplicon panel fastq.gz output against the amplicon-only reference;       
+(2) align amplicon panel fastq.gz results against the amplicon-only reference;       
 (3) call variants from the above, produce a VCF file with all samples;       
 (4) inspect VCF file, filter as needed;      
 (5) use bam and VCF files to generate microhaplotypes.      
@@ -26,7 +26,7 @@ Downstream application will assume that each contig is a single microhaplotype, 
 
 Obtain the regions file and reference genome sourced from [amplitargets](https://github.com/bensutherland/amplitargets), and put in `00_archive`.     
 
-Extract the amplicon sequence only, as demonstrated for Pacific oyster:     
+Extract the amplicon sequence only and index, as demonstrated for Pacific oyster:     
 ```
 # Decompress the fasta
 gunzip 00_archive/GCA_000297895.1_oyster_v9_genomic.fna.gz      
@@ -108,11 +108,7 @@ bcftools view -i 'INFO/AF > 0.01' 14_extract_mhap/mpileup_calls_SNP_only_biallel
 ```
 
 
-### 07. Inspect results ###
-
-
-
-#### 07. Call microhaplotypes ####
+### 07. Call microhaplotypes ###
 Here we will use microTyper2.0 to pull the information out of the bam files in the mapped folder, but first we need to create a Position File to provide to microTyper2.0, based on the VCF with all the SNPs in it.         
 
 ```
