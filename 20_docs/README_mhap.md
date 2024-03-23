@@ -133,5 +133,7 @@ mtype2 -f 13_mapped_mhap/*.sorted.bam -p 14_extract_mhap/position_file.txt -r 00
 
 This will output a file called `14_extract_mhap/genos.txt`.           
 
+Use the R package EFGLmh to convert from long form to wide form, then export to rubias. 
+
 To go from this file to CKMR-sim (#TODO)
 
