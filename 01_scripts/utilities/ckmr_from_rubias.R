@@ -3,8 +3,13 @@
 #  vignette("CKMRsim-example-1")
 #  Sutherland Bioinformatics, Initialized 2022-09-19
 
-ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", parent_pop = "VIU_F1", offspring_pop = "VIU_F2", cutoff = 5
-                             , output.dir = "03_results"){
+ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt"
+                             , parent_pop = "VIU_F1", offspring_pop = "VIU_F2"
+                             , cutoff = 5
+                             , output.dir = "03_results"
+                             , plot_width = 7.5
+                             , plot_height = 3.5
+                             ){
   
   # Set variables
   ckmr_results.list <- list()
@@ -16,6 +21,9 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
   # Read in data
   data.df <- read.delim(file = input.FN, header = T, sep = "\t")
   # data.df[1:10, 1:10]
+  
+  print("Warning: cannot have '.' in locus name, if present will convert to '_'")
+  colnames(data.df) <- gsub(pattern = "\\.", replacement = "_", x = colnames(data.df))
   
   # Reporting
   print(paste0("The data contains ", length(unique(data.df$indiv)), " unique individuals and ", (ncol(data.df)-4)/2, " loci"))
@@ -192,7 +200,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
          aes(x = logl_ratio, fill = true_relat)) +
        geom_density(alpha = 0.25)
   
-  pdf(file = po_logl_density_plot.FN, width = 7, height = 5)
+  pdf(file = po_logl_density_plot.FN, width = plot_width, height = plot_height)
   print(p)
   dev.off()
   
@@ -221,7 +229,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt", p
               aes(x = logl_ratio, fill = true_relat)) +
     geom_density(alpha = 0.25)
   
-  pdf(file = fs_logl_density_plot.FN, width = 7, height = 5)
+  pdf(file = fs_logl_density_plot.FN, width = plot_width, height = plot_height)
   print(p)
   dev.off()
   
