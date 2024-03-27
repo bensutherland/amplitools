@@ -146,31 +146,30 @@ Other inputs may include offspring sibship, or parent-offspring relationships.
 ``` 
 
 ## F. Database storage ##
-This section provides suggestions to maintain amplicon sequence data from variantCaller outputs for long-term storage. It is only a suggestion, and there would be many other equally good or better approaches.     
+This section provides suggestions to maintain amplicon sequence data from variantCaller outputs for long-term storage.     
 
-Although building a database, curating, and then saving it out may be a good approach, here we suggest the following:     
+We suggest the following approach:      
 1. keep all raw data stored separately from amplitools; 
 2. copy in a specific raw data runs to a fresh instance of the main repo; 
 3. save an output file in standard genetics format (e.g., rubias) as a 'curated dataset'. This will be date-stamped, and then should not be altered. If it needs to be altered, return to the start and re-run.      
 
-Here are several tips on how to manage this:       
+Here are several general tips on how to manage this:       
 
 #### Sugg. 1: create a hierarchical folder structure for raw data  ####   
-On the server/ computer, in a safe and permanent location, do the following:      
+As an example considering Pacific oyster, on the server/ computer, in a safe and permanent location, do the following:      
 ```
-# note: this is an example using the C. gigas amplicon panel
 mkdir 00_raw_data
 cd 00_raw_data
 mkdir cgig
 cd cgig
 mkdir cgig_v.1.0
 ```
-
 Once the structure is built, copy raw run files (.xls) into the above folder.      
-Within the folder, store a single spreadsheet explaining per chip the chip name, date run, and projects included. This will be used to track what is in each raw data file, so specific chips can be then copied into an active amplitools repo.      
-Note: it may be best to make the above read-only without sudo priviledges, to be sure that files do not get altered
-Also include an md5 alongside each raw run file, with the same name but .md5 appended to the end of the filename.      
-Also include a sample interp file alongside each chip (see below).     
+- within the folder, store a single spreadsheet explaining per chip the **chip name, date run, and projects included**. This will be used to track what is in each raw data file, so specific chips can be then copied into an active amplitools repo.      
+- note: it may be best to make the above read-only without sudo priviledges, to be sure that files do not get altered
+- also include an md5 alongside each raw run file, with the same name but .md5 appended to the end of the filename.      
+- also include a sample interp file alongside each chip (see below).     
+
 
 #### Sugg. 2: create sample interp file for each chip and store with the raw data chip ####
 e.g., `R_<your_chip_name>_sample_interp.txt`        
