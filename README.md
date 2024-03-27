@@ -28,9 +28,9 @@ Please also be sure to cite the tools applied within each function.
 
 ## Sections ##
 [A. VariantCaller to genepop](#a-variantcaller-to-genepop)          
-[C. Population genetic analyses](#c-population-genetic-analyses)      
-[D. Parentage analysis](#d-parentage-analysis)               
-[F. Database storage](#f-database-storage)                   
+[B. Population genetic analyses](#b-population-genetic-analyses)      
+[C. Parentage analysis](#c-parentage-analysis)               
+[D. Database storage](#d-database-storage)                   
 
 Looking for **microhaplotype workflow**? A separate README is available [here](20_docs/README_mhap.md).       
 Looking for **panel design**? A separate README is available [here](20_docs/README_designer.md).       
@@ -89,7 +89,7 @@ From the terminal, finalize the genepop by running the following script for each
 The output will be a genepop file for each file output as `02_input_data/prepped_genepops/*.gen`       
 
 
-## C. Population genetic analyses ## 
+## B. Population genetic analyses ## 
 Example using `simple_pop_stats`; to get started:    
 ```
 # clone simple_pop_stats at same level as amplitools    
@@ -156,7 +156,7 @@ genepop_to_rubias_SNP(data = obj, sample_type = "reference"
 
 
 
-## D. Parentage analysis ##
+## C. Parentage analysis ##
 The parentage analysis is largely dependent on the R package [CKMRsim](https://eriqande.github.io/CKMRsim/) by Eric C. Anderson. If you use the function `ckmr_from_rubias.R`, please cite CKMRsim.        
 
 Please also see instructions in the associated pipeline: [ms_oyster_panel](https://github.com/bensutherland/ms_oyster_panel).         
@@ -210,7 +210,7 @@ Other inputs may include offspring sibship, or parent-offspring relationships.
 
 ``` 
 
-## F. Database storage ##
+## D. Database storage ##
 This section provides suggestions to maintain amplicon sequence data from variantCaller outputs for long-term storage.     
 
 We suggest the following approach:      
