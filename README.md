@@ -242,8 +242,8 @@ Include the following columns so this file can also be used as a popmap:
 
 | indiv | pop | alt.ID | sex | ignore |    
 | ----- | --- | ------ | --- | ------ |    
-| R_2022_08_04_09_19_56_user_S5XL-00533-1089-OYR-20220729_7_IonCode_0501.fastq | VIU_F2 | F2-03 | NA | NA | 
-| R_2022_10_07_13_17_04_user_S5XL-0055-315-Oyster_1_IonCode_0909.fastq | VIU_F1 | BR10  | NA | NA |     
+| F2-03 | VIU_F2 | NA | NA | NA | 
+| BR33 | VIU_F1 | NA  | NA | NA |     
 | ... | ... | ... | ... | ... | 
 
 Note: the ignore column will eventually be used so that one can set amplitools to ignore the sample, for example if it is decided that the sample should not be included in building downstream datasets, or perhaps it is the poorer of two technical replicates and should be dropped. This is currently not implemented, but is planned in a future release.        
