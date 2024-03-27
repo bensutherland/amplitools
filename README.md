@@ -44,7 +44,9 @@ cd amplitools
 
 ```
 
-Testing out the platform with test data:      
+amplitools generally is run through R. To initialize your session, open the Rscript `amplitools/01_scripts/00_initiator.R` and source the script. This will initiate R functions used in this section.      
+
+Test out the platform with test data:      
 `load_vc(input_folder = "02_input_data", test_only = TRUE)`         
 This should load 8024 rows and 14 columns, with 2079 unique markers, from two different samples, and will save the output as input.list for inspection.              
 
@@ -57,8 +59,6 @@ Convert [VariantCaller](https://www.thermofisher.com/ca/en/home/life-science/seq
 **Important note:** input filename must be alphanumeric characters only connected with hyphens or underscores (i.e., no spaces). Multiple sequential underscores without other alphanumeric characters breaking up the underscores will cause the script to fail (e.g., `this__will_not_work`).      
 
 Copy any number of input files in the folder `02_input_data`.      
-
-Open the Rscript `01_scripts/00_initiator.R` and source the script. This will initiate R functions used in this section.      
 
 
 #### 01. Load data
@@ -90,7 +90,16 @@ The output will be a genepop file for each file output as `02_input_data/prepped
 
 
 ## C. Population genetic analyses ## 
-You can now use the genepop created above, or the genind from (02), to analyze your data in `simple_pop_stats` or elsewhere. For example, follow the interactive script or adapt similar steps to filter and analyze your genepop as shown in:        
+Example using `simple_pop_stats`; to get started:    
+```
+# clone simple_pop_stats at same level as amplitools    
+git clone https://github.com/bensutherland/simple_pop_stats.git   
+cd simple_pop_stats
+
+```
+
+Copy the genepop(s) created above to `simple_pop_stats/02_input_data` or analyze elsewhere. 
+An example is given here:     
 `ms_amplicon_panel/01_scripts/sps_popgen_analysis.R`       
 
 `simple_pop_stats` is being developed to work well with `amplitools` to facilitate population genetic analyses. As follows are some examples of useful functions, but please see the `simple_pop_stats` repository for a full explanation.       
@@ -123,11 +132,67 @@ Load and population per-sample information based on the completed file above:
 
 See `simple_pop_stats` for other methods, such as filtering, plotting data, analyses, and converting from genepop to rubias format. The below parentage analysis will depend on a rubias file.      
 
+To convert the genind to rubias (brief), in R:       
+```
+# Prepare a stock code file 
+stock_code.df <- as.data.frame(unique(pop(obj)))
+colnames(stock_code.df) <- "collection"
+stock_code.df$repunit <- stock_code.df$collection
+stock_code.df
+
+# Write it out
+write_delim(x = stock_code.df, file = "00_archive/stock_code.txt", delim = "\t", col_names = T)
+micro_stock_code.FN <- "00_archive/stock_code.txt"
+
+## All filtered loci: write to rubias for parentage assignment
+pop_map.FN <- "00_archive/my_data_ind-to-pop_annot.txt"
+genepop_to_rubias_SNP(data = obj, sample_type = "reference"
+                      , custom_format = TRUE, micro_stock_code.FN = micro_stock_code.FN
+                      , pop_map.FN = pop_map.FN
+)
+# output will be 03_results/rubias_output_SNP.txt
+# rename the output and copy it to amplitools/03_results/
+```
+
+
 
 ## D. Parentage analysis ##
 The parentage analysis is largely dependent on the R package [CKMRsim](https://eriqande.github.io/CKMRsim/) by Eric C. Anderson. If you use the function `ckmr_from_rubias.R`, please cite CKMRsim.        
 
-This section is in development. For now, please see instructions in the associated pipeline: [ms_oyster_panel](https://github.com/bensutherland/ms_oyster_panel).         
+Please also see instructions in the associated pipeline: [ms_oyster_panel](https://github.com/bensutherland/ms_oyster_panel).         
+
+Quick method, as an example:    
+```
+# source amplitools
+# Set user variables
+input_rubias.FN <- "03_results/rubias_125_ind_583_loc_2024-03-27.txt"
+parent_pop <- "VIU_F1"
+offspring_pop <- "VIU_F2"
+cutoff <- 5
+
+# Prepare run folder
+date <- format(Sys.time(), "%Y-%m-%d")
+input_rubias_short.FN <- gsub(pattern = "03_results/", replacement = "", x = input_rubias.FN)
+input_rubias_short.FN <- gsub(pattern = ".txt", replacement = "", x = input_rubias_short.FN)
+
+run_folder.FN <- paste0("03_results/ckmr_input_", input_rubias_short.FN, "_"
+                        , offspring_pop, "_vs_", parent_pop,"_", date
+)
+print("Making new result folder...")
+print(run_folder.FN)
+dir.create(run_folder.FN)
+
+
+# Run ckmr on the input file
+ckmr_from_rubias(input.FN = input_rubias.FN
+                 , parent_pop = parent_pop
+                 , offspring_pop = offspring_pop
+                 , cutoff = cutoff
+                 , output.dir = run_folder.FN
+)
+
+```
+
 
 
 #### Plotting ####
