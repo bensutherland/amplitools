@@ -28,13 +28,13 @@ Please also be sure to cite the tools applied within each function.
 
 ## Sections ##
 [A. VariantCaller to genepop](#a-variantcaller-to-genepop)          
-[B. Analyze tech reps](#b-analyze-technical-replicates)              
 [C. Population genetic analyses](#c-population-genetic-analyses)      
 [D. Parentage analysis](#d-parentage-analysis)               
 [F. Database storage](#f-database-storage)                   
 
 Looking for **microhaplotype workflow**? A separate README is available [here](20_docs/README_mhap.md).       
 Looking for **panel design**? A separate README is available [here](20_docs/README_designer.md).       
+Original approach for **tech reps**? [here](20_docs/README_tech_reps.md).     
 
 ## Getting started ##
 Clone this repository and change into the main directory.      
@@ -88,25 +88,6 @@ From the terminal, finalize the genepop by running the following script for each
 
 The output will be a genepop file for each file output as `02_input_data/prepped_genepops/*.gen`       
 
-
-## B. Analyze technical replicates ##
-This section will...      
-
-Open the [simple_pop_stats](#simple_pop_stats) Rscript `01_scripts/simple_pop_stats_start.R`, update the `on_network` variable to FALSE, and then source the script. This will initiate R functions used in this section (#TODO: note: comp tech reps fn remains in dev scripts).      
-
-Use the following command to compare technical replicates from two genepop files:      
-```
-comp_tech_reps(format_type = "amplitools", max_missing=0.5)      
-
-# flags:      
-# - format_type (string): indicates the source of the genepop and individual IDs (default: amplitools)
-# - max_missing (proportion): sets a cutoff for maximum missing genotype proportion to consider a sample for technical replicate comparison
-
-# Note: this will also output a genind to the global environment containing the best individual sample for each unique sample (based on #TODO), where the best is considered the sample with the highest genotyping rate.    
-# Retain this object as follows:    
-save(obj_nr_best, file = "02_input_data/obj_nr_best_2023-05-01.RData")     
-
-```
 
 ## C. Population genetic analyses ## 
 You can now use the genepop created above, or the genind from (02), to analyze your data in `simple_pop_stats` or elsewhere. For example, follow the interactive script or adapt similar steps to filter and analyze your genepop as shown in:        
