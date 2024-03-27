@@ -146,5 +146,45 @@ Other inputs may include offspring sibship, or parent-offspring relationships.
 ``` 
 
 ## F. Database storage ##
-This section will provide suggestions as to how to best store amplicon sequence data from variantCaller outputs. (#TODO) 
+This section will provide suggestions as to how to best store amplicon sequence data from variantCaller outputs. Note that this is only a general suggestion, and each end-user will decide what is best for their storage approach.      
+
+Although building a database, curating, and then saving is a good approach, here we take the approach of (1) keeping all raw data separate from the main repo; (2) copying in a component of the raw data to a fresh instance of the main repo; (3) saving out a genepop or rubias file as a 'curated dataset'. This will be date-stamped, and then should not be altered. If it needs to be altered, return to the start and re-run. There are several tips on how to manage this:       
+
+#### Create a hierarchical folder structure for raw data  ####   
+On the server/ computer, in a safe and permanent location, do the following:      
+```
+# note: this is an example using the C. gigas amplicon panel
+mkdir 00_raw_data
+cd 00_raw_data
+mkdir cgig
+cd cgig
+mkdir cgig_v.1.0
+# copy raw chip files into the above folder
+# create a chip interpretation file that has the following details:   
+# chip name, date run, projects included
+# the above can be used to track which chips contain each dataset, so they can then be copied into the active amplitools folder
+# it may be best to make the above read-only without sudo priviledges, to be sure that files do not get altered
+# put md5 alongside chip
+```
+
+#### Create sample interpretation file for each chip, store with the raw data chip ####
+e.g., `R_<your_chip_name>_sample_interp.txt`        
+Include the following columns so this file can also be used as a popmap:      
+
+| indiv | pop | alt.ID | sex | ignore |    
+| ----- | --- | ------ | --- | ------ |    
+| R_2022_08_04_09_19_56_user_S5XL-00533-1089-OYR-20220729_7_IonCode_0501.fastq | VIU_F2 | F2-03 | NA | NA | 
+| R_2022_10_07_13_17_04_user_S5XL-0055-315-Oyster_1_IonCode_0909.fastq | VIU_F1 | BR10  | NA | NA |     
+| ... | ... | ... | ... | ... | 
+| ----- | --- | --- | --- | --- | 
+
+Note: the ignore column will eventually be used so that one can set amplitools to ignore the sample, for example if it is decided that the sample should not be included in building downstream datasets, or perhaps it is the poorer of two technical replicates and should be dropped. This is currently not implemented, but is planned in a future release.        
+
+
+     
+
+
+
+
+
 
