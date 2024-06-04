@@ -72,7 +72,7 @@ VariantCaller format interpretation:
 Please note: all variantCaller input files **must** have been generated using the same hotspot file. The script assumes that all designations of VariantCaller formats are the same for all files.      
 
 ##### 01.a. Prepare genotype block ####
-In R, use the following function to **select only hotspot markers**, then convert genotype calls to genepop format to output a multilocus genotype matrix (rows: samples; columns: loci):         
+In R, use the following function to **select only hotspot markers** for all input files in `02_input_data`, then convert genotype calls to genepop format to output a multilocus genotype matrix (rows: samples; columns: loci):         
 `proton_to_genepop(neg_control="BLANK")`          
 note: include the exact string for a pattern only within your negative control samples.     
 
