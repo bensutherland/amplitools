@@ -9,6 +9,7 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt"
                              , output.dir = "03_results"
                              , plot_width = 7.5
                              , plot_height = 3.5
+                             , rels_to_retain = c("PO", "FS", "HS", "U")
                              ){
   
   # Set variables
@@ -160,24 +161,25 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt"
   #print(kappas) # data supplied with package
   
   # Create ckmr object
-  print("Creating ckmr object using kappas PO, FS, HS, and U")
+  print("Creating ckmr object using kappas: ")
+  print(rels_to_retain)
   ex1_ckmr <- create_ckmr(
     D = afreqs_ready,
-    kappa_matrix = kappas[c("PO", "FS", "HS", "U"), ],
+    kappa_matrix = kappas[rels_to_retain, ],
     ge_mod_assumed = ge_model_TGIE,
     ge_mod_true = ge_model_TGIE,
     ge_mod_assumed_pars_list = list(epsilon = 0.005),
     ge_mod_true_pars_list = list(epsilon = 0.005)
   )
   
-  #print(ex1_ckmr)
+  print(ex1_ckmr)
   
   
   #### 08. Simulate genotype pairs and calculate log-probabilities ####
   print("Simulating genotype pairs")
   ex1_Qs <- simulate_Qij(ex1_ckmr, 
-                         calc_relats = c("PO", "FS", "U"),
-                         sim_relats = c("PO", "FS", "HS", "U") )
+                         calc_relats = rels_to_retain,
+                         sim_relats = rels_to_retain)
   
   # Compute and extract log-likelihood raios from simulated data
   print("Computing log-likelihood ratios from the simulated data")
@@ -203,6 +205,9 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt"
   pdf(file = po_logl_density_plot.FN, width = plot_width, height = plot_height)
   print(p)
   dev.off()
+  
+  # Retain the plot
+  assign(x = "PO_U_sim_rels.plot", value = p, pos = .GlobalEnv)
   
   # # Plot densities for logl_ratio for U, PO (only consider PO and U from true_relat)
   # pdf(file = "03_results/logl_ratio_u_po.pdf", width = 7, height = 5)
@@ -232,6 +237,9 @@ ckmr_from_rubias <- function(input.FN = "03_prepped_data/cgig_all_rubias.txt"
   pdf(file = fs_logl_density_plot.FN, width = plot_width, height = plot_height)
   print(p)
   dev.off()
+  
+  # Retain plot
+  assign(x = "FS_U_sim_rels.plot", value = p, pos = .GlobalEnv)
   
   # # Plot densities for logl_ratio for U, FS
   # pdf(file = "03_results/logl_ratio_u_fs.pdf", width = 7, height = 5)
