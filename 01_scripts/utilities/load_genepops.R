@@ -15,7 +15,7 @@ load_genepops <- function(genepop_folder = "02_input_data/prepped_genepops/", da
     
   }
   
-  inputs <- list.files(path = genepop_folder, pattern = ".gen")
+  inputs <- list.files(path = genepop_folder, pattern = "\\.gen")
   
   
   # Read in all genepop files in input folder, save to my_genepops.list
