@@ -1,11 +1,12 @@
 # Identify Mendelian incompatibility loci based on empirical data
 # 2024-06-07; Ben J. G. Sutherland (VIU, SBIO)
 # Requires that 01_scripts/utilities/ckmr_from_rubias.R has been run
+# Assumes diploid, assumes no phasing
 
 id_incompat_loci <- function(data = obj, input_report.FN = "03_results/ckmr_input_rubias_mhaps_396_2024-05-24_VIU_F2_vs_VIU_F1_2024-06-05/po_VIU_F1_vs_VIU_F2_pw_logl_5_report.txt"
                              , strong_logl_cutoff = 10, strong_parent_obs = 2, num_offsp_incompat = 4){
  
-  #### Identify strong empirical trios as 'true' relationships ####
+  #### Part 1. Identify strong empirical trios as 'true' relationships ####
   ## Load ckmrsim report produced by ckmr_from_rubias()
   po_report.df <- read.table(file = input_report.FN, header = T, sep = "\t")
   head(po_report.df)
@@ -87,40 +88,38 @@ id_incompat_loci <- function(data = obj, input_report.FN = "03_results/ckmr_inpu
   #### THIS COULD BE A STOP POINT FOR A FUNCTION ####
   
   
-  #### 02. Determine expected offspring genos ####
+  #### Part 2. Determine expected offspring genos ####
+  #### TODO: this should be a separate function ####
   # What are the unique parent combinations? 
   head(empirical_family_map.df)
   dim(empirical_family_map.df)
+  
+  # Create a df containing the unique strong trio parental pairs
   unique_families.df <- empirical_family_map.df[!duplicated(x = empirical_family_map.df$family.id), ]
   unique_families.df <- unique_families.df[, c("family.id", "parent1", "parent2")]
   head(unique_families.df)
   
-  # Create empty matrix to fill with possible offspring genos based on parents
-  loci <- matrix(data = NA, nrow = nrow(unique_families.df), ncol = nLoc(obj))
-  colnames(loci) <- locNames(obj)
+  # Create empty matrix to fill with expected possible offspring genos based on parents
+  loci <- matrix(data = NA, nrow = nrow(unique_families.df), ncol = nLoc(data_strong))
+  colnames(loci) <- locNames(data_strong)
   loci[1:5,1:5]
   unique_fams_and_loci.df <- cbind(unique_families.df, loci)
   unique_fams_and_loci.df <- as.data.frame(unique_fams_and_loci.df)
   unique_fams_and_loci.df[1:5,1:5] # this will be filled
   dim(unique_fams_and_loci.df)
   
-  #### TODO: this should be a separate function ####
-  ## Infer the potential offspring genotypes per pairing
+  ## Determine the potential offspring genotypes per pairing
   # set nulls
   p1 <- NULL; p2 <- NULL; fam <- NULL; family_marker.list <- list()
   for(i in 1:nrow(unique_fams_and_loci.df)){
     
     # Set variables
-    fam <- unique_fams_and_loci.df$family.id[i]
-    fam <- as.character(fam) # necessary in case it is being interpreted as an integer
-    p1 <-  unique_fams_and_loci.df$parent1[i]
-    p2 <-  unique_fams_and_loci.df$parent2[i]
+    fam <- as.character(unique_fams_and_loci.df$family.id[i])
+    p1 <-  as.character(unique_fams_and_loci.df$parent1[i])
+    p2 <-  as.character(unique_fams_and_loci.df$parent2[i])
     
     # Reporting
     print(paste0("Analyzing empirical family ", fam, ", comprised of parents: ", p1, " and ", p2))
-    
-    # Subset the genind to only the parents for the family
-    parents.obj <- data_strong[c(p1, p2)]
     
     loi <- NULL; p1.alleles <- NULL; p2.alleles <- NULL; offspring_genos <- NULL
     opt1 <- NULL; opt2 <- NULL; opt3 <- NULL; opt4 <- NULL
@@ -129,21 +128,19 @@ id_incompat_loci <- function(data = obj, input_report.FN = "03_results/ckmr_inpu
       # Set locus of interest
       loi <- locNames(data_strong)[l]
     
-      # Confirm that neither parent is missing, otherwise indicate
-      !isTRUE(all(is.na(data_strong[p1, loc = loi]$tab)))
-      !isTRUE(all(is.na(data_strong[p2, loc = loi]$tab)))
+      # Note: how to determine if either parent has missing data for the locus
+      #!isTRUE(all(is.na(data_strong[p1, loc = loi]$tab))) # present
+      #!isTRUE(all(is.na(data_strong[p2, loc = loi]$tab))) # missing
       
-      !isTRUE(all(is.na(data_strong[p1, loc = loi]$tab))) # not missing
-      !isTRUE(all(is.na(data_strong[p2, loc = loi]$tab))) # is missing
-      
-      # if neither parent is NA for the locus, infer potential genotypes
+      # If both parents have complete data for the locus, determine potential offspring genotypes
+      #  note: assumes that if an allele is NA, all alleles for that locus are NA (hence the '1' below)
       if(!is.na(data_strong[p1, loc = loi]$tab[1]) & !is.na(data_strong[p2, loc = loi]$tab[1])){
         
-        # Obtain the parental alleles
+        # Obtain the parental alleles that have a non-zero status (present as 1 or 2)
         p1.alleles <- colnames(data_strong[p1, loc = loi]$tab)[which(data_strong[p1, loc = loi]$tab > 0)]
         p2.alleles <- colnames(data_strong[p2, loc = loi]$tab)[which(data_strong[p2, loc = loi]$tab > 0)]
         
-        # if either parent only is showing a single allele, assume it is homozygous for this allele (i.e., diploid is assumed)
+        # if either parent shows only a single allele for locus, assume locus is homozygous
         if(length(p1.alleles)==1){
           p1.alleles <- c(p1.alleles, p1.alleles)
         }
@@ -152,7 +149,9 @@ id_incompat_loci <- function(data = obj, input_report.FN = "03_results/ckmr_inpu
           p2.alleles <- c(p2.alleles, p2.alleles)
         }
         
-        # What are the putative offspring genotypes? Will need to sort the offspring too for matching purposes
+        # Determine putative offspring genotypes? 
+        #  note: alleles are sorted for matching purposes
+        #### TODO: is the sorting OK? ####
         opt1 <- sort(c(p1.alleles[1], p2.alleles[1]))
         opt1 <- paste0(opt1, collapse = ";")
         
@@ -167,9 +166,11 @@ id_incompat_loci <- function(data = obj, input_report.FN = "03_results/ckmr_inpu
         
         offspring_genos <- paste0(opt1, ";;", opt2, ";;", opt3, ";;", opt4)
         
+        # Save offspring genos into the matrix at the appropriate location
         unique_fams_and_loci.df[unique_fams_and_loci.df$family.id==fam, loi] <- offspring_genos
         
-        
+       
+        # if either parent is missing, set the potential offspring genotypes as missing 
       }else{
         
         # set this as missing data
@@ -184,48 +185,57 @@ id_incompat_loci <- function(data = obj, input_report.FN = "03_results/ckmr_inpu
     }
   }
     
-    unique_fams_and_loci.df[1:5, 1:5]
+  # Check output
+  unique_fams_and_loci.df[1:5, 1:5]
    
   
-    # Save out parental genos per marker
-    write.csv(x = unique_fams_and_loci.df, file = "03_results/parental_genos_per_marker.csv"
-              , quote = F, row.names = F
-              )
+  #### THIS COULD BE A STOP POINT FOR A FUNCTION ####
+  
+  # Save out parental genos per marker
+  write.csv(x = unique_fams_and_loci.df, file = "03_results/parental_genos_per_marker.csv"
+            , quote = F, row.names = F
+            )
+  #### TODO: rename this, its not the parents, its the actual compatible genos ####
     
     
 
-  #### 03. Evaluate offspring against parents ####
+  #### Part 3. Evaluate offspring against parents ####
   #### TODO: this should be a separate function ####
     
-  #### Needs a rethink #####
-    
   # Who are the offspring of the family? 
-  indNames(data_strong) # individuals available
+  #indNames(data_strong) # individuals available
   head(empirical_family_map.df)
   
+  # What are the unique families in the strong trios? 
   families <- unique(empirical_family_map.df$family.id)
+  
+  # Build an empty matrix for scored offspring genotypes (correct or not based on parents)
+  offspring_genos.mat <- matrix(data = NA, nrow = nrow(empirical_family_map.df), ncol = nLoc(data_strong))
+  colnames(offspring_genos.mat) <- locNames(data_strong)
+  empirical_family_map_w_scores.df <- cbind(empirical_family_map.df, offspring_genos.mat)
+  empirical_family_map_w_scores.df[1:5,1:5]
+  
+  # Build an empty matrix to also save the obs offspring geno
+  empirical_family_map_w_offspring_genos.df <- empirical_family_map_w_scores.df
+  empirical_family_map_w_offspring_genos.df[1:5,1:5]
+  
   
   fam <- NULL; p1 <- NULL; p2 <- NULL; keep <- NULL; offspring <- NULL
   for(o in 1:length(families)){
     
     # Set family
     fam <- families[o]
-    p1 <- gsub(pattern = "__.*", replacement = "", x = fam)
-    p2 <- gsub(pattern = ".*__", replacement = "", x = fam)
+    p1 <- as.character(gsub(pattern = "__.*", replacement = "", x = fam))
+    p2 <- as.character(gsub(pattern = ".*__", replacement = "", x = fam))
     
     # Reporting
     print(paste0("Analyzing family ", fam, ", comprised of parents: ", p1, " and ", p2))
-    print(paste0("Empirically defined offspring are selected from the empirical family map"))
+    print(paste0("Offspring to compare are based on the strong trios dataframe"))
     
-    # Retain only the offspring empirically determined to be offspring of this specific family
+    # Keep strong trio offspring of this family
     keep <- empirical_family_map.df[empirical_family_map.df$family.id==fam, "offspring"]
     offspring <- data_strong[keep]
     print(indNames(offspring))
-    
-    offspring_genos.mat <- matrix(data = NA, nrow = nrow(empirical_family_map.df), ncol = nLoc(offspring))
-    colnames(offspring_genos.mat) <- locNames(offspring)
-    empirical_family_map_w_scores.df <- cbind(empirical_family_map.df, offspring_genos.mat)
-    empirical_family_map_w_scores.df[1:5,1:5]
     
     # Loop over to check the offspring's results
     ooi <- NULL
@@ -233,9 +243,10 @@ id_incompat_loci <- function(data = obj, input_report.FN = "03_results/ckmr_inpu
       
       # Define the offspring
       ooi <- indNames(offspring)[i]
+      print(ooi)
       
       # Define the family
-      foi <- empirical_family_map.df[empirical_family_map.df$offspring==ooi, "family.id"] # technically not necessary, we define above
+      # foi <- empirical_family_map.df[empirical_family_map.df$offspring==ooi, "family.id"] # technically not necessary, we define above
       
       loi <- NULL; offspring_geno <- NULL; opts <- NULL
       for(l in 1:nLoc(offspring)){
@@ -244,194 +255,150 @@ id_incompat_loci <- function(data = obj, input_report.FN = "03_results/ckmr_inpu
         loi <- locNames(offspring)[l]
         
         # What is the offspring's geno for this locus?
-        # THIS IS AN ISSUE IF HOMOZYGOUS ### TODO ####
-        offspring_geno <- paste0(sort(colnames(offspring[ooi, loc=loi]$tab)[which(offspring[ooi, loc=loi]$tab > 0)]), collapse = ";")
+        offspring_geno <- colnames(offspring[ooi, loc=loi]$tab)[which(offspring[ooi, loc=loi]$tab > 0)]
         
-        # Look-up in parental df
-        opts <- strsplit(x = unique_fams_and_loci.df[unique_fams_and_loci.df$family.id==foi, loi], split = ";;")
-        opts <- unlist(opts)
+        # If homozygous, it will be length 1, so duplicate the allele to make diploid
+        if(length(offspring_geno)==1){
+          
+          offspring_geno <- c(offspring_geno, offspring_geno)
+          
+        }
         
-        # If this locus is missing data in the parents
-        if(all((unlist(strsplit(x = opts, split = ";;"))=="NA"))){
+        # If offspring geno is missing, set as such and save to the scores file
+        if(length(offspring_geno)==0){
+        
+          offspring_geno <- "offspring_missing"
           
-          empirical_family_map_w_scores.df[empirical_family_map_w_scores.df$offspring==ooi, loi] <- "missing"
-          
-          # If the locus is not missing in the parents
+          # and save
+          empirical_family_map_w_scores.df[empirical_family_map_w_scores.df$offspring==ooi, loi] <- offspring_geno
+         
+        # If offspring geno is present, evaluate and save
         }else{
           
-          # if it is present in parental opts, give it a TRUE
-          if(offspring_geno %in% opts){
+          # Sort for matching purposes
+          offspring_geno <- paste0(sort(offspring_geno), collapse = ";")
+          
+          # Determine if it is one of the acceptable allele combinations from the parental dataset
+          opts <- strsplit(x = unique_fams_and_loci.df[unique_fams_and_loci.df$family.id==fam, loi], split = ";;")
+          opts <- unlist(opts)
+          opts
+          
+          # If the locus is missing in the parents, set as missing here
+          if(all((unlist(strsplit(x = opts, split = ";;"))=="NA"))){
             
-            empirical_family_map_w_scores.df[empirical_family_map_w_scores.df$offspring==ooi, loi] <- "OK"
+            empirical_family_map_w_scores.df[empirical_family_map_w_scores.df$offspring==ooi, loi] <- "parent_missing"
             
-          }else if(!offspring_geno %in% opts){
+          # If the locus is present in parents, score
+          }else{
             
-            empirical_family_map_w_scores.df[empirical_family_map_w_scores.df$offspring==ooi, loi] <- offspring_geno
-            
+            # if the allelic combination is present in parental opts, give it a TRUE
+            if(offspring_geno %in% opts){
+              
+              empirical_family_map_w_scores.df[empirical_family_map_w_scores.df$offspring==ooi, loi] <- "OK"
+              
+              # if the allelic combination is not in parental opts, save the geno
+            }else if(!offspring_geno %in% opts){
+              
+              empirical_family_map_w_scores.df[empirical_family_map_w_scores.df$offspring==ooi, loi] <- offspring_geno
+              
+            }
           }
+          
         }
+
+        # Aside: save the geno in the geno-storing df
+        empirical_family_map_w_offspring_genos.df[empirical_family_map_w_offspring_genos.df$offspring==ooi, loi] <- offspring_geno
+        
       }
     }
   }
+
     
   
-  empirical_family_map_w_scores.df[1:5,1:5]
+  empirical_family_map_w_scores.df[1:8,1:10]
+  empirical_family_map_w_offspring_genos.df[1:5,1:10]
   
 
   # Save out
-  write.csv(x = empirical_family_map_w_scores.df, file = "03_results/offspring_compats_per_marker.csv"
+  write.csv(x = empirical_family_map_w_scores.df, file = "03_results/offspring_compats_per_marker_scores.csv"
+            , quote = F, row.names = F
+  )
+  
+  # Save out
+  write.csv(x = empirical_family_map_w_offspring_genos.df, file = "03_results/offspring_compats_per_marker_genos.csv"
             , quote = F, row.names = F
   )
   
   
-  #### WORKING HERE ####
   
+  
+  
+  #### Tally outcome ####
+  per_locus_tally.df <- as.data.frame(locNames(data_strong))
+  # colnames(empirical_family_map_w_scores.df)[grep(pattern = "offspring|family.id|parent1|parent2", x = colnames(empirical_family_map_w_scores.df), invert = T)]
+  colnames(per_locus_tally.df) <- "locus"
+  head(per_locus_tally.df)
+  
+  per_locus_tally.df$number_OK <- NA
+  per_locus_tally.df$offspring_missing <- NA
+  per_locus_tally.df$parent_missing <- NA
+  per_locus_tally.df$number_incompats <- NA
+  per_locus_tally.df$percent_incompat <- NA
+  
+  loi <- NULL; number_OK <- NULL; offspring_missing <- NULL; parent_missing <- NULL; total_cases <- NULL; number_incompats <- NULL; percent_incompat <- NULL
+  for(i in 1:nrow(per_locus_tally.df)){
+    
+    loi <- per_locus_tally.df[i,"locus"]
+    
+    number_OK          <- sum(empirical_family_map_w_scores.df[,loi]=="OK", na.rm = T)
+    offspring_missing  <- sum(empirical_family_map_w_scores.df[,loi]=="offspring_missing", na.rm =T)
+    parent_missing     <- sum(empirical_family_map_w_scores.df[,loi]=="parent_missing", na.rm = T)
+    total_cases        <- length(empirical_family_map_w_scores.df[,loi])
+    
+    number_incompats <- total_cases - (number_OK + offspring_missing + parent_missing)
+    percent_incompat <- number_incompats / (number_OK+number_incompats)
     
     
-    
-    
-    
-    
-    
-    
-    
-    #### WON'T WORK HERE ####
-    # Create empty df
-    single_genos.df <- NULL
-    
-    # For the offspring genotypes, remove the second allele column, keeping only the first allele column
-    single_genos.df <- offspring$tab[, grep(pattern = "\\.02", x = colnames(x = offspring$tab), invert = T)]
-    #colnames(single_genos.df)
-    
-    # For these offspring, edit the single_genos df to give the genotype as calculated from the single col data
-    for(n in 1:nrow(single_genos.df)){
-      
-      single_genos.df[n,] <- gsub(pattern = "1", replacement = "het", x = single_genos.df[n,])
-      single_genos.df[n,] <- gsub(pattern = "2", replacement = "homo.ref", x = single_genos.df[n,])
-      single_genos.df[n,] <- gsub(pattern = "0", replacement = "homo.alt", x = single_genos.df[n,])
-      
-    }
-    
-    #single_genos.df[,1:10]
-    
-    # Write out offspring geno calls
-    write.csv(x = single_genos.df, file = paste0("03_results/offspring_geno_calls_", fam, ".csv"))
-    
-    ## Check the observed offspring genotypes against the expected offspring genotypes, derived from the parents
-    # Prepare a T/F matrix to fill
-    single_genos_eval.df <- single_genos.df
-    
-    mname <- NULL
-    for(i in 1:ncol(single_genos.df)){
-      
-      # Check each marker
-      mname <- colnames(single_genos.df)[i]
-      
-      # What are the accepted (expected) options for this marker?
-      accepted.opts <- unlist(family_marker.list[[fam]][mname])
-      
-      # Also allow NA to be an accepted outcome (i.e., it does not indicate an error)
-      accepted.opts <- c(accepted.opts, NA) # allow NA in offspring to be accepted
-      
-      # If the parental genotype was missing, and therefore not able to be evaluated, denote it as such
-      if(sum(accepted.opts %in% "missing") > 0){
-        
-        single_genos_eval.df[,i] <- "parent.missing"
-        
-        # If the parental genotypes were present, and the offspring genotypes predicted, continue
-      }else if(sum(accepted.opts %in% "missing") == 0){
-        
-        # Are the observed genotypes expected genotypes? 
-        single_genos_eval.df[,i] <- single_genos.df[,i] %in% accepted.opts
-        
-      }
-      
-      # Then add back offspring NAs as missing
-      single_genos_eval.df[is.na(single_genos.df[,i]), i] <- "offspring.NA"
-      
-    }
-    
-    # # Confirm the edit for the NAs by checking before and after their removal/addition
-    # table(single_genos.df, useNA = "ifany")
-    # table(single_genos_eval.df, useNA = "ifany")
-    
-    write.csv(x = single_genos_eval.df, file = paste0("03_results/offspring_true_and_false_matches_", fam, ".csv"))
-    
+    # Save
+    per_locus_tally.df[per_locus_tally.df$locus==loi, "number_OK"] <- number_OK
+    per_locus_tally.df[per_locus_tally.df$locus==loi, "offspring_missing"]  <- offspring_missing
+    per_locus_tally.df[per_locus_tally.df$locus==loi, "parent_missing"] <- parent_missing
+    per_locus_tally.df[per_locus_tally.df$locus==loi, "total_cases"]    <- total_cases
+    per_locus_tally.df[per_locus_tally.df$locus==loi, "number_incompats"]    <- number_incompats
+    per_locus_tally.df[per_locus_tally.df$locus==loi, "percent_incompat"]    <- percent_incompat
     
   }
   
+  head(per_locus_tally.df) 
   
-  #### 04. Prepare final output report ####
-  files.FN <- list.files(path = "03_results/", pattern = "offspring_true_and_false_matches_")
-  files.FN <- files.FN[grep(pattern = "offspring_true_and_false_matches_all.csv", x = files.FN, invert = T)] # ignore the final output
-  files.FN
   
-  # Read in all of the T/F match matrices and combine them into one big dataframe
-  temp <- NULL; all_data.df <- NULL
-  for(i in 1:length(files.FN)){
+  hist(per_locus_tally.df$number_incompats, breaks = 20)
+  sum(per_locus_tally.df$number_incompats > 4, na.rm = T)
+  nrow(per_locus_tally.df)
+  
+  nrow(per_locus_tally.df) -   sum(per_locus_tally.df$number_incompats > 4, na.rm = T)
+  # 223 loci remain
+  
+
+  write.csv(x = per_locus_tally.df, file = "03_results/per_locus_tally_incompats.csv", quote = F
+            , row.names = F
+            )
+  
+  loci_to_drop <- per_locus_tally.df[per_locus_tally.df$number_incompats > 4, "locus"]
+  length(loci_to_drop)
+  write.table(x = loci_to_drop, file = "03_results/incompat_loci.csv", quote = F, sep = ","
+            , col.names = F, row.names = F)
+  
+  
+}
     
-    temp <- read.csv(file = paste0("03_results/", files.FN[i]))
-    all_data.df <- rbind(all_data.df, temp)
+  #### FRONT EDGE ####  
     
-  }
-  
-  dim(all_data.df)
-  all_data.df[1:5,1:10]
-  
-  # Clean up names a bit
-  colnames(all_data.df)[which(colnames(all_data.df)=="X")] <- "indiv"
-  colnames(all_data.df) <- gsub(pattern = "^X", replacement = "", x = colnames(all_data.df))
-  all_data.df[1:5,1:40]
-  #str(all_data.df)
-  
-  # Improve visualization
-  # Convert all to character
-  library("dplyr")
-  all_data.df <- all_data.df %>%
-    mutate_all(as.character)
-  all_data.df[1:5,1:10]
-  
-  # Replace TRUE with dashes to make visually easier to view
-  library("tidyverse")
-  all_data.df <- all_data.df %>%
-    mutate_all(funs(str_replace(., "TRUE", "-")))
-  all_data.df[1:5,1:10]
-  
-  # Remove the first allele indicator
-  colnames(all_data.df) <- gsub(pattern = "\\.01", replacement = "", x = colnames(all_data.df))
-  all_data.df[1:5,1:10]
+
   
   
-  ## Summarize the results in a dataframe
-  # Create matrix with the number of rows being the number of columns (i.e., number of loci evaluated), and four cols
-  # Note: the first column is allowed as a dummy
-  result.df <- matrix(data = NA, nrow = ncol(all_data.df), ncol = 4)
-  dim(result.df) 
   
-  # Set column names
-  colnames(result.df) <- c("mname", "exp.offsp.geno", "unexp.offsp.geno", "percent.exp.offsp.geno")
-  result.df <- as.data.frame(result.df) # make df
   
-  # Fill dataframe
-  exp.offsp.geno <- NULL; unexp.offsp.geno <- NULL; percent.exp.offsp.geno <- NULL; mname <- NULL
-  for(i in 1:ncol(all_data.df)){
-    
-    mname                 <- colnames(all_data.df)[i]
-    result.df[i, "mname"] <- mname
-    
-    exp.offsp.geno        <- sum(all_data.df[,i]=="-", na.rm = T)
-    result.df[i, "exp.offsp.geno"] <- exp.offsp.geno
-    
-    unexp.offsp.geno      <- sum(all_data.df[,i]=="FALSE", na.rm = T)
-    result.df[i, "unexp.offsp.geno"] <- unexp.offsp.geno
-    
-    percent.exp.offsp.geno      <- exp.offsp.geno / (exp.offsp.geno + unexp.offsp.geno)
-    result.df[i, "percent.exp.offsp.geno"] <- percent.exp.offsp.geno
-    
-  }
-  
-  # Drop the unneeded column
-  result.df <- result.df[result.df$mname!="indiv", ]
   
   # Adjust decimal
   result.df$percent.exp.offsp.geno <- formatC(x = result.df$percent.exp.offsp.geno, digits = 3, format = "f")
