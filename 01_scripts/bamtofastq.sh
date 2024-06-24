@@ -10,13 +10,13 @@ ls -1 $INPUT_FOLDER/*.bam |
     while read i
     do 
         # Reporting
-        echo "Converting $i from bam to fq.gz"
+        echo "Converting $i from bam to fastq.gz"
 
         # Convert from bam to fastq
-        bedtools bamtofastq -i $i -fq ${i%.bam}.fq
+        bedtools bamtofastq -i $i -fq ${i%.bam}.fastq
 
         # Compress fq
-        gzip ${i%.bam}.fq
+        gzip ${i%.bam}.fastq
 
     done 
 
