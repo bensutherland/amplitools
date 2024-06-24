@@ -67,11 +67,11 @@ select_best_rep_fastq <- function(input_folder = "12_input_mhap"
   print(paste0("sd number reads per sample: ",  round(x = sd(all_data.df$records), digits = 2)))
   
   ## Write out a non-redundant list of samples that are present in the metadata file
-  write_delim(x = all_data.df, file = paste0(input_folder, "/reads_per_sample_table_no_reps.txt"))
+  write_delim(x = full.df, file = paste0(input_folder, "/reads_per_sample_table_no_reps.txt"))
   
   ## Write out a list of samples to not include in downstream analysis based on above (not present in the retain list)
   all_files <- list.files(path = input_folder, pattern = "*.fastq.gz", full.names = T)
-  retain_files <- paste0(input_folder, "/", all_data.df$filename)
+  retain_files <- paste0(input_folder, "/", full.df$filename)
   drop_files <- setdiff(x = all_files, y = retain_files)
   drop_files <- as.data.frame(drop_files)
   write.table(x = drop_files, file = paste0(input_folder, "/remove_files.txt"), col.names = F, row.names = F, quote = F)
