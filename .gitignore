@@ -5,6 +5,7 @@
 *.fa
 *.fq
 *.fastq
+*.fastq.gz
 *.fq.gz
 *.pdf
 *.bam
