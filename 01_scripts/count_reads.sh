@@ -1,10 +1,11 @@
 #!/bin/bash
 # Run from main directory 
 # Assumes all fastq have four lines per record
+# Assumes fastq files are compressed with gzip
 
 # User set variables
 INPUT_FOLDER="12_input_mhap"
-SUFFIX=".fastq"
+SUFFIX=".fastq.gz"
 
 # Move into the directory containing files
 cd $INPUT_FOLDER 
@@ -17,7 +18,7 @@ rm reads_per_sample_table.txt 2> /dev/null
 # Determine number of reads per file from samples file
 for i in $(ls *$SUFFIX) ; 
     do echo $i ;
-    echo "$(cat $i | wc -l)" / 4 | bc ;
+    echo "$(gunzip -c $i | wc -l)" / 4 | bc ;
     done >> reads_per_sample.txt
 
 # Separate by second line into two columns
