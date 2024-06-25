@@ -13,7 +13,7 @@ IDXFOLDER="idx_output"
 NCPU="$1"
 
 # For all files in the input, align
-for file in $(ls -1 "$INPUTFOLDER"/*.fastq)
+for file in $(ls -1 "$INPUTFOLDER"/*.fastq.gz)
 do
     # Name of uncompressed file
     echo "Aligning file $file"
@@ -27,20 +27,20 @@ do
         -R "$ID" \
         "$GENOMEFOLDER"/"$GENOME" "$INPUTFOLDER"/"$name" 2> /dev/null |
         samtools view -Sb -q 1 -F 4 -F 256 -F 2048 \
-        - > "$OUTPUTFOLDER"/"${name%.fastq}".bam
+        - > "$OUTPUTFOLDER"/"${name%.fastq.gz}".bam
 
     # Samtools sort
-    samtools sort --threads "$NCPU" -o "$OUTPUTFOLDER"/"${name%.fastq}".sorted.bam \
-        "$OUTPUTFOLDER"/"${name%.fastq}".bam
+    samtools sort --threads "$NCPU" -o "$OUTPUTFOLDER"/"${name%.fastq.gz}".sorted.bam \
+        "$OUTPUTFOLDER"/"${name%.fastq.gz}".bam
 
     # Index output
-    samtools index "$OUTPUTFOLDER"/"${name%.fastq}".sorted.bam
+    samtools index "$OUTPUTFOLDER"/"${name%.fastq.gz}".sorted.bam
 
     # Generate stats
-    samtools idxstats --threads $NCPU "$OUTPUTFOLDER"/"${name%.fastq}".sorted.bam > "$OUTPUTFOLDER"/"$IDXFOLDER"/"${name%.fastq}"_idxstats.txt 
+    samtools idxstats --threads $NCPU "$OUTPUTFOLDER"/"${name%.fastq.gz}".sorted.bam > "$OUTPUTFOLDER"/"$IDXFOLDER"/"${name%.fastq.gz}"_idxstats.txt 
 
     # Cleanup
-    rm "$OUTPUTFOLDER"/"${name%.fastq}".bam
+    rm "$OUTPUTFOLDER"/"${name%.fastq.gz}".bam
 
 done
 
