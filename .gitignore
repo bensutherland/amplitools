@@ -18,6 +18,7 @@
 *.csv
 *.bed
 *.map
+*.ped
 *.fna*
 *.fai
 *#
