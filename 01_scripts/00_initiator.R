@@ -19,6 +19,7 @@
 #devtools::install_github("eriqande/CKMRsim", build_vignettes = TRUE)
 #install.packages("igraph")
 #install.packages("adegenet")
+#devtools::install_github("delomast/EFGLmh") # required for microhaplotype workflow
 
 #library("Rcpp")
 library("devtools")
@@ -26,6 +27,7 @@ library("tidyverse")
 library("CKMRsim")
 library("igraph")
 library("adegenet")
+library("EFGLmh") # required for microhaplotype workflow
 
 ## Set working directory
 current.path <- dirname(rstudioapi::getSourceEditorContext()$path)
