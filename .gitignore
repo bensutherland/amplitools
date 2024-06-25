@@ -29,4 +29,5 @@ multiqc_data/
 *.log
 *.DS_Store
 03_results/*
+10_log_files/*
 
