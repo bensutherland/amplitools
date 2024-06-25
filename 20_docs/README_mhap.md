@@ -74,13 +74,13 @@ Then in terminal, run the following to move any file that was not set to be reta
 for file in $(cat 12_input_mhap/remove_files.txt); do mv "$file" 12_input_mhap/removed_files/; done
 ```
 
-Next, add any manually-selected files that you would like to keep in the analysis into the `12_input_mhap` folder.     
+Next, add any manually-selected files that you would like to keep in the analysis into the `12_input_mhap` folder. If these files are paired-end, put the R2 files into the `removed_files` subfolder, and only use the R1 file to match the amplicon panel output data.    
 
 
 ### 03. Quality check ###
 Use fastqc/ multiqc to evaluate quality:      
 ```
-fastqc 12_input_mhap/*.fq.gz -o 12_input_mhap/fastqc_raw -t 4 
+fastqc 12_input_mhap/*.fastq.gz -o 12_input_mhap/fastqc_raw -t 4 
 multiqc -o 12_input_mhap/fastqc_raw/ 12_input_mhap/fastqc_raw/    
 ``` 
 
@@ -137,12 +137,16 @@ bcftools view -i 'INFO/AF > 0.01' 14_extract_mhap/mpileup_calls_SNP_only_biallel
 ```
 
 
+
 ### 07. Call microhaplotypes ###
 Here we will use microTyper2.0 to pull the information out of the bam files in the mapped folder, but first we need to create a Position File to provide to microTyper2.0, based on the VCF with all the SNPs in it.         
 
 ```
 # Create the content of the position file
 bcftools view 14_extract_mhap/mpileup_calls_SNP_only_biallelic_q20_dp10_Fmiss_0.1_w_AF_maf0.01.bcf | grep -vE '^#' - | awk '{ print $1 "\t" $2 "\t" "S" "\t" $5 }' - > 14_extract_mhap/position_file_body.txt
+
+# note: as per microtyper README, this is in the format of 
+# Locus	RefPos	Type	ValidAlt 
 
 # Add a header to the position file
 echo -e "Locus \t RefPos \t Type \t ValidAlt" > 14_extract_mhap/position_file.txt && cat 14_extract_mhap/position_file_body.txt >> 14_extract_mhap/position_file.txt
@@ -162,7 +166,12 @@ mtype2 -f 13_mapped_mhap/*.sorted.bam -p 14_extract_mhap/position_file.txt -r 00
 
 This will output a file called `14_extract_mhap/genos.txt`.           
 
-Use the R package EFGLmh to convert from long form to wide form, then export to rubias. 
+Use the amplitools function in R to convert from the above format to a genepop file using EFGL package:     
+`mtype2_to_genepop(input.FN = "14_extract_mhap/genos.txt", output.FN = "14_extract_mhap/genos.gen", simplify_names = TRUE)`          
 
-To go from this file to CKMR-sim (#TODO)
+This will output a histogram of the number of alleles per locus, as well as a genepop with the name as specified as the output.FN above.      
+
+The genepop can be read into R using the following command:     
+`obj <- read.genepop(file = "genepop.gen", ncode = 2)`      
+...then you can use the `simple_pop_stats` repository from there.     
 
