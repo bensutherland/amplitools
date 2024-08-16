@@ -87,12 +87,15 @@ multiqc -o 12_input_mhap/fastqc_raw/ 12_input_mhap/fastqc_raw/
 ### 04. Align samples against reference genome ### 
 Update the variable for the reference genome, then run the following script:       
 `01_scripts/bwa_mem_align_reads.sh 12`       
-Requires that samples suffix is .fastq.    
+Requires that the sample filename suffix is .fastq.gz     
 Note: this will align, sort, index, and generate idxstats. It will add read group IDs to samples, as these are required for downstream analyses.      
 
 idxstats provides a tab-delimited output with each line consisting of a reference sequence name, the sequence length, the number of mapped read segments, and the number of unmapped read-segments.     
 
 Aligned output will be in `13_mapped_mhap`.       
+
+To inspect the number of reads and number of alignments per sample:    
+`01_scripts/assess_results.sh` will produce summary tables in each folder.     
 
 
 ### 05. Call variants from the aligned samples ###
