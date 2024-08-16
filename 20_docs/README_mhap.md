@@ -118,6 +118,10 @@ Output will be in `14_extract_mhap`.
 
 
 ### 06. Filter the called variants ###
+Automated filtering:     
+`01_scripts/filter_bcf.sh`     
+
+
 Conduct light filtering:     
 `bcftools view -i 'F_missing < 0.1 & TYPE="snp" & QUAL>=20 & FORMAT/DP>10' --min-alleles 2 --max-alleles 2 14_extract_mhap/mpileup_calls.bcf -Ob -o 14_extract_mhap/mpileup_calls_SNP_only_biallelic_q20_dp10_Fmiss_0.1.bcf`
 
