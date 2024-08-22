@@ -121,28 +121,12 @@ Output will be in `14_extract_mhap`.
 Automated filtering:     
 `01_scripts/filter_bcf.sh`     
 
-
-Conduct light filtering:     
-`bcftools view -i 'F_missing < 0.1 & TYPE="snp" & QUAL>=20 & FORMAT/DP>10' --min-alleles 2 --max-alleles 2 14_extract_mhap/mpileup_calls.bcf -Ob -o 14_extract_mhap/mpileup_calls_SNP_only_biallelic_q20_dp10_Fmiss_0.1.bcf`
-
-Settings:   
-F_missing:      fraction of missing genotypes per locus
-TYPE="snp":     keep only SNPs
-QUAL:           SNP quality value
-DP:             depth (per sample; #TODO: confirm)
---min-alleles:  at least this many alleles observed per locus
---max-alleles:  at most this many alleles observed per locus
-
-How many SNPs remain? 
-`bcftools view 14_extract_mhap/mpileup_calls_SNP_only_biallelic_q20_dp10_Fmiss_0.1.bcf | grep -vE '^#' | wc -l`      
-
 Filter on MAF?     
 ```
 bcftools +fill-tags 14_extract_mhap/mpileup_calls_SNP_only_biallelic_q20_dp10_Fmiss_0.1.bcf -Ob -o 14_extract_mhap/mpileup_calls_SNP_only_biallelic_q20_dp10_Fmiss_0.1_w_AF.bcf  -- -t AF
 
 bcftools view -i 'INFO/AF > 0.01' 14_extract_mhap/mpileup_calls_SNP_only_biallelic_q20_dp10_Fmiss_0.1_w_AF.bcf -Ob -o 14_extract_mhap/mpileup_calls_SNP_only_biallelic_q20_dp10_Fmiss_0.1_w_AF_maf0.01.bcf
 ```
-
 
 
 ### 07. Call microhaplotypes ###
@@ -173,6 +157,14 @@ mtype2 -f 13_mapped_mhap/*.sorted.bam -p 14_extract_mhap/position_file.txt -r 00
 
 This will output a file called `14_extract_mhap/genos.txt`.           
 
+Alternately, you can call mhaps using the --justCount option as follows:    
+```
+mtype2 -f 13_mapped_mhap/*.sorted.bam -p 14_extract_mhap/position_file.txt -r 00_archive/cgig_v.1.0_amplicon_ref.fna -o 14_extract_mhap/readCounts.txt --justCount
+
+```
+
+### 08. Using microhaplotypes ###
+Source amplitools.    
 Use the amplitools function in R to convert from the above format to a genepop file using EFGL package:     
 `mtype2_to_genepop(input.FN = "14_extract_mhap/genos.txt", output.FN = "14_extract_mhap/genos.gen", simplify_names = TRUE)`          
 
