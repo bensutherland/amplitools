@@ -12,7 +12,7 @@ mtype2_to_genepop <- function(input.FN = "14_extract_mhap/genos.txt"
   options(tibble.max_extra_cols = 10)
   
   # Load mtype2 output
-  mhap.df <- read.delim(file = mhap.FN, header = T)
+  mhap.df <- read.delim(file = input.FN, header = T)
   dim(mhap.df)
   head(mhap.df)
   
