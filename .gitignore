@@ -15,6 +15,7 @@
 *Rhistory
 *.vcf*
 *.bcf
+*.csi
 *.csv
 *.bed
 *.map

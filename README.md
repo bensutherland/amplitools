@@ -32,7 +32,11 @@ Please also be sure to cite the tools applied within each function.
 [C. Parentage analysis](#c-parentage-analysis)               
 [D. Database storage](#d-database-storage)                   
 
-Looking for **microhaplotype workflow**? A separate README is available [here](20_docs/README_mhap.md).       
+### Additional guides ###
+[Microhaplotype workflow](20_docs/README_mhap.md).       
+[Merge multiple Torrent VariantCaller VCF files](20_docs/README_combine_TVC_VCF_files.md).          
+[Convert positions of VCF to a different genome](20_docs/README_snplift.md).       
+[Select only hotspot SNPs, excluding novel from TVC VCF](20_docs/README_hotspot_only.md).      
 Looking for **panel design**? A separate README is available [here](20_docs/README_designer.md).       
 Original approach for **tech reps**? [here](20_docs/README_tech_reps.md).     
 
