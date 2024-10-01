@@ -18,6 +18,7 @@ For a comprehensive list of panels that have been developed or tested through th
 - R (and packages within Rscripts)
 - [simple_pop_stats](https://github.com/bensutherland/simple_pop_stats)
 - [CKMRsim](https://github.com/eriqande/CKMRsim)
+- Optional tool: [SNPlift](https://github.com/enormandeau/snplift)      
 - Demo analysis (optional): [ms_oyster_panel](https://github.com/bensutherland/ms_oyster_panel)       
 
 #### Citation ####
