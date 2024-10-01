@@ -1,7 +1,7 @@
 ### Convert VCF file positions to different genome ###
 It might be necessary to convert the positions of variants in a VCF file to a different genome, in which case the program SNPlift provides a useful solution.     
 
-Brief instructions are given here, but please see full instructions in the SNPlift repository.    
+Brief instructions are given here, but please see full instructions in the source repo: [SNPlift](https://github.com/enormandeau/snplift).    
 
 Prepare inputs   
 ```
