@@ -78,6 +78,8 @@ Update the variable for the reference genome, then run the following script:
 Requires that the sample filename suffix is .fastq.gz     
 Note: this will align, sort, index, and generate idxstats. It will add read group IDs to samples, as these are required for downstream analyses.      
 
+Note: It is suggested to use a non-compressed reference genome for indexing so the same version can be used for downstream genotyping (cannot be compressed with fastq.gz).    
+
 idxstats provides a tab-delimited output with each line consisting of a reference sequence name, the sequence length, the number of mapped read segments, and the number of unmapped read-segments.     
 
 Aligned output will be in `13_mapped_mhap`.       
@@ -96,7 +98,7 @@ ls -1 13_mapped_mhap/*.sorted.bam > 13_mapped_mhap/bamlist.txt
 samtools merge 13_mapped_mhap/all_merged.bam -b 13_mapped_mhap/bamlist.txt --threads 6
 
 # Index the reference genome
-samtools faidx 00_archive/cgig_v.1.0_amplicon_ref.fna      
+samtools faidx <ref_genome>       
 
 ```
 
