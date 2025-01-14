@@ -12,6 +12,7 @@
 *.bai
 *.sam
 *.xlsx
+*.ods
 *Rhistory
 *.vcf*
 *.bcf

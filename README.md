@@ -34,6 +34,7 @@ Please also be sure to cite the tools applied within each function.
 [D. Database storage](#d-database-storage)                   
 
 ### Additional guides ###
+[de novo variant calling](20_docs/README_denovo_SNPs.md).      
 [Microhaplotype workflow](20_docs/README_mhap.md).       
 [Merge multiple Torrent VariantCaller VCF files](20_docs/README_combine_TVC_VCF_files.md).          
 [Convert positions of VCF to a different genome](20_docs/README_snplift.md).       
