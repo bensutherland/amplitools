@@ -23,7 +23,7 @@ For a comprehensive list of panels that have been developed or tested through th
 
 #### Citation ####
 If you find this tool useful, please cite the original article that uses the tool:        
-Sutherland et al. 2023. An amplicon panel for high-throughput and low-cost genotyping of Pacific oyster. bioRxiv [2023.08.26.554329](https://www.biorxiv.org/content/10.1101/2023.08.26.554329v1).        
+Sutherland et al. 2024. An amplicon panel for high-throughput and low-cost genotyping of Pacific oyster. G3: Genes|Genomes|Genetics, jkae125, [link](https://academic.oup.com/g3journal/article/14/9/jkae125/7692863).        
 
 Please also be sure to cite the tools applied within each function.      
 
