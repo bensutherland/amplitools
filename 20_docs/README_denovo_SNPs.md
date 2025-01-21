@@ -113,3 +113,24 @@ bcftools +fill-tags 14_extract_mhap/mpileup_calls_SNP_only_biallelic_q20_dp10_Fm
 bcftools view -i 'INFO/AF > 0.01' 14_extract_mhap/mpileup_calls_SNP_only_biallelic_q20_dp10_Fmiss_0.1_w_AF.bcf -Ob -o 14_extract_mhap/mpileup_calls_SNP_only_biallelic_q20_dp10_Fmiss_0.1_w_AF_maf0.01.bcf
 ```
 
+### 07. Rename samples in BCF file ###
+For simplicity, rename samples from the <run_name><IonCode>.fastq.gz format to a more common sample name that will fit with downstream analyses.     
+```
+# Identify the samples in the dataset
+bcftools query -l  14_extract_mhap/<filtered>.bcf > 14_extract_mhap/samplelist.txt
+
+# Open the sample list text file, add space, then the desired samplename to update 
+# e.g., 
+#oldname newname\n
+
+bcftools reheader --samples 14_extract_mhap/samplelist.txt -o 14_extract_mhap/<filtered>_renamed.bcf 14_extract_mhap/<filtered>.bcf  
+
+```
+
+### 08. Prepare for downstream analysis ###
+Convert the BCF file to a VCF file and then copy to the input folder of the next program (e.g., [simple_pop_stats](https://github.com/bensutherland/simple_pop_stats).          
+`bcftools view <input>.bcf -Ov -o <output>.vcf`     
+
+
+[Back to main README](https://github.com/bensutherland/amplitools)    
+
