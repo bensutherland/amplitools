@@ -32,23 +32,18 @@ Obtain per-sample demultiplexed fastq data from the AmpliSeq provider, and copy 
 To save space, compress files if they are not compressed already (required):     
 `gzip *.fastq`    
 
-Before proceeding, determine the number of reads in each fastq file:       
-`01_scripts/count_reads.sh`       
-...note: adjust variable SUFFIX if your files do not have the suffix '.fastq.gz'.       
-
 Note: if provided per-sample data is in bam format, convert it to fq.gz:     
 `01_scripts/bamtofastq.sh`      
 
 #### Optional: select best replicate ####
-Prepare an interpretation file, `00_archive/filename_to_sample_map.txt`, with column headers `filename` (fastq name per file, no path) and `sample_id` (name of sample, identical for replicates).     
-Requires: `01_scripts/count_reads.sh` must have been run.     
+To determine the deepest sequenced replicate, determine the number of reads in each fastq file:       
+`01_scripts/count_reads.sh`       
+...note: adjust variable SUFFIX if your files do not have the suffix '.fastq.gz'.       
 
-To create the file from scratch, use the following:      
-```
-# Identify samples
-basename -a 12_input_mhap/*.fastq.gz > 00_archive/filename_to_sample_map.txt  
-# ...then use spreadsheet to complete info
-```
+Prepare an interpretation file, `00_archive/filename_to_sample_map.txt`, with column headers `filename` (fastq name per file, no path) and `sample_id` (name of sample, identical for replicates).     
+To create an interpretation file from scratch, use the following:      
+`basename -a 12_input_mhap/*.fastq.gz > 00_archive/filename_to_sample_map.txt`       
+ ...then use spreadsheet editor to complete the info.     
 
 In RStudio, source amplitools initiator, then run the following:      
 ```
@@ -62,7 +57,7 @@ Then in terminal, run the following to move any file that was not set to be reta
 for file in $(cat 12_input_mhap/remove_files.txt); do mv "$file" 12_input_mhap/removed_files/; done
 ```
 
-Next, add any manually-selected files that you would like to keep in the analysis into the `12_input_mhap` folder. If these files are paired-end, put the R2 files into the `removed_files` subfolder, and only use the R1 file to match the amplicon panel output data.    
+Finally, add any manually-selected files that you would like to keep in the analysis into the `12_input_mhap` folder. If these files are paired-end, put the R2 files into the `removed_files` subfolder, and only use the R1 file to match the amplicon panel output data.    
 
 
 ### 03. Quality check ###
