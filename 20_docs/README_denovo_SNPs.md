@@ -102,32 +102,52 @@ Call variants with mpileup by updating any variables and running:
 Output will be in `14_extract_mhap`.         
 
 
-### 06. Filter the called variants ###
-Automated filtering:     
+### 06. Rename samples in BCF file ###
+For simplicity, it is suggested to rename samples from the <run_name><IonCode>.fastq.gz format to a more common sample name that will fit with downstream analyses. It is also suggested that this be done before filtering to not let it affect the per locus genotype rate (for example), as there may be some low quality samples present, for example negative controls or odd samples that are easier to identify and remove with the improved samplename.     
+    
+```
+# Identify the samples in the dataset
+bcftools query -l  14_extract_mhap/mpileup_calls.bcf > 14_extract_mhap/samplelist.txt
+
+# Open the sample list text file, add space, then the desired samplename to update
+# Save as space-separated, samplelist_rename.txt 
+# e.g., 
+#oldname newname\n
+
+bcftools reheader --samples 14_extract_mhap/samplelist_rename.txt -o 14_extract_mhap/mpileup_calls_renamed.bcf 14_extract_mhap/mpileup_calls.bcf  
+
+```
+
+
+### 07. Remove any individuals as needed from the BCF file ###
+Remove any samples that are not wanted in the file before filtering the file:     
+```
+# Identify present samples
+bcftools query -l 14_extract_mhap/mpileup_calls_renamed.bcf > 14_extract_mhap/samples_to_retain.txt    
+
+# Delete any rows in the above file manually
+# Note: this would also be where you could delete known problematic low GR samples
+
+# Use the file to include only those present after deletions
+bcftools view -S 14_extract_mhap/samples_to_retain.txt 14_extract_mhap/mpileup_calls_renamed.bcf -Ob -o 14_extract_mhap/mpileup_calls_renamed_retained.bcf
+
+```
+
+
+### 08. Filter the called variants ###
+Filtering, update the input BCF variable as needed:     
 `01_scripts/filter_bcf.sh`     
 
 Filter on MAF?     
 ```
-bcftools +fill-tags 14_extract_mhap/mpileup_calls_SNP_only_biallelic_q20_dp10_Fmiss_0.1.bcf -Ob -o 14_extract_mhap/mpileup_calls_SNP_only_biallelic_q20_dp10_Fmiss_0.1_w_AF.bcf  -- -t AF
+bcftools +fill-tags 14_extract_mhap/<filtered>.bcf -Ob -o 14_extract_mhap/<filtered>_w_tags.bcf
+# Note: the MAF filed will be the minor allele, not just the non-ref allele.     
 
-bcftools view -i 'INFO/AF > 0.01' 14_extract_mhap/mpileup_calls_SNP_only_biallelic_q20_dp10_Fmiss_0.1_w_AF.bcf -Ob -o 14_extract_mhap/mpileup_calls_SNP_only_biallelic_q20_dp10_Fmiss_0.1_w_AF_maf0.01.bcf
+bcftools view -i 'MAF > 0.05' 14_extract_mhap/*_w_tags.bcf -Ob -o 14_extract_mhap/mpileup_calls_renamed_retained_noindel5_miss0.15_SNP_q99_avgDP10_biallele_minDP10_maxDP10000_minGQ20_miss0.15_w_tags_MAF0.05.bcf
 ```
 
-### 07. Rename samples in BCF file ###
-For simplicity, rename samples from the <run_name><IonCode>.fastq.gz format to a more common sample name that will fit with downstream analyses.     
-```
-# Identify the samples in the dataset
-bcftools query -l  14_extract_mhap/<filtered>.bcf > 14_extract_mhap/samplelist.txt
 
-# Open the sample list text file, add space, then the desired samplename to update 
-# e.g., 
-#oldname newname\n
-
-bcftools reheader --samples 14_extract_mhap/samplelist.txt -o 14_extract_mhap/<filtered>_renamed.bcf 14_extract_mhap/<filtered>.bcf  
-
-```
-
-### 08. Prepare for downstream analysis ###
+### 09. Prepare for downstream analysis ###
 Convert the BCF file to a VCF file and then copy to the input folder of the next program (e.g., [simple_pop_stats](https://github.com/bensutherland/simple_pop_stats).          
 `bcftools view <input>.bcf -Ov -o <output>.vcf`     
 
