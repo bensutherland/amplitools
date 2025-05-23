@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Global variables
-DATAFOLDER="14_extract_mhap"
+DATAFOLDER="02_input_data"
 TIMESTAMP=$(date +%Y-%m-%d_%Hh%Mm%Ss)
 LOG_FOLDER="10_log_files"
 SCRIPT=$0
@@ -9,14 +9,14 @@ NAME=$(basename $0)
 
 
 # User set variables
-NUM_CPU=36
+NUM_CPU=8
 INPUT_BCF="mpileup_calls.bcf"
 INDEL_DIST=5      # indel surrounding window size around which to remove SNPs
 MISSING_PPN=0.15   # missing data proportion (default: filter if > 10%)
-QUAL=99           # minimum quality for SNP at least one indiv
+QUAL=20           # minimum quality for SNP at least one indiv
 #MIN_TOTAL_DP=10   # minimum total depth for site
-MIN_AVG_DP=10     # minimum depth when averaged across all samples
-MIN_GENO_DP=10     # minimum geno depth or change to missing
+MIN_AVG_DP=7     # minimum depth when averaged across all samples
+MIN_GENO_DP=7     # minimum geno depth or change to missing
 MAX_GENO_DP=10000   # maximum geno depth or change to missing
 LOW_GQ_FILT=20
 
@@ -48,6 +48,9 @@ bcftools view -i "F_missing < $MISSING_PPN" --threads $NUM_CPU $DATAFOLDER/$OUTP
         -Ob -o $DATAFOLDER/$OUTPUT_FN_2
 echo "Completed, output as $DATAFOLDER/$OUTPUT_FN_2" | tee -a $RESULT_LOG
 
+echo "Removing $DATAFOLDER/$OUTPUT_FN_1" 
+rm $DATAFOLDER/$OUTPUT_FN_1
+
 # Reporting
 echo "Output BCF now has the following number of variants: " | tee -a $RESULT_LOG
 bcftools view $DATAFOLDER/$OUTPUT_FN_2 --threads $NUM_CPU | grep -vE '^#' - | wc -l | tee -a $RESULT_LOG
@@ -64,6 +67,10 @@ echo "Completed, output as $DATAFOLDER/$OUTPUT_FN_3" | tee -a $RESULT_LOG
 echo "Output BCF now has the following number of variants: " | tee -a $RESULT_LOG
 bcftools view $DATAFOLDER/$OUTPUT_FN_3 --threads $NUM_CPU | grep -vE '^#' - | wc -l | tee -a $RESULT_LOG
 
+# Remove filtered BCF file from the previous step to preserve space
+echo "Removing $DATAFOLDER/$OUTPUT_FN_2" 
+rm $DATAFOLDER/$OUTPUT_FN_2
+
 
 # 4. Filter based on quality
 echo "Keeping only variants with quality > $QUAL in at least one indiv" | tee -a $RESULT_LOG
@@ -75,6 +82,10 @@ echo "Completed, output as $DATAFOLDER/$OUTPUT_FN_4" | tee -a $RESULT_LOG
 # Reporting
 echo "Output BCF now has the following number of variants: " | tee -a $RESULT_LOG
 bcftools view $DATAFOLDER/$OUTPUT_FN_4 --threads $NUM_CPU | grep -vE '^#' - | wc -l | tee -a $RESULT_LOG
+
+# Remove filtered BCF file from the previous step to preserve space
+echo "Removing $DATAFOLDER/$OUTPUT_FN_3" 
+rm $DATAFOLDER/$OUTPUT_FN_3
 
 
 # 5. Filter based on average depth
@@ -88,6 +99,10 @@ echo "Completed, output as $DATAFOLDER/$OUTPUT_FN_5" | tee -a $RESULT_LOG
 echo "Output BCF now has the following number of variants: " | tee -a $RESULT_LOG
 bcftools view $DATAFOLDER/$OUTPUT_FN_5 --threads $NUM_CPU | grep -vE '^#' - | wc -l | tee -a $RESULT_LOG
 
+# Remove filtered BCF file from the previous step to preserve space
+echo "Removing $DATAFOLDER/$OUTPUT_FN_4" 
+rm $DATAFOLDER/$OUTPUT_FN_4
+
 
 # 6. Filter based on biallelic only
 echo "Keeping only biallelic SNPs" | tee -a $RESULT_LOG
@@ -100,6 +115,10 @@ echo "Completed, output as $DATAFOLDER/$OUTPUT_FN_6" | tee -a $RESULT_LOG
 echo "Output BCF now has the following number of variants: " | tee -a $RESULT_LOG
 bcftools view $DATAFOLDER/$OUTPUT_FN_6 --threads $NUM_CPU | grep -vE '^#' - | wc -l | tee -a $RESULT_LOG
 
+# Remove filtered BCF file from the previous step to preserve space
+echo "Removing $DATAFOLDER/$OUTPUT_FN_5" 
+rm $DATAFOLDER/$OUTPUT_FN_5
+
 
 # 7. Remove low or high coverage genotypes
 echo "Set to missing low (<$MIN_GENO_DP) or high (>$MAX_GENO_DP) coverage genotypes" | tee -a $RESULT_LOG
@@ -110,6 +129,10 @@ echo "Completed, output as $DATAFOLDER/$OUTPUT_FN_7" | tee -a $RESULT_LOG
 # Reporting
 echo "Output BCF now has the following number of variants: " | tee -a $RESULT_LOG
 bcftools view $DATAFOLDER/$OUTPUT_FN_7 --threads $NUM_CPU | grep -vE '^#' - | wc -l | tee -a $RESULT_LOG
+
+# Remove filtered BCF file from the previous step to preserve space
+echo "Removing $DATAFOLDER/$OUTPUT_FN_6" 
+rm $DATAFOLDER/$OUTPUT_FN_6
 
 
 # 8. Remove low GQ genotypes
@@ -122,6 +145,10 @@ echo "Completed, output as $DATAFOLDER/$OUTPUT_FN_8" | tee -a $RESULT_LOG
 echo "Output BCF now has the following number of variants: " | tee -a $RESULT_LOG
 bcftools view $DATAFOLDER/$OUTPUT_FN_8 --threads $NUM_CPU | grep -vE '^#' - | wc -l | tee -a $RESULT_LOG
 
+# Remove filtered BCF file from the previous step to preserve space
+echo "Removing $DATAFOLDER/$OUTPUT_FN_7" 
+rm $DATAFOLDER/$OUTPUT_FN_7
+
 
 # 9. Filter again for missing data after the previous
 echo "Filtering out variants missing in more than $MISSING_PPN (proportion) individuals, following previous substitution" | tee -a $RESULT_LOG
@@ -133,5 +160,9 @@ echo "Completed, output as $DATAFOLDER/$OUTPUT_FN_9" | tee -a $RESULT_LOG
 # Reporting
 echo "Output BCF now has the following number of variants: "
 bcftools view $DATAFOLDER/$OUTPUT_FN_9 --threads $NUM_CPU | grep -vE '^#' - | wc -l | tee -a $RESULT_LOG
+
+# Remove filtered BCF file from the previous step to preserve space
+echo "Removing $DATAFOLDER/$OUTPUT_FN_8" 
+rm $DATAFOLDER/$OUTPUT_FN_8
 
 echo "Filtering complete" | tee -a $RESULT_LOG
