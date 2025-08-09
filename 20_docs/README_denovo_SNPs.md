@@ -12,7 +12,7 @@ This workflow should work on either linux or macOS.
 
 ### General Comments ###
 To identify novel variants, the following approach will be taken:      
-(1) align amplicon panel fastq.gz results against the amplicon-only reference;       
+(1) align amplicon panel fastq.gz results against the reference genome;       
 (2) call variants from the above, produce a VCF file with all samples;       
 (3) filter VCF file.      
 
@@ -32,7 +32,7 @@ Obtain per-sample demultiplexed fastq data from the AmpliSeq provider, and copy 
 To save space, compress files if they are not compressed already (required):     
 `gzip *.fastq`    
 
-Note: if provided per-sample data is in bam format, convert it to fq.gz:     
+Note: if provided per-sample data is in bam format, convert it to fastq.gz:     
 `01_scripts/bamtofastq.sh`      
 
 #### Optional: select best replicate ####
@@ -103,7 +103,8 @@ Output will be in `14_extract_mhap`.
 
 
 ### 06. Rename samples in BCF file ###
-For simplicity, it is suggested to rename samples from the <run_name><IonCode>.fastq.gz format to a more common sample name that will fit with downstream analyses. It is also suggested that this be done before filtering to not let it affect the per locus genotype rate (for example), as there may be some low quality samples present, for example negative controls or odd samples that are easier to identify and remove with the improved samplename.     
+Rename samples from the <run_name><IonCode>.fastq.gz format to a sample name that is usable for the project and will fit with downstream analyses.     
+Do this step before filtering, so that you can remove negative control samples (etc) easily, so that these don't affect filters.      
     
 ```
 # Identify the samples in the dataset
@@ -137,6 +138,9 @@ bcftools view -S 14_extract_mhap/samples_to_retain.txt 14_extract_mhap/mpileup_c
 ### 08. Filter the called variants ###
 Filtering, update the input BCF variable as needed:     
 `01_scripts/filter_bcf.sh`     
+
+Note: you will need to change variable for `DATAFOLDER` and `INPUT_BCF`, as well as any of the filtering parameters, as needed.    
+
 
 Filter on MAF?     
 ```
