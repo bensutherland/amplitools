@@ -1,5 +1,5 @@
 # de novo SNP calling 
-As with the main analysis, this workflow comes with no guarantees of usefulness. This workflow is currently under development.       
+As with the main analysis, this workflow comes with no guarantees of usefulness.        
 
 #### Requirements: ####
 This workflow should work on either linux or macOS.      
@@ -35,39 +35,18 @@ To save space, compress files if they are not compressed already (required):
 Note: if provided per-sample data is in bam format, convert it to fastq.gz:     
 `01_scripts/bamtofastq.sh`      
 
-#### Optional: select best replicate ####
-To determine the deepest sequenced replicate, determine the number of reads in each fastq file:       
-`01_scripts/count_reads.sh`       
-...note: adjust variable SUFFIX if your files do not have the suffix '.fastq.gz'.       
-
-Prepare an interpretation file, `00_archive/filename_to_sample_map.txt`, with column headers `filename` (fastq name per file, no path) and `sample_id` (name of sample, identical for replicates).     
-To create an interpretation file from scratch, use the following:      
-`basename -a 12_input_mhap/*.fastq.gz > 00_archive/filename_to_sample_map.txt`       
- ...then use spreadsheet editor to complete the info.     
-
-In RStudio, source amplitools initiator, then run the following:      
-```
-select_best_rep_fastq(input_folder = "12_input_mhap", metadata.FN = "00_archive/filename_to_sample_map.txt", counts.FN = "12_input_mhap/reads_per_sample_table.txt")         
-```
-This will output a histogram of reads per sample, and a reads per sample table with only the best sample retained ('best' is based on number of reads).      
+If you would like to select only the best replicate, see [here](20_docs/README_select_best_rep.md).      
 
 
-Then in terminal, run the following to move any file that was not set to be retained into the removed files folder:     
-```
-for file in $(cat 12_input_mhap/remove_files.txt); do mv "$file" 12_input_mhap/removed_files/; done
-```
-
-Finally, add any manually-selected files that you would like to keep in the analysis into the `12_input_mhap` folder. If these files are paired-end, put the R2 files into the `removed_files` subfolder, and only use the R1 file to match the amplicon panel output data.    
-
-
-### 03. Quality check ###
+### 02. Quality check ###
 Use fastqc/ multiqc to evaluate quality:      
 ```
 fastqc 12_input_mhap/*.fastq.gz -o 12_input_mhap/fastqc_raw -t 4 
 multiqc -o 12_input_mhap/fastqc_raw/ 12_input_mhap/fastqc_raw/    
 ``` 
 
-### 04. Align samples against reference genome ### 
+
+### 03. Align samples against reference genome ### 
 Update the variable for the reference genome, then run the following script:       
 `01_scripts/bwa_mem_align_reads.sh 12`       
 Requires that the sample filename suffix is .fastq.gz     
@@ -83,7 +62,7 @@ To inspect the number of reads and number of alignments per sample:
 `01_scripts/assess_results.sh` will produce summary tables in each folder.     
 
 
-### 05. Call variants from the aligned samples ###
+### 04. Call variants from the aligned samples ###
 Variants will be called from the aligned samples as follows:      
 ```
 # Prepare a list of all sorted bam files
@@ -102,7 +81,7 @@ Call variants with mpileup by updating any variables and running:
 Output will be in `14_extract_mhap`.         
 
 
-### 06. Rename samples in BCF file ###
+### 05. Rename samples in BCF file ###
 Rename samples from the <run_name><IonCode>.fastq.gz format to a sample name that is usable for the project and will fit with downstream analyses.     
 Do this step before filtering, so that you can remove negative control samples (etc) easily, so that these don't affect filters.      
     
@@ -120,7 +99,7 @@ bcftools reheader --samples 14_extract_mhap/samplelist_rename.txt -o 14_extract_
 ```
 
 
-### 07. Remove any individuals as needed from the BCF file ###
+### 06. Remove any individuals as needed from the BCF file ###
 Remove any samples that are not wanted in the file before filtering the file:     
 ```
 # Identify present samples
@@ -135,14 +114,14 @@ bcftools view -S 14_extract_mhap/samples_to_retain.txt 14_extract_mhap/mpileup_c
 ```
 
 
-### 08. Filter the called variants ###
+### 07. Filter the called variants ###
 Filtering, update the input BCF variable as needed:     
 `01_scripts/filter_bcf.sh`     
 
 Note: you will need to change variable for `DATAFOLDER` and `INPUT_BCF`, as well as any of the filtering parameters, as needed.    
 
 
-Filter on MAF?     
+Optional: filter by MAF         
 ```
 bcftools +fill-tags 14_extract_mhap/<filtered>.bcf -Ob -o 14_extract_mhap/<filtered>_w_tags.bcf
 # Note: the MAF filed will be the minor allele, not just the non-ref allele.     
@@ -151,7 +130,7 @@ bcftools view -i 'MAF > 0.05' 14_extract_mhap/*_w_tags.bcf -Ob -o 14_extract_mha
 ```
 
 
-### 09. Prepare for downstream analysis ###
+### 08. Prepare for downstream analysis ###
 Convert the BCF file to a VCF file and then copy to the input folder of the next program (e.g., [simple_pop_stats](https://github.com/bensutherland/simple_pop_stats).          
 `bcftools view <input>.bcf -Ov -o <output>.vcf`     
 
