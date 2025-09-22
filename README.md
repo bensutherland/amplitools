@@ -58,7 +58,8 @@ This should load 8024 rows and 14 columns, with 2079 unique markers, from two di
 
 
 ## A. VariantCaller to genepop ##
-Convert [VariantCaller](https://www.thermofisher.com/ca/en/home/life-science/sequencing/next-generation-sequencing/ion-torrent-next-generation-sequencing-workflow/ion-torrent-next-generation-sequencing-data-analysis-workflow/ion-torrent-suite-software.html) output to a genepop file for downstream analysis. An example of the input file is provided in [02_input_data/test_data.xls](https://github.com/bensutherland/amplitools/blob/main/02_input_data/test_data.xls)     
+This section will allow you to convert [VariantCaller](https://www.thermofisher.com/ca/en/home/life-science/sequencing/next-generation-sequencing/ion-torrent-next-generation-sequencing-workflow/ion-torrent-next-generation-sequencing-data-analysis-workflow/ion-torrent-suite-software.html) output files (TVC) to a standard genepop file for downstream analysis.      
+An example of the input file is provided: [02_input_data/test_data.xls](https://github.com/bensutherland/amplitools/blob/main/02_input_data/test_data.xls)     
 
 
 #### 00. Prepare inputs and functions
@@ -70,8 +71,8 @@ Copy any number of input files in the folder `02_input_data`.
 #### 01. Load data
 **Background**
 VariantCaller format interpretation:     
-'Absent' means homozygous reference (0101)       
 'No Call' means missing data (0000)         
+'Absent' means homozygous reference (0101)       
 'Heterozygous' means heterozygous (0102)        
 'Homozygous' means homozygous variant (0202)        
 
@@ -81,8 +82,10 @@ Please note: all variantCaller input files **must** have been generated using th
 In R, use the following function to **select only hotspot markers** for all input files in `02_input_data`, then convert genotype calls to genepop format to output a multilocus genotype matrix (rows: samples; columns: loci):         
 `proton_to_genepop(neg_control="BLANK")`          
 note: include the exact string for a pattern only within your negative control samples.     
+note: if there are periods in locus names, they will be converted to underscores.       
 
-The output will be a tab-delimited text file in `02_input_data/prepped_matrices/`, one per input file. Sample identifiers will be created as <RunName>__<Barcode>__<SampleName>.      
+
+The output will be a tab-delimited text file in `02_input_data/prepped_matrices/`, one per input file. Sample identifiers will be created as `RunName__Barcode__SampleName`.      
 
 To inspect mean marker coverage per experimental or control sample, see output files:     
 `03_results/mean_marker_cov_per_sample_*.txt`          
@@ -105,8 +108,7 @@ cd simple_pop_stats
 ```
 
 Copy the genepop(s) created above to `simple_pop_stats/02_input_data` or analyze elsewhere. 
-An example is given here:     
-`ms_amplicon_panel/01_scripts/sps_popgen_analysis.R`       
+An example is given [here](https://github.com/bensutherland/ms_oyster_panel/blob/main/01_scripts/sps_popgen_analysis.R).       
 
 `simple_pop_stats` is being developed to work well with `amplitools` to facilitate population genetic analyses. As follows are some examples of useful functions, but please see the `simple_pop_stats` repository for a full explanation.       
 

@@ -6,11 +6,14 @@ proton_to_genepop <- function(neg_control="BLANK"){
   # Load vc data into input.list
   load_vc(input_folder = "02_input_data")
   
+  # Prepare data per chip
   input.df <- NULL
   for(c in 1:length(names(input.list))){
     
+    # Reporting
     print(paste0("**Converting file ", names(input.list)[c], "**"))
     
+    # Load vc data
     input.df <- input.list[[c]]
     
     # Reporting
@@ -19,7 +22,7 @@ proton_to_genepop <- function(neg_control="BLANK"){
     # Retain only the hotspot SNPs
     input.df <- input.df[input.df$Allele.Source=="Hotspot",]
       
-    print(paste0("Currently, there are ", length(unique(input.df$Allele.Name)), " unique markers"))
+    print(paste0("Number unique markers: ", length(unique(input.df$Allele.Name))))
       
     ## Summarize data characteristics
     # Per sample mean marker read depth
@@ -90,6 +93,7 @@ proton_to_genepop <- function(neg_control="BLANK"){
     
     # The data is now in 5 cols, with sample identifier, allele name, ref, variant, and the geno call for the sample
     head(input.df)
+    
     
     #### 02. Convert allele calls to markers  ####
     # Per indiv, per marker, convert to actual genotype in genepop format
@@ -245,6 +249,14 @@ proton_to_genepop <- function(neg_control="BLANK"){
     
     # # Save output
     # write.table(x = genetics.df, file = paste0("03_results/", proton.FN, "_genetic_data_only.txt"), quote = F, sep = "\t", row.names = F)
+    
+    ## Ensure no periods in locus names
+    # Reporting: 
+    print("Note: all periods in locus names will be converted to underscores.")
+    before_conversion.num <- length(unique(genetics.df$Allele.Name))
+    genetics.df$Allele.Name <- gsub(pattern = "\\.", replacement = "_", x = genetics.df$Allele.Name)
+    before_conversion.num == length(unique(genetics.df$Allele.Name)) # confirm
+    print(paste0("Number unique markers: ", length(unique(genetics.df$Allele.Name))))
     
     # Reshape the output; transpose to make samples as rows and markers as columns
     genetics_prep.df <- t(genetics.df)
