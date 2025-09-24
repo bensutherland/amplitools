@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Global variables
-DATAFOLDER="02_input_data"
+DATAFOLDER="14_extract_mhap"
 TIMESTAMP=$(date +%Y-%m-%d_%Hh%Mm%Ss)
 LOG_FOLDER="10_log_files"
 SCRIPT=$0
@@ -10,13 +10,13 @@ NAME=$(basename $0)
 
 # User set variables
 NUM_CPU=8
-INPUT_BCF="mpileup_calls.bcf"
+INPUT_BCF="mpileup_calls_renamed.bcf"
 INDEL_DIST=5      # indel surrounding window size around which to remove SNPs
 MISSING_PPN=0.15   # missing data proportion (default: filter if > 10%)
-QUAL=20           # minimum quality for SNP at least one indiv
+QUAL=99           # minimum quality for SNP at least one indiv
 #MIN_TOTAL_DP=10   # minimum total depth for site
-MIN_AVG_DP=7     # minimum depth when averaged across all samples
-MIN_GENO_DP=7     # minimum geno depth or change to missing
+MIN_AVG_DP=10     # minimum depth when averaged across all samples
+MIN_GENO_DP=10     # minimum geno depth or change to missing
 MAX_GENO_DP=10000   # maximum geno depth or change to missing
 LOW_GQ_FILT=20
 
