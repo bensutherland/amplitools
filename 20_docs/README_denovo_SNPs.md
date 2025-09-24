@@ -36,7 +36,7 @@ To save space, compress files if they are not compressed already (required):
 Note: if provided per-sample data is in bam format, convert it to fastq.gz:     
 `01_scripts/bamtofastq.sh`      
 
-If there are technical replicates for some samples and you would like some ideas of how to deal with these, see [this page](20_docs/README_select_best_rep.md).      
+If there are technical replicates for some samples and you would like some ideas of how to deal with these, see [this page](README_select_best_rep.md).      
 
 
 ### 02. Quality check ###
