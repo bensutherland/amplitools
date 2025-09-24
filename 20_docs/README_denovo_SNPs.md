@@ -2,12 +2,13 @@
 As with the main analysis, this workflow comes with no guarantees of usefulness.        
 
 #### Requirements: ####
-This workflow should work on either linux or macOS.      
-[fastqc](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)      
-[multiqc](https://multiqc.info)    
-[bwa](https://github.com/lh3/bwa)       
-[samtools](https://samtools.sourceforge.net)      
-[bcftools](https://samtools.github.io/bcftools/bcftools.html)       
+- Linux or Mac operating system    
+- [FastQC](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)      
+- [MultiQC](https://multiqc.info)    
+- [bwa](https://github.com/lh3/bwa)       
+- [SAMtools](https://samtools.sourceforge.net)      
+- [bcftools](https://samtools.github.io/bcftools/bcftools.html)       
+- [bedtools](https://bedtools.readthedocs.io/en/latest/) for bam to fastq     
 
 
 ### General Comments ###
@@ -35,7 +36,7 @@ To save space, compress files if they are not compressed already (required):
 Note: if provided per-sample data is in bam format, convert it to fastq.gz:     
 `01_scripts/bamtofastq.sh`      
 
-If you would like to select only the best replicate, see [here](20_docs/README_select_best_rep.md).      
+If there are technical replicates for some samples and you would like some ideas of how to deal with these, see [this page](20_docs/README_select_best_rep.md).      
 
 
 ### 02. Quality check ###
@@ -75,6 +76,8 @@ samtools merge 13_mapped_mhap/all_merged.bam -b 13_mapped_mhap/bamlist.txt --thr
 samtools faidx <ref_genome>       
 
 ```
+
+Note: if you get an error at the merge stage and have many files, see the [Troubleshooting](20_docs/README_troubleshooting.md) page.       
 
 Call variants with mpileup by updating any variables and running:       
 `./01_scripts/call_variants.sh`     
