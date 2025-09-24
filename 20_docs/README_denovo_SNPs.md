@@ -77,7 +77,7 @@ samtools faidx <ref_genome>
 
 ```
 
-Note: if you get an error at the merge stage and have many files, see the [Troubleshooting](20_docs/README_troubleshooting.md) page.       
+Note: if you get an error at the merge stage and have many files, see the [Troubleshooting](README_troubleshooting.md) page.       
 
 Call variants with mpileup by updating any variables and running:       
 `./01_scripts/call_variants.sh`     
