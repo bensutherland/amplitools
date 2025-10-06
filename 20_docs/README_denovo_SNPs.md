@@ -85,7 +85,7 @@ Output will be in `14_extract_mhap`.
 
 
 ### 05. Rename samples in BCF file ###
-Rename samples from the <run_name><IonCode>.fastq.gz format to a sample name that is usable for the project and will fit with downstream analyses.     
+Rename samples from the `run_name_IonCode.fastq.gz` format to a sample name that is usable for the project and will fit with downstream analyses.     
 Do this step before filtering, so that you can remove negative control samples (etc) easily, so that these don't affect filters.      
     
 ```
@@ -93,7 +93,7 @@ Do this step before filtering, so that you can remove negative control samples (
 bcftools query -l  14_extract_mhap/mpileup_calls.bcf > 14_extract_mhap/samplelist.txt
 
 # Open the sample list text file, add space, then the desired samplename to update
-# Save as space-separated, samplelist_rename.txt 
+# Save as space- or tab-separated, samplelist_rename.txt 
 # e.g., 
 #oldname newname\n
 
