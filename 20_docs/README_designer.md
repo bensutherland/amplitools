@@ -1,7 +1,8 @@
 ## Panel designer support ##
-This section will use as input a tab-delimited list of marker names and a corresponding VCF file and reference genome to extract a sequence window flanking the target variant and prepare it for submission to a commercial provider for primer panel design.       
+This section uses a tab-delimited list of marker names and a corresponding VCF file or positional details per marker along with a reference genome to extract a sequence window that flanks target variants. The output will be a file that can be provided to a commercial provider for primer panel design or rhAmp assay design.       
 
-#### 01. Obtain information from VCF ####
+#### 01. Prepare positional information ####
+##### a. Marker names and VCF file #####
 Use a tab-delimited file with the first column as marker names to extract necessary information from the VCF:     
 `./01_scripts/designer/01_collect_info_from_vcf.sh <marker input file>.txt <marker VCF file>.vcf`      
 
@@ -12,9 +13,12 @@ This is a text file with fields (1) chr; (2) pos of SNP in ref genome; (3) info 
 
 Note: this script will remove any marker from the output that is within 200-bp from the start of the contig, as the full window will not be extractable.       
 
-If you are not starting from a VCF, you can also create your own file with the following format (no spaces), and save this as `10_designer/vcf_selection.csv`:       
-<scaffold_name>,<position>,<marker_name>,<ref_allele>,<alt_allele>           
-...then move onto the next stage.     
+##### b. Positional details already obtained #####
+If you already have all of your positional and allele details, you can prepare a comma-separated file as follows, saved as `10_designer/vcf_selection.csv`:       
+```
+scaffold_name,SNP_position,marker_name,ref_allele,alt_allele           
+```
+This file should have no header, no spaces, and should not have any empty rows (i.e., no empty line at the end of the file).     
 
 #### 02. Prepare bed file with selected windows ####
 From the output of above, prepare a bed file that has +/- 200 bp positional information from the target SNP:     
