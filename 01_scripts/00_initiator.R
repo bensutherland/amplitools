@@ -1,33 +1,38 @@
-# Menu initiator for amplitools
-# Input data should be tab-delimited text file with extension .xls from 
-## Torrent VariantCaller output
-# B. Sutherland, 2023-04-26
+# amplitools initiator
+# Input data should be tab-delimited text file with extension .xls from Torrent VariantCaller output
+# Initialized by B. Sutherland, 2023-04-26
 
 #### 00. Front Matter ####
-# Clear space
+## Clear space
 # rm(list=ls())
 
-# Install and load packages
-# Devtools
+## Install and load packages
+## devtools
 #  Mac instructions:  
 #   #install.packages("devtools")
 #   #devtools::install_github("hadley/devtools")
-# Ubuntu suggest installing devtools with apt-get or similar package manager
-
-#install.packages("Rcpp")
-#install.packages("tidyverse")
-#devtools::install_github("eriqande/CKMRsim", build_vignettes = TRUE)
-#install.packages("igraph")
-#install.packages("adegenet")
-#devtools::install_github("delomast/EFGLmh") # required for microhaplotype workflow
-
-#library("Rcpp")
+# Ubuntu instructions: 
+#   # follow online tutorial to install system dependencies via apt get; then
+#   # install.packages("devtools")
 library("devtools")
+
+## Other packages, general workflow
+# install.packages("Rcpp")
+# install.packages("tidyverse")
+# remotes::install_github("eriqande/CKMRsim", build_vignettes = TRUE)
+# install.packages("igraph")
+# install.packages("adegenet")
+
+## Other packages, microhaplotype workflow
+# devtools::install_github("delomast/EFGLmh") # required for microhaplotype workflow
+# library("EFGLmh") # required for microhaplotype workflow
+
+library("Rcpp")
 library("tidyverse")
 library("CKMRsim")
 library("igraph")
 library("adegenet")
-library("EFGLmh") # required for microhaplotype workflow
+
 
 ## Set working directory
 current.path <- dirname(rstudioapi::getSourceEditorContext()$path)
