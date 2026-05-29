@@ -1,10 +1,10 @@
 # amplitools
 Tools for working with amplicon sequencing data.         
-Ben J. G. Sutherland, Ph.D. (Sutherland Bioinformatics).          
-
-**Note**: this software is provided 'as is', without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in action of contract, tort or otherwise, arising from, out of, or in connection with the software or the use or other dealings in the software.             
+Developed and maintained by Ben J. G. Sutherland, Ph.D. (Sutherland Bioinformatics & Vancouver Island University).          
 
 The development of this pipeline has been supported by the following organizations: [Support and Funding page](20_docs/funding_support.md).        
+
+**Note**: this software is provided 'as is', without warranty of any kind, express or implied, including but not limited to the warranties of merchantability, fitness for a particular purpose and noninfringement. In no event shall the authors or copyright holders be liable for any claim, damages, or other liability, whether in action of contract, tort or otherwise, arising from, out of, or in connection with the software or the use or other dealings in the software.             
 
 #### Platforms supported:       
 - Ion Torrent
@@ -14,7 +14,6 @@ For a comprehensive list of panels that have been developed or tested through th
 
 #### Requirements:       
 - Linux or Mac operating system
-- devtools       
 - R (and packages within Rscripts)
 - [simple_pop_stats](https://github.com/bensutherland/simple_pop_stats)
 - [CKMRsim](https://github.com/eriqande/CKMRsim)
@@ -39,8 +38,8 @@ Please also be sure to cite the tools applied within each function.
 [Merge multiple Torrent VariantCaller VCF files](20_docs/README_combine_TVC_VCF_files.md).          
 [Convert positions of VCF to a different genome](20_docs/README_snplift.md).       
 [Select only hotspot SNPs, excluding novel from TVC VCF](20_docs/README_hotspot_only.md).      
-Looking for **panel design**? A separate README is available [here](20_docs/README_designer.md).       
-Original approach for **tech reps**? [here](20_docs/README_tech_reps.md).     
+Looking for panel design? A separate README is available [here](20_docs/README_designer.md).       
+Original approach for technical replicates? [here](20_docs/README_tech_reps.md).     
 
 ## Getting started ##
 Clone this repository and change into the main directory.      
@@ -50,42 +49,47 @@ cd amplitools
 
 ```
 
-amplitools generally is run through R. To initialize your session, open the Rscript `amplitools/01_scripts/00_initiator.R` and source the script. This will initiate R functions used in this section.      
+amplitools is mostly run in R. To initialize a session, open and source `01_scripts/00_initiator.R` to initiate functions.      
 
-Test out the platform with test data:      
+Optional: test out the platform with test data:      
 `load_vc(input_folder = "02_input_data", test_only = TRUE)`         
 This should load 8024 rows and 14 columns, with 2079 unique markers, from two different samples, and will save the output as input.list for inspection.              
 
 
 ## A. VariantCaller to genepop ##
-This section will allow you to convert [VariantCaller](https://www.thermofisher.com/ca/en/home/life-science/sequencing/next-generation-sequencing/ion-torrent-next-generation-sequencing-workflow/ion-torrent-next-generation-sequencing-data-analysis-workflow/ion-torrent-suite-software.html) output files (TVC) to a standard genepop file for downstream analysis.      
-An example of the input file is provided: [02_input_data/test_data.xls](https://github.com/bensutherland/amplitools/blob/main/02_input_data/test_data.xls)     
+This section will allow you to convert [Torrent VariantCaller](https://www.thermofisher.com/ca/en/home/life-science/sequencing/next-generation-sequencing/ion-torrent-next-generation-sequencing-workflow/ion-torrent-next-generation-sequencing-data-analysis-workflow/ion-torrent-suite-software.html) output files (TVC) to a standard genepop file for downstream analysis.      
+
+An example input file is provided: [02_input_data/test_data.xls](https://github.com/bensutherland/amplitools/blob/main/02_input_data/test_data.xls)     
 
 
-#### 00. Prepare inputs and functions
-**Important note:** input filename must be alphanumeric characters only connected with hyphens or underscores (i.e., no spaces). Multiple sequential underscores without other alphanumeric characters breaking up the underscores will cause the script to fail (e.g., `this__will_not_work`).      
-
+### 00. Prepare inputs and functions
 Copy any number of input files in the folder `02_input_data`.      
+
+**Important note on filenames:** input filename must be alphanumeric characters only connected with hyphens or underscores (i.e., no spaces). Importantly, multiple sequential underscores without other alphanumeric characters breaking up the underscores will cause the script to fail (e.g., `this__will_not_work_as_a_filename.xls`).      
 
 
 #### 01. Load data
-**Background**
-VariantCaller format interpretation:     
-'No Call' means missing data (0000)         
-'Absent' means homozygous reference (0101)       
-'Heterozygous' means heterozygous (0102)        
-'Homozygous' means homozygous variant (0202)        
+**Essential background on TVC formats:**
+- 'No Call' = missing data (0000)         
+- 'Absent' = homozygous reference (0101)       
+- 'Heterozygous' = heterozygote (0102)        
+- 'Homozygous' = homozygous alternate (0202)        
+Where REF or ALT is based on their designations in the hotspot file.    
 
-Please note: all variantCaller input files **must** have been generated using the same hotspot file. The script assumes that all designations of VariantCaller formats are the same for all files.      
+All variantCaller input files **must** have been generated using the same hotspot file, because this script assumes that all REF or ALT designations as above are the same for all files.      
+
 
 ##### 01.a. Prepare genotype block ####
-In R, use the following function to **select only hotspot markers** for all input files in `02_input_data`, then convert genotype calls to genepop format to output a multilocus genotype matrix (rows: samples; columns: loci):         
+Use the following R function to select only hotspot markers in all input files (in `02_input_data`), and then convert genotype calls to genepop format to output a multilocus genotype matrix where rows are samples and columns are loci:         
 `proton_to_genepop(neg_control="BLANK")`          
-note: include the exact string for a pattern only within your negative control samples.     
-note: if there are periods in locus names, they will be converted to underscores.       
 
+Function notes:    
+- sample identifiers will be created as `RunName__Barcode__SampleName`.      
+- negative control designation requires the exact matching string    
+- periods in locus names will be converted to underscores.       
+- any instance of 'pop' in locus names will be converted to '.p.o.p.' to avoid genepop reading functions reading as the end of locus names and start of genotype data (i.e., POP separator)
 
-The output will be a tab-delimited text file in `02_input_data/prepped_matrices/`, one per input file. Sample identifiers will be created as `RunName__Barcode__SampleName`.      
+Output: tab-delim text file per input file in `02_input_data/prepped_matrices/`      
 
 To inspect mean marker coverage per experimental or control sample, see output files:     
 `03_results/mean_marker_cov_per_sample_*.txt`          
@@ -97,6 +101,7 @@ From the terminal, finalize the genepop by running the following script for each
 
 The output will be a genepop file for each file output as `02_input_data/prepped_genepops/*.gen`       
 
+
 ##### 01.c. Load multiple genepops into R ####
 If you have multiple genepops in the amplitools folder, use the following to save them to a list:    
 ```
@@ -107,7 +112,7 @@ load_genepops(genepop_folder = "02_input_data/prepped_genepops/"
 )
 
 # Save the list as Rdata to load later in case you clear the workspace     
-saveRDS(object = my_genepops.list, file = "03_results/my_genepops_list.Rdata")
+saveRDS(object = my_genepops.list, file = "03_results/my_genepops_list.RDS")
 ```
 
 If you are using a single genepop, you can go directly to `simple_pop_stats` and use the functions there (see below).    
@@ -172,7 +177,6 @@ genepop_to_rubias_SNP(data = obj, sample_type = "reference"
 # output will be 03_results/rubias_output_SNP.txt
 # rename the output and copy it to amplitools/03_results/
 ```
-
 
 
 ## C. Parentage analysis ##
