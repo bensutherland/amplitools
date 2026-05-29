@@ -23,7 +23,12 @@ proton_to_genepop <- function(neg_control="BLANK"){
     input.df <- input.df[input.df$Allele.Source=="Hotspot",]
       
     print(paste0("Number unique markers: ", length(unique(input.df$Allele.Name))))
-      
+    
+    # Remove any instances of locus names with the 'pop' string
+    print("Replacing any locus name instances where the string 'pop' is present, as will break genepop loading later.")
+    print("If present, replacing 'pop' with '.p.o.p.'")
+    input.df$Allele.Name <- gsub(pattern = "pop", replacement = ".p.o.p.", x = input.df$Allele.Name  )
+    
     ## Summarize data characteristics
     # Per sample mean marker read depth
     print("Summarizing per sample mean/median marker read depth")
