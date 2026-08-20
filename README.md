@@ -80,14 +80,14 @@ All variantCaller input files **must** have been generated using the same hotspo
 
 
 ##### 01.a. Prepare genotype block ####
-Use the following R function to select only hotspot markers in all input files (in `02_input_data`), and then convert genotype calls to genepop format to output a multilocus genotype matrix where rows are samples and columns are loci:         
+Use the following R function to select only hotspot markers in all input files in `02_input_data`, and then convert genotype calls to genepop format to output a multilocus genotype matrix where rows are samples and columns are loci:         
 `proton_to_genepop(neg_control="BLANK")`          
 
 Function notes:    
 - sample identifiers will be created as `RunName__Barcode__SampleName`.      
 - negative control designation requires the exact matching string    
 - periods in locus names will be converted to underscores.       
-- any instance of 'pop' in locus names will be converted to '.p.o.p.' to avoid genepop reading functions reading as the end of locus names and start of genotype data (i.e., POP separator)
+- to avoid buggy behaviour, any instance of the string 'pop' in locus names will be converted to '.p.o.p.' to avoid functions that read genepop files into R from seeing this as the separator line between loci names and genotype data (i.e., the POP separator)
 
 Output: tab-delim text file per input file in `02_input_data/prepped_matrices/`      
 
@@ -102,7 +102,7 @@ From the terminal, finalize the genepop by running the following script for each
 The output will be a genepop file for each file output as `02_input_data/prepped_genepops/*.gen`       
 
 
-##### 01.c. Load multiple genepops into R ####
+##### 01.c. Load genepops into R ####
 If you have multiple genepops in the amplitools folder, use the following to save them to a list:    
 ```
 # Load the genepops in the input folder
