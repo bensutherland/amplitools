@@ -29,6 +29,10 @@ proton_to_genepop <- function(neg_control="BLANK"){
     print("If present, replacing 'pop' with '.p.o.p.'")
     input.df$Allele.Name <- gsub(pattern = "pop", replacement = ".p.o.p.", x = input.df$Allele.Name  )
     
+    # Clean up merged locus names issue; TVC will take locus records that are present twice with different names and merge the name into a single cell with a comma. This breaks things downstream, so we will scrape everything following the first comma to clean up the locus name. 
+    print("If present, removing any commas and following in locus names")
+    input.df$Allele.Name <- gsub(pattern = "\\,.*", replacement = "", x = input.df$Allele.Name)
+    
     ## Summarize data characteristics
     # Per sample mean marker read depth
     print("Summarizing per sample mean/median marker read depth")
