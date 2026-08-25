@@ -88,6 +88,8 @@ Function notes:
 - negative control designation requires the exact matching string    
 - periods in locus names will be converted to underscores.       
 - to avoid buggy behaviour, any instance of the string 'pop' in locus names will be converted to '.p.o.p.' to avoid functions that read genepop files into R from seeing this as the separator line between loci names and genotype data (i.e., the POP separator)
+- any locus names with a comma in the name will be substituted for an underscore to avoid bugs
+
 
 Output: tab-delim text file per input file in `02_input_data/prepped_matrices/`      
 
