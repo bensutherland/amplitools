@@ -25,6 +25,13 @@ load_vc <- function(input_folder = "02_input_data", test_only = FALSE){
     
   }
   
+  # Stop if there are no files
+  if(length(inputs)==0){
+    
+    stop("There are no sample files (suffix = .xls) in the input directory.")
+    
+  }
+  
   # Reporting
   print("Analyzing the following input files: ")
   print(inputs)
