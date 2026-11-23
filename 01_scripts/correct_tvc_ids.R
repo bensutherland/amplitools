@@ -5,7 +5,8 @@
 # Requires
 # - tab-delim sample key with header: original.id \t updated.id
 
-# note: use the following to produce
+# note: use the following to produce a blank TVC interp file: 01_scripts/prep_tvc_corrector_sample_key.R
+#  Add the updated ID, and save as *_annot.txt
 
 
 #### 00. Front Matter ####
@@ -20,167 +21,96 @@ setwd(current.path)
 ## Load libraries
 library('dplyr')
 library('stringr')
-library('data.table')
+
+## User-set variables
+sample_key.FN <- "02_input_data/00_tvc_raw/G0926-11-VIUN_sample_key_annot.txt"
 
 
-#### FUNCTION FOR BUILDING KEY FILE
-df <- fread("data.csv", select = "score")
+#### 01. Read in sample data ####
+## Read in sample key
+sample_key.df <- read.delim2(file = sample_key.FN, header = T, sep = "\t")
+head(sample_key.df)
+
+## Add replicate ID for duplicates
+# Check to see if there are any instances of more than one duplicate ID
+if(any(table(sample_key.df$updated.id) > 2)){
+  
+  stop("This program has not implemented handling more than two duplicate values in updating names.")
+  
+}else {
+  
+  print("There are a maximum of 1 duplicate for any identifier, a suffix will be added to the second instance '_rep'")
+  
+}
+
+# Add the replicate indicator for second instance of identifier
+sample_key.df[duplicated(sample_key.df$updated.id), "updated.id"] <- paste0(sample_key.df[duplicated(sample_key.df$updated.id), "updated.id"], "_rep")
 
 
+## Read in sample file
+# Automatically set filename
+tvc_raw.FN <- gsub(pattern = "_sample_key_annot.txt", replacement = ".xls", x = sample_key.FN)
 
-## Read input data
-cat_run1   <- read.delim(file = '02_input_data/G0626-24-VIUN_run1.xls', header = T, sep = "\t")
-cat_run2   <- read.delim(file = '02_input_data/G0626-24-VIUN_run2.xls', header = T, sep = "\t")
-sample_key <- read.delim(file = '00_archive/pti2026002_sample_id_key.txt')
-
-
-## Inspect sample names
-# Run 1
-cat_run1.df <- as.data.frame(cat_run1)
-dim(cat_run1.df)
-colnames(cat_run1.df)
-unique(cat_run1.df$Sample.Name)
-
-# Run 2
-cat_run2.df <- as.data.frame(cat_run2)
-dim(cat_run2.df)
-colnames(cat_run2.df)
-unique(cat_run2.df$Sample.Name)
+# Read in file
+tvc_raw.df <- read.delim2(file = tvc_raw.FN, header = T, sep = "\t")
 
 
-## Use the sample key to replace Sample Names in the TVC file
-# sample_id is what is in the original TVC file to be replaced
-# true_id is the actual name that the sample should be, corrected by the provider
+#### 02. Replace sample names #### 
+## Use the sample key to replace the old name with the new name
 
-#table(cat_run1.df$Sample.Name)
-
-cat_run1_orgn.df <- cat_run1.df
-cat_run2_orgn.df <- cat_run2.df
-
-# Add a dummy column
-# cat_run1.df$Sample.Name.true <- NA
-# cat_run2.df$Sample.Name.true <- NA
-
-# # Loop over the rows of the sample key and do a gsub per cat run to replace the incorrect ID with the correct ID
-# for(i in 1:nrow(sample_key)){
-#   
-#   #print(paste0("Converting the string ", sample_key[i,"sample_id"], " to the string ", sample_key[i,"true_id"]))
-#   
-#   # Fix cat run 1 file
-#   cat_run1.df$Sample.Name <- gsub(pattern = sample_key[i,"sample_id"], replacement = sample_key[i,"true_id"], x = cat_run1.df$Sample.Name)
-#   
-#   # Fix cat run 2 file
-#   cat_run2.df$Sample.Name <- gsub(pattern = sample_key[i,"sample_id"], replacement = sample_key[i,"true_id"], x = cat_run2.df$Sample.Name)
-#   
-# }
-
-# table(cat_run1.df$Sample.Name)
-
-#unique(cat_run1_orgn.df[cat_run1_orgn.df$Sample.Name==cat_run1.df$Sample.Name, "Sample.Name"])
-
-# unique(cat_run1.df$Sample.Name)
-# unique(cat_run2.df$Sample.Name)
-
-
-## Prepare run 2 sample IDs for the rename (requires that there is no preceding text to sample ID)
-# Remove string before the target string to use front of string prior to ID as requirement in pattern matching
-cat_run2.df$Sample.Name <- gsub(pattern = "G0626-24-VIUN_p1_|G0626-24-VIUN_p2_|G0626-24-VIUN_p3_|G0626-24-VIUN_p4_", replacement = "", x = cat_run2.df$Sample.Name)
-
-
-## Use the key to replace the old name with the new name
 # Loop over the rows of the sample key and do a gsub per cat run to replace the incorrect ID with the correct ID
-for(i in 1:nrow(sample_key)){
+for(i in 1:nrow(sample_key.df)){
 
   # Fix cat run 1 file
-  cat_run1.df$Sample.Name <- gsub(pattern = paste0("^", sample_key[i,"sample_id"]), replacement = paste0("new_", sample_key[i,"true_id"]), x = cat_run1.df$Sample.Name
-                                  , perl = T)
+  tvc_raw.df$Sample.Name <- gsub(pattern = paste0("^", sample_key.df[i, "original.id"]), replacement = paste0("new_", sample_key.df[i,"updated.id"]), x = tvc_raw.df$Sample.Name
+                                  , perl = T
+                                 )
 
-  # Fix cat run 2 file
-  cat_run2.df$Sample.Name <- gsub(pattern = paste0("^", sample_key[i,"sample_id"]), replacement = paste0("new_", sample_key[i,"true_id"]), x = cat_run2.df$Sample.Name
-                                  , perl = T)
-  
+
 
 }
 
 
 ## Remove the 'new' prefix (used to identify which samples had been already replaced)
-cat_run1.df$Sample.Name <- gsub(pattern = "new_", replacement = "", x = cat_run1.df$Sample.Name)
-cat_run2.df$Sample.Name <- gsub(pattern = "new_", replacement = "", x = cat_run2.df$Sample.Name)
+tvc_raw.df$Sample.Name <- gsub(pattern = "new_", replacement = "", x = tvc_raw.df$Sample.Name)
+tvc_updated.df <- tvc_raw.df
 
-# Check to see the original and new name for those that changed during the rename
-unique(
-  paste0(cat_run1.df$Sample.Name[cat_run1.df$Sample.Name!=cat_run1_orgn.df$Sample.Name]
-         , "__"
-         , cat_run1_orgn.df$Sample.Name[cat_run1.df$Sample.Name!=cat_run1_orgn.df$Sample.Name])
-  )
+# Clean up
+rm(tvc_raw.df)
 
-### DID NOT WORK ###
-# cat_run1_orgn.df$Sample.Name[grep(pattern = sample_key[i,"sample_id"], x = cat_run1_orgn.df$Sample.Name) & !grep(pattern = "new_", x = cat_run1_orgn.df$Sample.Name)]
-# 
-# result <- text_vector[grepl("a", text_vector) & !grepl("r", text_vector)]
-### /END/ DID NOT WORK ###
+#### 03. Write out updated TVC files
+## Set output filenames
+# TVC output
+tvc_updated.FN <- gsub(pattern = "00_tvc_raw", replacement =  "01_tvc_for_load", x = tvc_raw.FN)
+tvc_updated.FN <- gsub(pattern = "\\.xls", replacement =  "_updated_ids.xls", x = tvc_updated.FN)
 
+# Applied sample key
+sample_key_updated.FN <- gsub(pattern = "00_tvc_raw", replacement = "01_tvc_for_load", x = sample_key.FN)
+sample_key_updated.FN <- gsub(pattern = "\\.txt", replacement = "_applied.txt", x = sample_key_updated.FN)
 
-### ORIGINAL ###
+# Reporting
+cat("Writing out the updated TVC file as: ", "\n"
+    , tvc_updated.FN, "\n"
+    , "...and updated sample key as: ", "\n"
+    , sample_key_updated.FN
+    )
 
-# # Update names from key
-# ## CAT run 1
-# cat_run1_corrected <- cat_run1 %>%
-#   left_join(.
-#             , sample_key
-#             , by = c('Sample.Name' = 'sample_id')
-#             ) %>%
-#   # confirm changes
-#   # mutate(Sample.Name_corrected = case_when(Sample.Name != true_id ~ true_id
-#   #                                          , TRUE ~ Sample.Name)) %>%
-#   # select(Sample.Name
-#   #        , Sample.Name_corrected
-#   #        , true_id
-#   #        , everything())
-#   mutate(Sample.Name = case_when(Sample.Name != true_id ~ true_id
-#                                  , TRUE ~ Sample.Name)) %>%
-#   select(!true_id)
-# 
-
-# ## CAT run 2
-# cat_run2_corrected <- cat_run2
-# 
-# for (i in seq_len(nrow(sample_key))) {
-#   
-#   edit <- str_detect(cat_run2_corrected$Sample.Name
-#                      , fixed(sample_key$sample_id[i]))
-#   
-#   cat_run2_corrected$Sample.Name_corrected[edit] <- str_replace(cat_run2_corrected$Sample.Name[edit]
-#                                                           , fixed(sample_key$sample_id[i])
-#                                                           , sample_key$true_id[i]
-#                                                           )
-# }
-# 
-# ## confirm dataframe changes
-# # cat_run2_corrected <- cat_run2_corrected %>% 
-# #   select(Sample.Name
-# #          , Sample.Name_corrected
-# #          , everything())
-# 
-# ## Restore column names
-# cat_run2_corrected <- cat_run2_corrected %>% 
-#   select(!Sample.Name) %>% 
-#   rename(Sample.Name = Sample.Name_corrected)
-
-#### Write output ####
-# Write corrected dataframes to file
-write.table(cat_run1.df
-            , '03_results/G0626-24-VIUN_run1_corrected.xls'
+# Write out updated TVC file
+write.table(x = tvc_updated.df
+            , file = tvc_updated.FN
             , row.names = FALSE
             , quote = F
             , sep = "\t"
             )
 
-write.table(cat_run2.df
-            , '03_results/G0626-24-VIUN_run2_corrected.xls'
-            , row.names = FALSE
+# Write out applied sample key
+write.table(x = sample_key.df
+            , file = sample_key_updated.FN
+            , row.names = F
+            , col.names = T
             , quote = F
             , sep = "\t"
-            )
+)
 
-# end #
+
+# End #
