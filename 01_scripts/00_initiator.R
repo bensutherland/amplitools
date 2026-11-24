@@ -32,6 +32,10 @@ library("tidyverse")
 library("CKMRsim")
 library("igraph")
 library("adegenet")
+library("data.table")
+library('dplyr')
+library('stringr')
+
 
 
 ## Set working directory
