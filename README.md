@@ -35,6 +35,7 @@ Please also be sure to cite the tools applied within each function.
 ### Additional guides ###
 [de novo variant calling](20_docs/README_denovo_SNPs.md).      
 [Microhaplotype workflow](20_docs/README_mhap.md).       
+[Update TVC run and sample names](20_docs/README_TVC_updating.md).     
 [Merge multiple Torrent VariantCaller VCF files](20_docs/README_combine_TVC_VCF_files.md).          
 [Convert positions of VCF to a different genome](20_docs/README_snplift.md).       
 [Select only hotspot SNPs, excluding novel from TVC VCF](20_docs/README_hotspot_only.md).      
