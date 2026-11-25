@@ -4,6 +4,7 @@
 
 # Requires
 # - TVC files to be updated in 02_input_data/tvc_to_update/
+# - must run clean_run_ids function first, as these are the TVC files upon which this function will operate
 
 prep_sample_key <- function(){
 
@@ -12,7 +13,7 @@ prep_sample_key <- function(){
   
   ## Prepare sample key file(s), one for each TVC file in source folder
   # Identify TVC files in the path
-  raw_tvc_files.vec <- list.files(path = input_raw_TVC.path, pattern = ".xls", full.names = T)
+  raw_tvc_files.vec <- list.files(path = input_raw_TVC.path, pattern = "_clean_run_id.xls", full.names = T)
   
   # For each raw TVC file, prepare a blank sample key file with all sample names shown to be filled
   sample_ids.vec <- NULL; tvc_blank_key.df <- NULL 
