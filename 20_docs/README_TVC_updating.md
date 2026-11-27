@@ -1,5 +1,5 @@
 # Updating TVC files
-A few issues may arise with raw TVC files in sample names or in run names.       
+In some cases, raw TVC files may need updating of sample names or run names. It is suggested to update this before proceeding with the regular pipeline.           
 The following is in-development, please use with caution and report any bugs, thank you!      
 
 
@@ -22,7 +22,7 @@ Put the TVC file to correct into `02_input_data/tvc_to_update/`. As always, have
 # Source amplitools in RStudio to activate functions
 clean_run_ids(tvc_file.FN = "") # specify relative path to the TVC file to be fixed
 
-# Output will be in the same folder, with suffix updated to '_clean_run_id.xls'   
+# Output will be in the same folder, with added suffix '_clean_run_id.xls'   
 
 ```
 
@@ -30,18 +30,17 @@ clean_run_ids(tvc_file.FN = "") # specify relative path to the TVC file to be fi
 ### Updating sample IDs in TVC file ###
 Once the run name cleanup has been run (see above), do the following:    
 ```
-# Create a sample key form with the existing sample names for TVC file
+# Create a fillable sample renaming form including all existing sample names for TVC file(s)
 prep_sample_key()
 # note: this will look for files ending in '*_clean_run_id.xls' within '02_input_data/tvc_to_update/' 
-#  will provide output '02_input_data/tvc_to_update/<tvc_filename>_sample_key.txt'
+#  and outputs '02_input_data/tvc_to_update/<tvc_filename>_sample_key.txt'
 
-# Update the two-column file with the existing and target sample names
-#  rename as '*_clean_run_id_sample_key_annot.txt'   
+# Add the target renaming to the sample key and save as '*_clean_run_id_sample_key_annot.txt'   
 
-# Apply the ID correction
-correct_tvc_ids(sample_key.FN = <annotated sample key file path>)
-# note: this will output to '02_input_data/<filename>_clean_run_id_updated_ids.xls'
-#   also will output '02_input_data/<filename>_clean_run_id_sample_key_annot_applied.txt' as a log file as to what the original and new sample names.   
+# Apply the sample ID correction
+correct_tvc_ids(sample_key.FN = <path_to_annotated_sample_key>)  
+# note: outputs updated TVC file to '02_input_data/<filename>_clean_run_id_updated_ids.xls'
+#   also outputs log file of the rename applied '02_input_data/<filename>_clean_run_id_sample_key_annot_applied.txt'   
 
 ```
 
