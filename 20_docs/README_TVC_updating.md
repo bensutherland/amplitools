@@ -44,6 +44,8 @@ correct_tvc_ids(sample_key.FN = <path_to_annotated_sample_key>)
 
 ```
 
+Please note that this function will identify any exact duplicate sample names and rename the second sample as `_rep`. If there are two duplicates (three identical values), the program will not run.     
+
 If the TVC data will be used in `GSI_tools`, it is worthwhile to confirm that the renamed samples all match sample metadata naming.      
 
 After the above is completed, go to the main README workflow of converting TVC files to genind files.     
