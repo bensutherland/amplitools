@@ -44,6 +44,8 @@ correct_tvc_ids(sample_key.FN = <path_to_annotated_sample_key>)
 
 ```
 
+If the TVC data will be used in `GSI_tools`, it is worthwhile to confirm that the renamed samples all match sample metadata naming.      
+
 After the above is completed, go to the main README workflow of converting TVC files to genind files.     
 
 
